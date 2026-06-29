@@ -5,6 +5,8 @@
       ./_hardware-configurtion.nix
 
       inputs.self.nixosModules.nix-core
+      inputs.self.nixosModules.security
+
       inputs.self.nixosModules.secrets
       inputs.self.nixosModules.network
       inputs.self.nixosModules.boot
