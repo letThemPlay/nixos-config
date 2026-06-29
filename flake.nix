@@ -6,8 +6,15 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+
     home-manager = {
       url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    agenix = {
+      url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -18,6 +25,11 @@
 
     import-tree = {
       url = "github:denful/import-tree";
+    };
+
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v1.1.0"; # Or use a recent stable tag
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
