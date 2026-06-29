@@ -6,6 +6,7 @@
 
       inputs.self.nixosModules.nix-core
       inputs.self.nixosModules.security
+      inputs.self.nixosModules.users
 
       inputs.self.nixosModules.secrets
       inputs.self.nixosModules.network
@@ -13,13 +14,20 @@
       inputs.self.nixosModules.bluetooth
       inputs.self.nixosModules.boot
       inputs.nixos-hardware.nixosModules.framework-13-7040-amd
+      inputs.home-manager.nixosModules.home-manager
 
       (_: {
         system.stateVersion = "22.11";
         networking.hostName = "theseus";
 
+        users = {
+          profiles = {
+            kelvin.enable = true;
+          };
+        };
+        #features.git.enable = true;
+
         ltp = {
-          audio.pipewire.enable = true;
           boot = {
             tpmUnlock.enable = true;
             secureBoot.enable = true;
