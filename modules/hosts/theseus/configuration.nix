@@ -9,6 +9,8 @@
 
       inputs.self.nixosModules.secrets
       inputs.self.nixosModules.network
+      inputs.self.nixosModules.audio
+      inputs.self.nixosModules.bluetooth
       inputs.self.nixosModules.boot
       inputs.nixos-hardware.nixosModules.framework-13-7040-amd
 
@@ -17,10 +19,13 @@
         networking.hostName = "theseus";
 
         ltp = {
+          audio.pipewire.enable = true;
           boot = {
             tpmUnlock.enable = true;
             secureBoot.enable = true;
           };
+
+          bluetooth.enable = true;
 
           network = {
             tailscale.enable = true;
