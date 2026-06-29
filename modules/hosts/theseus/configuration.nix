@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.nixosConfigurations.laptop = inputs.nixpkgs.lib.nixosSystem {
+  flake.nixosConfigurations.theseus = inputs.nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
     modules = [
       ./_hardware-configurtion.nix
@@ -14,14 +14,17 @@
 
       (_: {
         system.stateVersion = "22.11";
-        networking.hostName = "laptop";
+        networking.hostName = "theseus";
 
-        # Enable your features
         ltp = {
-          network.tailscale.enable = true;
           boot = {
             tpmUnlock.enable = true;
             secureBoot.enable = true;
+          };
+
+          network = {
+            tailscale.enable = true;
+            wifi.enable = true;
           };
         };
       })

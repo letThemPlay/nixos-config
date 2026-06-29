@@ -34,8 +34,11 @@
       };
 
       config = {
-        environment.systemPackages =
-          (mkIf cfg.tpmUnlock.enable [ pkgs.tpm2-tss ]) ++ (mkIf cfg.secureBoot.enable [ pkgs.sbctl ]);
+
+        environment.systemPackages = lib.mkMerge [
+          (mkIf cfg.tpmUnlock.enable [ pkgs.tpm2-tss ])
+          (mkIf cfg.secureBoot.enable [ pkgs.sbctl ])
+        ];
 
         # 1. Open a single unified boot property scope
         boot = {
