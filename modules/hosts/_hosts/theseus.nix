@@ -14,6 +14,7 @@
     "secureboot"
     "tpm"
     "tailscale"
+    "hyprland"
   ];
 
   users = [ "kelvin" ];

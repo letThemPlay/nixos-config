@@ -1,7 +1,7 @@
+# modules/features/network.nix
 _: {
   flake.nixosModules.network =
     {
-      pkgs,
       lib,
       config,
       ...
@@ -38,17 +38,8 @@ _: {
         enable = mkEnableOption "Default Network configuration" // {
           default = true;
         };
-        wifi = {
-          enable = mkEnableOption "Wi-Fi configuration" // {
-            default = true;
-          };
-          interfaceName = mkOption {
-            default = "wl*";
-            type = types.str;
-          };
-        };
         wired = {
-          enable = mkEnableOption "Wired configuration" // {
+          enable = mkEnableOption "Wired network configuration" // {
             default = false;
           };
           interfaceName = mkOption {
@@ -68,7 +59,6 @@ _: {
 
         services.resolved = {
           enable = true;
-
           settings.Resolve =
             if nextDnsActive then
               {
@@ -87,38 +77,17 @@ _: {
               };
         };
 
-        environment.systemPackages = mkIf cfg.wifi.enable [ pkgs.iwgtk ];
-
-        networking.wireless.iwd = {
-          inherit (cfg.wifi) enable;
-          settings = {
-            Network = {
-              EnableIPv6 = false;
-              RoutePriorityOffset = 300;
-            };
-            Settings = {
-              AutoConnect = true;
-            };
-          };
-        };
-
         systemd = {
           network = {
-            networks = {
-              "20-wired" = mkIf cfg.wired.enable {
-                enable = true;
-                name = cfg.wired.interfaceName;
-                inherit networkConfig;
-                dhcpV4Config.RouteMetric = 1024;
-              };
-              "25-wireless" = mkIf cfg.wifi.enable {
-                enable = true;
-                name = cfg.wifi.interfaceName;
-                inherit networkConfig;
-                dhcpV4Config.RouteMetric = 2048;
-              };
+            # 👑 Wired connections remain as a baseline standard
+            networks."20-wired" = mkIf cfg.wired.enable {
+              enable = true;
+              name = cfg.wired.interfaceName;
+              inherit networkConfig;
+              dhcpV4Config.RouteMetric = 1024;
             };
 
+            # Dynamically ignores interfaces that match submodules from ltp.network
             wait-online.ignoredInterfaces =
               let
                 interfaceSubmodules = filterAttrs (

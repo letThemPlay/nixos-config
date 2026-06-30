@@ -51,6 +51,7 @@
           features = {
             git.enable = enabled.git or false;
             nixvim.enable = enabled.nixvim or false;
+            hyprland.enable = enabled.hyprland or false;
           };
 
           ltp = {
@@ -65,6 +66,7 @@
             network = {
               wifi.enable = hasWifi;
               tailscale.enable = enabled.tailscale or false;
+              nextdns.enable = enabled.nextdns or false;
             };
 
             security = {
