@@ -1,16 +1,31 @@
-_: {
+{ inputs, ... }: {
   flake.nixosModules.users =
     {
       lib,
       ...
     }:
-    {
-      imports = [
-        ./_kelvin.nix
-      ];
+    let
+      userLib = import "${inputs.self}/modules/_lib/users.nix" { inherit lib; };
 
-      options.users.profiles.enable = lib.mkEnableOption "Global user profile management system" // {
+      usersDir = ./_users;
+
+      userFiles = lib.mapAttrsToList (name: _: usersDir + "/${name}") (
+        lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".nix" name) (
+          builtins.readDir usersDir
+        )
+      );
+    in
+    {
+      options.users.profiles.enable = lib.mkEnableOption "Unified User Management Engine" // {
         default = true;
       };
+
+      imports = lib.forEach userFiles (
+        file:
+        let
+          userData = import file;
+        in
+        userLib.mkUser userData
+      );
     };
 }

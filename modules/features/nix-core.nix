@@ -1,5 +1,12 @@
-_: {
+{ inputs, ... }: {
   flake.nixosModules.nix-core = { pkgs, ... }: {
+    home-manager.sharedModules = [
+      (_: {
+        _module.args.lib = inputs.nixpkgs.lib // {
+          ltp = inputs.self.lib.ltp;
+        };
+      })
+    ];
     nix = {
       settings = {
         auto-optimise-store = true;

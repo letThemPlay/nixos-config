@@ -6,8 +6,11 @@
 
       inputs.self.nixosModules.nix-core
       inputs.self.nixosModules.security
+      inputs.self.nixosModules.user-schema
       inputs.self.nixosModules.users
-
+      inputs.self.nixosModules.nixvim
+      inputs.self.nixosModules.gpg
+      inputs.self.nixosModules.flashgbx
       inputs.self.nixosModules.secrets
       inputs.self.nixosModules.network
       inputs.self.nixosModules.audio
@@ -25,6 +28,8 @@
             kelvin.enable = true;
           };
         };
+
+        features.gpg.enable = true;
         #features.git.enable = true;
 
         ltp = {
@@ -39,6 +44,8 @@
             tailscale.enable = true;
             wifi.enable = true;
           };
+
+          programs.nixvim.enable = true;
         };
       })
     ];
