@@ -6,7 +6,6 @@
 
       inputs.self.nixosModules.nix-core
       inputs.self.nixosModules.security
-      inputs.self.nixosModules.user-schema
       inputs.self.nixosModules.users
       inputs.self.nixosModules.nixvim
       inputs.self.nixosModules.gpg
