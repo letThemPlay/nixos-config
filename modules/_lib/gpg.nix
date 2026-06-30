@@ -1,26 +1,19 @@
 { inputs }:
 let
-  inherit (inputs.nixpkgs.lib) hasSuffix mapAttrsToList filterAttrs;
   inherit (inputs) self;
+  inherit (inputs.nixpkgs) lib;
+
+  fsLib = import "${self}/modules/_lib/filesystem.nix" { inherit lib; };
 in
 {
+  # Unified public key parsing logic
   importAscFiles =
     username:
     let
-      ascPath = "${self}/gpg/${username}";
-      filterAscFiles = k: v: v == "regular" && hasSuffix ".asc" k;
+      ascFiles = fsLib.findFilesWithExt "asc" "${self}/gpg/${username}";
     in
-    if builtins.pathExists ascPath then
-      let
-        validFiles = filterAttrs filterAscFiles (builtins.readDir ascPath);
-      in
-      if validFiles != { } then
-        (mapAttrsToList (name: _: {
-          source = ascPath + ("/" + name);
-          trust = 5;
-        }) validFiles)
-      else
-        [ ]
-    else
-      [ ];
+    lib.forEach ascFiles (filePath: {
+      source = filePath;
+      trust = 5;
+    });
 }

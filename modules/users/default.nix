@@ -6,14 +6,9 @@
     }:
     let
       userLib = import "${inputs.self}/modules/_lib/users.nix" { inherit lib; };
+      fsLib = import "${inputs.self}/modules/_lib/filesystem.nix" { inherit lib; };
 
-      usersDir = ./_users;
-
-      userFiles = lib.mapAttrsToList (name: _: usersDir + "/${name}") (
-        lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".nix" name) (
-          builtins.readDir usersDir
-        )
-      );
+      userFiles = fsLib.findFilesWithExt "nix" ./_users;
     in
     {
       options.users.profiles.enable = lib.mkEnableOption "Unified User Management Engine" // {

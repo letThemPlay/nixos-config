@@ -2,13 +2,9 @@
   flake.nixosModules.nix-core =
     { lib, pkgs, ... }:
     let
-      schemasDir = "${inputs.self}/modules/_schemas";
+      fsLib = import "${inputs.self}/modules/_lib/filesystem.nix" { inherit lib; };
 
-      schemaFiles = lib.mapAttrsToList (name: _: schemasDir + "/${name}") (
-        lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".nix" name) (
-          builtins.readDir schemasDir
-        )
-      );
+      schemaFiles = fsLib.findFilesWithExt "nix" "${inputs.self}/modules/_schemas";
     in
     {
       imports = lib.forEach schemaFiles (file: import file { inherit lib; });
