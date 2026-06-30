@@ -1,17 +1,21 @@
-# modules/features/secrets.nix
 { inputs, ... }: {
 
-  # 1. Register the agenix NixOS engine globally across your system flake
-  flake.nixosModules.secrets = { ... }: {
+  flake.nixosModules.secrets = { config, lib, ... }: {
     imports = [
       inputs.agenix.nixosModules.default
     ];
 
-    # Tell agenix to look for the host's existing SSH host keys on boot to decrypt things
-    age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+    options.ltp.security.secrets.enable =
+      lib.mkEnableOption "Agenix cryptographic secrets decryption engine"
+      // {
+        default = true; # Automatically ready for everything unless explicitly toggled false
+      };
+
+    config = lib.mkIf config.ltp.security.secrets.enable {
+      age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+    };
   };
 
-  # 2. Inject the 'agenix' CLI tool into your development terminal environment
   perSystem = { pkgs, ... }: {
     devShells.secrets = pkgs.mkShellNoCC {
       buildInputs = [

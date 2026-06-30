@@ -5,9 +5,9 @@
       gpgLib = import "${inputs.self}/modules/_lib/gpg.nix" { inherit inputs; };
     in
     {
-      options.features.gpg.enable = lib.mkEnableOption "GPG signature space";
+      options.ltp.security.gpg.enable = lib.mkEnableOption "GPG signature space";
 
-      config = lib.mkIf config.features.gpg.enable {
+      config = lib.mkIf config.ltp.security.gpg.enable {
         # Maps Home Manager settings using the global user registry
         home-manager.users = lib.mapAttrs (
           _: profile:

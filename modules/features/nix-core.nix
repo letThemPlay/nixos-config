@@ -1,6 +1,11 @@
 { inputs, ... }: {
   flake.nixosModules.nix-core =
-    { lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
       fsLib = import "${inputs.self}/modules/_lib/filesystem.nix" { inherit lib; };
 
@@ -9,42 +14,29 @@
     {
       imports = lib.forEach schemaFiles (file: import file { inherit lib; });
 
-      home-manager.sharedModules = [
-        (_: {
-          _module.args.lib = inputs.nixpkgs.lib // {
-            ltp = inputs.self.lib.ltp;
-          };
-        })
-      ];
-      nix = {
-        settings = {
-          auto-optimise-store = true;
-          experimental-features = [
-            "nix-command"
-            "flakes"
-          ];
-        };
-
-        gc = {
-          automatic = true;
-          dates = "weekly";
-          options = "--delete-older-than 7d";
-        };
-
-        package = pkgs.nixVersions.latest;
+      options.ltp.core.enable = lib.mkEnableOption "Core baseline system configurations" // {
+        default = true; # Automatically enabled for everything unless forced false
       };
 
-      time.timeZone = "Europe/London";
-      i18n.defaultLocale = "en_GB.UTF-8";
-      console.keyMap = "uk";
+      config = lib.mkIf config.ltp.core.enable {
+        nix = {
+          settings.auto-optimise-store = true;
+          package = pkgs.nixVersions.latest;
+          extraOptions = "experimental-features = nix-command flakes";
+        };
 
-      systemd.network.wait-online.enable = false;
+        time.timeZone = "Europe/London";
+        i18n.defaultLocale = "en_GB.UTF-8";
+        console.keyMap = "uk";
 
-      programs = {
-        zsh.enable = true;
-        vim = {
-          enable = true;
-          defaultEditor = true;
+        systemd.network.wait-online.enable = false;
+
+        programs = {
+          zsh.enable = true;
+          vim = {
+            enable = true;
+            defaultEditor = true;
+          };
         };
       };
     };

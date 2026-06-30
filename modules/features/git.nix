@@ -15,8 +15,12 @@ _: {
         home-manager.users = lib.mapAttrs (_: profile: {
           programs.git = {
             enable = true;
-            userName = profile.fullName;
-            userEmail = profile.email;
+            settings = {
+              user = {
+                inherit (profile) email;
+                name = profile.fullName;
+              };
+            };
           };
         }) config.ltp.users.registry;
       };

@@ -7,10 +7,10 @@
       ...
     }:
     let
-      cfg = config.ltp.programs.nixvim;
+      cfg = config.features.nixvim;
     in
     {
-      options.ltp.programs.nixvim = {
+      options.features.nixvim = {
         enable = lib.mkEnableOption "Nixvim modular configuration workspace" // {
           default = true;
         };
