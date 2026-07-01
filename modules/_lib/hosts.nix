@@ -53,6 +53,7 @@
             nixvim.enable = enabled.nixvim or false;
             hyprland.enable = enabled.hyprland or false;
             greetd.enable = enabled.greetd or false;
+            waybar.enable = enabled.waybar or false;
           };
 
           ltp = {

@@ -17,6 +17,7 @@
     "hyprland"
     "greetd"
     "stylix"
+    "waybar"
   ];
 
   users = [ "kelvin" ];
