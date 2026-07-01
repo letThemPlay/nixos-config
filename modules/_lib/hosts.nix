@@ -54,13 +54,16 @@
             hyprland.enable = enabled.hyprland or false;
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
-            proxmox-qemu.enable = enabled.proxmox-qemu or false;
           };
 
           ltp = {
             boot = {
               secureBoot.enable = enabled.secureboot or false;
               tpmUnlock.enable = enabled.tpm or false;
+            };
+
+            hardware = {
+              proxmox-qemu.enable = enabled.proxmox-qemu or false;
             };
 
             bluetooth.enable = hasBluetooth;
