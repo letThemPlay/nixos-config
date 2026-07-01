@@ -1,3 +1,4 @@
+# modules/features/wm/waybar.nix
 _: {
   flake.nixosModules.waybar =
     {
@@ -18,7 +19,11 @@ _: {
           (_: {
             programs.waybar = {
               enable = true;
-              systemd.enable = false;
+
+              systemd = {
+                enable = true;
+                targets = [ "graphical-session.target" ];
+              };
 
               settings = {
                 mainBar = import ./_waybar/layout.nix;

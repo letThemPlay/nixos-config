@@ -54,6 +54,7 @@
             hyprland.enable = enabled.hyprland or false;
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
+            proxmox-qemu.enable = enabled.proxmox-qemu or false;
           };
 
           ltp = {
