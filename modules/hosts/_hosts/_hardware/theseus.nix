@@ -9,16 +9,6 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  # 👑 THE CLEAN CO-LOCATION FIX: Declare your host-dependent visual scales here!
-  ltp.stylixOverrides = {
-    cursorSize = 32; # Upscaled for high-DPI framework screen panels
-    fontSize = {
-      terminal = 14;
-      applications = 13;
-      desktop = 12;
-    };
-  };
-
   boot = {
 
     initrd = {
