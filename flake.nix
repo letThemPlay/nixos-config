@@ -25,6 +25,8 @@
       inputs.hyprland.follows = "hyprland";
     };
 
+    stylix.url = "github:nix-community/stylix";
+
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";

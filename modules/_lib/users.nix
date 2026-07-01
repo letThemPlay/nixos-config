@@ -1,4 +1,3 @@
-# modules/_lib/users.nix
 { lib }: {
   mkUser =
     {
@@ -8,7 +7,8 @@
       admin ? false,
       features ? [ ],
       extraGroups ? [ "networkmanager" ],
-      extraPackages ? [ ], # 👑 This is now a list of text strings (e.g., [ "firefox" ])
+      extraPackages ? [ ],
+      ...
     }:
     { config, pkgs, ... }: {
       options.users.profiles.${username}.enable = lib.mkEnableOption "${username}'s user profile";
@@ -42,7 +42,6 @@
         home-manager.users.${username} = _: {
           home.stateVersion = "26.05";
 
-          # 👑 THE FIX: Dynamically maps your text strings into standard system attributes
           home.packages = map (p: pkgs.${p}) extraPackages;
         };
       };

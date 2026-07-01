@@ -52,6 +52,7 @@
             git.enable = enabled.git or false;
             nixvim.enable = enabled.nixvim or false;
             hyprland.enable = enabled.hyprland or false;
+            greetd.enable = enabled.greetd or false;
           };
 
           ltp = {
@@ -73,6 +74,10 @@
               core.enable = enabled.security or true; # Enabled by default unless forced false
               gpg.enable = enabled.gpg or false;
               secrets.enable = enabled.secrets or true; # Agenix decryption defaults true
+            };
+
+            theme = {
+              stylix.enable = enabled.stylix or false;
             };
           };
 

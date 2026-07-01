@@ -15,6 +15,8 @@
     "tpm"
     "tailscale"
     "hyprland"
+    "greetd"
+    "stylix"
   ];
 
   users = [ "kelvin" ];

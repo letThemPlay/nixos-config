@@ -10,4 +10,5 @@
     "firefox"
     "vlc"
   ];
+  theme = "catppuccin";
 }

@@ -1,4 +1,4 @@
-{ lib }: {
+{ lib, ... }: {
   options.ltp.users.registry = lib.mkOption {
     type = lib.types.attrsOf (
       lib.types.submodule {
@@ -17,6 +17,10 @@
           extraPackages = lib.mkOption {
             type = lib.types.listOf lib.types.str;
             default = [ ];
+          };
+          theme = lib.mkOption {
+            type = lib.types.str;
+            default = "tokyonight";
           };
         };
       }
