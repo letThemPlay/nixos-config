@@ -18,11 +18,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland.url = "github:hyprwm/Hyprland?tag=v0.55.0";
 
     hy3 = {
-      url = "github:outfoxxed/hy3";
-      inputs.hyprland.follows = "hyprland";
+      url = "github:outfoxxed/hy3?tag=hl0.55.0";
     };
 
     stylix.url = "github:nix-community/stylix";
