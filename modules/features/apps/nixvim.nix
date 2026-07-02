@@ -89,6 +89,30 @@
                   action = "<cmd>split<cr>";
                   options.desc = "Horizontal Window Split";
                 }
+                {
+                  mode = "n";
+                  key = "<C-h>";
+                  action = "<C-w>h";
+                  options.desc = "Go to Left Split Window";
+                }
+                {
+                  mode = "n";
+                  key = "<C-j>";
+                  action = "<C-w>j";
+                  options.desc = "Go to Lower Split Window";
+                }
+                {
+                  mode = "n";
+                  key = "<C-k>";
+                  action = "<C-w>k";
+                  options.desc = "Go to Upper Split Window";
+                }
+                {
+                  mode = "n";
+                  key = "<C-l>";
+                  action = "<C-w>l";
+                  options.desc = "Go to Right Split Window";
+                }
               ];
             };
 
