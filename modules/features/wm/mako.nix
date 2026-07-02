@@ -15,6 +15,8 @@ _: {
             services.mako = {
               enable = true;
 
+              systemd.enable = false;
+
               layer = "overlay";
               anchor = "top-right";
               margin = "12,12";

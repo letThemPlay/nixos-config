@@ -18,6 +18,8 @@
 
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
 
+  spawn-at-startup "${pkgs.mako}/bin/mako"
+
   binds {
       "Mod+Return" { spawn "alacritty"; }
       "Mod+Q" { close-window; }
