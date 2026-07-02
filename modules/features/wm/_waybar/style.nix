@@ -1,10 +1,11 @@
+# modules/features/wm/_waybar/style.nix
 ''
-  /* 👑 THE TRANS_LUCENCY FIX: Define an alpha-blended custom color token safely */
+  /* Define an alpha-blended custom color token safely */
   @define-color transparent-base alpha(@base00, 0.85);
 
   /* Global bar background - Base16 Dark Neutral */
   window#waybar {
-      background-color: @transparent-base; /* 👑 Applied the safe translucent token here */
+      background-color: @transparent-base;
       border-bottom: 2px solid @base01;
       color: @base05;
       transition-property: background-color;
@@ -13,7 +14,7 @@
 
   /* Universal module configuration container spacing padding */
   #workspaces,
-  #window, /* 👑 Added #window here so Niri's active title widget inherits your theme box style */
+  #window,
   #clock,
   #battery,
   #cpu,
@@ -30,10 +31,10 @@
       padding: 0 6px;
       color: @base04;
       background: transparent;
-      border-bottom: 2px solid transparent; /* Prevents text layout shifting on focus */
+      border-bottom: 2px solid transparent;
   }
 
-  /* Niri uses .focused instead of Hyprland's .active layout class */
+  /* Niri workspace selector styling */
   #workspaces button.focused {
       color: @base07;
       background-color: @base02;
@@ -42,7 +43,7 @@
 
   #workspaces button.urgent {
       color: @base08;
-      background-color: alpha(@base08, 0.2); /* 👑 Fixed the nested rgba trap here too */
+      background-color: alpha(@base08, 0.2);
   }
 
   /* Warning state highlighting triggers - Base16 Amber/Orange */
@@ -53,14 +54,13 @@
   /* Critical state highlighting triggers - Base16 Red */
   #battery.critical:not(.charging) {
       color: @base08;
-      animation-name: blink;
-      animation-duration: 0.5s;
-      animation-timing-function: linear;
-      animation-iter-count: infinite;
-      animation-direction: alternate;
+      
+      /* 👑 THE GTK FIX: Condensed all animation parameters into a single line shorthand rule.
+         Using 'infinite' here satisfies iteration counts without breaking property rules! */
+      animation: blink 0.5s linear infinite alternate;
   }
 
-  /* 👑 Added the missing blink animation keyframes so critical alerts actually flash */
+  /* Standard blinking frames container mapping rules */
   @keyframes blink {
       to {
           background-color: @base08;
