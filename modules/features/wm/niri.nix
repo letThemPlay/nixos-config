@@ -20,6 +20,10 @@ _: {
           package = pkgs.niri;
         };
 
+        environment.variables = {
+          "WLR_RENDER_DRM_DEVICE" = "/dev/dri/renderD128";
+        };
+
         security.pam.services.login.enableGnomeKeyring = true;
         services.dbus.enable = true;
         xdg.portal = {
