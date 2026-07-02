@@ -33,13 +33,12 @@ _: {
                 g = "git";
                 v = "nvim";
                 ff = "fuzzel";
-
                 nrs = "sudo nixos-rebuild switch --flake .#${osConfig.networking.hostName}";
                 nfc = "nix flake check";
               };
 
               initContent = ''
-                source ${pkgs.spaceship-prompt}/share/spaceship-prompt/spaceship.zsh
+                source ${pkgs.spaceship-prompt}/share/zsh/themes/spaceship.zsh-theme
 
                 SPACESHIP_CHAR_SYMBOL="➜ "
                 SPACESHIP_CHAR_SUFFIX=" "
