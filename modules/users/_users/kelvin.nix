@@ -10,6 +10,7 @@
     "firefox"
     "vlc"
     "git"
+    "alacritty"
   ];
   theme = "catppuccin";
 }
