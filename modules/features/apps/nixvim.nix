@@ -15,7 +15,7 @@
 
       config = lib.mkIf cfg.enable {
         home-manager.sharedModules = [
-          inputs.nixvim.homeManagerModules.nixvim
+          inputs.nixvim.homeModules.nixvim
           (_: {
             programs.nixvim = {
               enable = true;
