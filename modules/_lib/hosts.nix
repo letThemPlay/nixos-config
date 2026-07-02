@@ -58,6 +58,7 @@
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
             mako.enable = enabled.mako or false;
+            alacritty.enable = enabled.alacritty or false;
             hardware = {
               proxmox-qemu.enable = enabled.proxmox-qemu or false;
             };
