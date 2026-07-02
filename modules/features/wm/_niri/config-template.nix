@@ -17,10 +17,7 @@
       default-column-width { proportion 0.5; }
       focus-ring { width 2; }
       struts {
-          top 20 // 👑 Adjusted from 32 (32px panel size minus 12px negative gap = 20px physical clearance)
-          left -12
-          right -12
-          bottom -12
+          top 20
       }
   }
 
