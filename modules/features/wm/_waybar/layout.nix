@@ -62,7 +62,7 @@
   network = {
     format-wifi = "  {essid}";
 
-    format-ethernet = "    {ipaddr}/{cidr}";
+    format-ethernet = "\uF0200  {ipaddr}/{cidr}";
 
     format-disconnected = "⚠  Disconnected";
   };

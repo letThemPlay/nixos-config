@@ -1,4 +1,3 @@
-# modules/features/wm/_waybar/style.nix
 ''
   /* Define an alpha-blended custom color token safely */
   @define-color transparent-base alpha(@base00, 0.85);
