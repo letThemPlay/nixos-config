@@ -28,7 +28,7 @@
 
         fonts.packages = with pkgs; [
           nerd-fonts.symbols-only
-          nerd-fonts.jet-brains-mono
+          nerd-fonts.jetbrains-mono
         ];
 
         # 👑 THE DEFINITIVE FIX: Discard the path context tracking from the filename
