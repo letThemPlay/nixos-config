@@ -13,25 +13,12 @@
     "stylix"
     "waybar"
     "fuzzel"
+    "make"
   ];
 
   users = [ "kelvin" ];
 
   extraModules = [
-    # Reference the cohesive virtual visual adjustments layout module string
     "${inputs.self}/modules/hosts/_hosts/_settings/vm-test.nix"
-
-    #    # 👑 PROXMOX TIP: Use UEFI (OVMF) inside your Proxmox VM settings pane
-    #    # If using generic standard GRUB, pass an inline boot module here, or reuse your core boot layer.
-    #    ({ ... }: {
-    #      boot.loader.systemd-boot.enable = true;
-    #      boot.loader.efi.canTouchEfiVariables = true;
-    #
-    #      # Minimal virtual filesystem mapping block definition
-    #      fileSystems."/" = {
-    #        device = "/dev/disk/by-label/nixos"; # Match your setup disk installer label format
-    #        fsType = "ext4";
-    #      };
-    #    })
   ];
 }
