@@ -1,11 +1,9 @@
-# modules/features/wm/_waybar/layout.nix
 {
   layer = "top";
   position = "top";
   height = 32;
   spacing = 4;
 
-  # 👑 THE NIRI UPGRADE: Track native niri workspaces instead of hyprland!
   modules-left = [
     "niri/workspaces"
     "niri/window"
@@ -63,7 +61,9 @@
 
   network = {
     format-wifi = "  {essid}";
-    format-ethernet = "  {ipaddr}/{cidr}";
+
+    format-ethernet = "    {ipaddr}/{cidr}";
+
     format-disconnected = "⚠  Disconnected";
   };
 }
