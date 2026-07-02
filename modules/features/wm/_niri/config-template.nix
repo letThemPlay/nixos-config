@@ -1,4 +1,3 @@
-# modules/features/wm/_niri/config-template.nix
 { profileThemeImage, pkgs }:
 ''
   input {
@@ -20,28 +19,20 @@
           top 4
       }
 
-      // 👑 Clean, un-bordered minimalist layout across your fleet
       focus-ring {
           off
       }
 
-      // 👑 THE SHADOW PARSER FIX:
-      // Uses the native 'off' keyword node to cleanly disable compositor layout shadows! [INDEX: 1.4.12]
       shadow {
           off
       }
   }
 
-  // 👑 1. THE GLOBAL ACTIVE WINDOW RULE:
-  // Forces whichever application holds active cursor focus to remain 100% solid and opaque [INDEX: 1.2.1].
   window-rule {
       match is-active=true
       opacity 1.0
   }
 
-  // 👑 2. THE GLOBAL INACTIVE WINDOW DISTINCTION RULE:
-  // Catches EVERY background window (Alacritty, Firefox, etc.) and dims them down to 85% opacity! [INDEX: 1.2.1, 1.2.8]
-  // This creates a beautiful, unified visual depth-of-field across your infinite horizontal ribbon.
   window-rule {
       match is-active=false
       opacity 0.85
@@ -56,7 +47,7 @@
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
 
-      "Mod+I" { spawn "sh" "-c" "exec $HOME/.local/bin/control-center"; }
+      "Mod+I" { spawn-sh "~/.local/bin/control-center"; }
 
       "Mod+Escape"       { spawn "${pkgs.mako}/bin/makoctl" "dismiss"; }
       "Mod+Shift+Escape" { spawn "${pkgs.mako}/bin/makoctl" "dismiss" "-a"; }
