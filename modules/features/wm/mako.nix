@@ -1,3 +1,4 @@
+# modules/features/wm/mako.nix
 _: {
   flake.nixosModules.mako =
     {
@@ -26,7 +27,7 @@ _: {
             services.mako = {
               enable = true;
 
-              systemd.enable = true;
+              systemd.enable = false;
 
               layer = "overlay";
               anchor = "top-right";
@@ -41,16 +42,6 @@ _: {
 
             stylix.targets.mako.enable = true;
 
-            systemd.user.services.mako = {
-              Unit = {
-                Description = "Mako notification daemon (UWSM Integrated)";
-                After = [ "graphical-session.target" ];
-                PartOf = [ "graphical-session.target" ];
-              };
-              Install = {
-                WantedBy = [ "graphical-session.target" ];
-              };
-            };
           })
         ];
       };
