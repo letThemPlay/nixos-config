@@ -1,4 +1,3 @@
-# modules/features/wm/_niri/config-template.nix
 { profileThemeImage, pkgs }:
 ''
   input {
@@ -17,7 +16,7 @@
       }
   }
 
-  spawn-at-startup "sh" "-c" "uwsm finalize && exec ${pkgs.mako}/bin/mako"
+  spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
 
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
 
@@ -26,7 +25,7 @@
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
 
-      "Mod+Escape" { spawn "makoctl dismiss"; }
+      "Mod+Escape"       { spawn "makoctl dismiss"; }
       "Mod+Shift+Escape" { spawn "makoctl dismiss -a"; }
 
       "Mod+Left"  { focus-column-left; }

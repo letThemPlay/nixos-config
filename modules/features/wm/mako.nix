@@ -16,18 +16,13 @@ _: {
       };
 
       config = lib.mkIf cfg.enable {
-        environment.systemPackages = [
-          pkgs.mako
-        ];
-
         services.dbus.packages = [ pkgs.mako ];
 
         home-manager.sharedModules = [
           (_: {
             services.mako = {
               enable = true;
-
-              systemd.enable = false;
+              systemd.enable = true;
 
               layer = "overlay";
               anchor = "top-right";
@@ -42,6 +37,18 @@ _: {
 
             stylix.targets.mako.enable = true;
 
+            home.packages = [ pkgs.mako ];
+
+            systemd.user.services.mako = {
+              Unit = {
+                Description = "Mako notification daemon (UWSM Integrated)";
+                After = [ "graphical-session.target" ];
+                PartOf = [ "graphical-session.target" ];
+              };
+              Install = {
+                WantedBy = [ "graphical-session.target" ];
+              };
+            };
           })
         ];
       };
