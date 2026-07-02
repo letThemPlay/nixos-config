@@ -1,11 +1,5 @@
 { config }:
 ''
-  // modules/features/wm/_niri/config.kdl (Compiled dynamic output)
-
-  debug {
-      renderer "pixman"
-  }
-
   input {
       touchpad {
           tap
