@@ -29,12 +29,8 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
-            home.file.".local/bin/control-center" = {
-              executable = true;
-
-              text = ''
-                #!/bin/sh
-
+            home.packages = [
+              (pkgs.writeShellScriptBin "control-center" ''
                 WIFI_STATUS=$(${pkgs.networkmanager}/bin/nmcli radio wifi)
                 BT_STATUS=$(${pkgs.bluez}/bin/bluetoothctl show | grep "Powered:" | awk '{print $2}')
 
@@ -51,8 +47,8 @@ _: {
                     *Suspend*) systemctl suspend ;;
                     *Power\ Off*) systemctl poweroff ;;
                 esac
-              '';
-            };
+              '')
+            ];
           })
         ];
       };
