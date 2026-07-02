@@ -59,6 +59,12 @@
                   settings = {
                     close_if_last_window = true;
                   };
+
+                  filesystem = {
+                    followCurrentFile = {
+                      enabled = true;
+                    };
+                  };
                 };
 
                 nvim-autopairs.enable = true;
