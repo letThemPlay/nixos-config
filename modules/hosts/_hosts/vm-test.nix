@@ -14,6 +14,7 @@
     "waybar"
     "fuzzel"
     "mako"
+    "zsh"
   ];
 
   users = [ "kelvin" ];

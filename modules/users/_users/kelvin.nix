@@ -13,4 +13,5 @@
     "alacritty"
   ];
   theme = "catppuccin";
+  defaultShell = "zsh";
 }

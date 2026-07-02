@@ -22,6 +22,15 @@
             type = lib.types.str;
             default = "tokyonight";
           };
+
+          defaultShell = lib.mkOption {
+            type = lib.types.enum [
+              "bash"
+              "zsh"
+            ];
+            default = "bash";
+            description = "The primary interactive terminal shell for this user profile";
+          };
         };
       }
     );
