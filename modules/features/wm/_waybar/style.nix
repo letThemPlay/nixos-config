@@ -17,6 +17,7 @@
   /* Universal module configuration container spacing padding */
   #workspaces,
   #window,
+  #mpris,
   #clock,
   #battery,
   #cpu,

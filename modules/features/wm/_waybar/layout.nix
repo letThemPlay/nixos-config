@@ -8,6 +8,7 @@
   modules-left = [
     "niri/workspaces"
     "niri/window"
+    "mpris"
   ];
   modules-center = [ "clock" ];
   modules-right = [
@@ -28,6 +29,23 @@
     format = "{}";
     max-length = 50;
     separate-outputs = true;
+  };
+
+  mpris = {
+    format = "{player_icon} {title} - {artist}";
+    format-paused = "{status_icon} <i>{title}</i>";
+    max-length = 40;
+    player-icons = {
+      default = "🎵";
+      firefox = ""; # Displays a crisp Firefox logo when YouTube is active!
+      chromium = "";
+      spotify = "";
+    };
+    status-icons = {
+      paused = "⏸";
+    };
+    # Ignored players can be filtered out to keep logs clean
+    ignored-players = [ "vlc" ];
   };
 
   clock = {
