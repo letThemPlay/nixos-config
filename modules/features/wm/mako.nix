@@ -1,4 +1,4 @@
-_: {
+{ pkgs, ... }: {
   flake.nixosModules.mako =
     { config, lib, ... }:
     let
@@ -10,39 +10,37 @@ _: {
       };
 
       config = lib.mkIf cfg.enable {
+        environment.systemPackages = [
+          pkgs.mako
+        ];
+
         home-manager.sharedModules = [
-          ({ config, ... }: {
-            xdg.configFile."mako/config".text =
-              let
-                c = config.lib.stylix.colors;
-              in
-              ''
-                # Compiled Mako Configuration Data Sheet
-                layer=overlay
-                anchor=top-right
-                margin=12,12
-                padding=15
+          (_: {
+            services.mako = {
+              enable = true;
+              layer = "overlay";
+              anchor = "top-right";
+              margin = "12,12";
+              padding = "15";
+              borderSize = 2;
+              borderRadius = 8;
+              defaultTimeout = 5000;
+              groupBy = "category";
+              maxIconSize = 48;
+            };
 
-                font=JetBrains Mono 10
-                default-timeout=5000
-                max-icon-size=48
+            stylix.targets.mako.enable = true;
 
-                # 👑 Base16 Skin Injection Matrix
-                background-color=#${c.base00}e6 # Added alpha hex opacity tracking
-                text-color=#${c.base05}
-                border-color=#${c.base0D}
-                border-size=2
-                border-radius=8
-                progress-color=over #${c.base02}
-
-                [urgency=low]
-                border-color=#${c.base0B}
-
-                [urgency=high]
-                border-color=#${c.base08}
-                text-color=#${c.base08}
-                default-timeout=0
-              '';
+            systemd.user.services.mako = {
+              Unit = {
+                Description = "Mako notification daemon (UWSM Controlled)";
+                After = [ "niri-session.target" ];
+                PartOf = [ "niri-session.target" ];
+              };
+              Install = {
+                WantedBy = [ "niri-session.target" ];
+              };
+            };
           })
         ];
       };

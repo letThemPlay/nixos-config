@@ -18,15 +18,13 @@
 
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
 
-  spawn-at-startup "${pkgs.mako}/bin/mako"
-
   binds {
       "Mod+Return" { spawn "alacritty"; }
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
 
-      "Mod+Escape" { spawn "${pkgs.mako}/bin/makoctl" "dismiss"; }
-      "Mod+Shift+Escape" { spawn "${pkgs.mako}/bin/makoctl" "dismiss" "-a"; }
+      "Mod+Escape" { spawn "makoctl dismiss"; }
+      "Mod+Shift+Escape" { spawn "makoctl dismiss -a"; }
 
       "Mod+Left"  { focus-column-left; }
       "Mod+Right" { focus-column-right; }
