@@ -44,20 +44,10 @@
               resolvedImagePath = "${inputs.self}/modules/features/theme/_theme/${selected.imageName}";
             in
             import ./_niri/config-template.nix {
+              inherit pkgs;
               profileThemeImage = resolvedImagePath;
             };
         }) config.ltp.users.registry;
-
-        #   home-manager.sharedModules = [
-        #     (_: {
-        #       home.extraProfileCommands = ''
-        #         export HM_DISPLAY_VARS="WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE DISPLAY"
-        #       '';
-        #     })
-        #     (_: {
-        #       xdg.configFile."niri/config.kdl".text = import ./_niri/config-template.nix { inherit config; };
-        #     })
-        #   ];
       };
     };
 }

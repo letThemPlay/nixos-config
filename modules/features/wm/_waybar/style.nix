@@ -22,6 +22,7 @@
   #cpu,
   #memory,
   #network,
+  #wireplumber
   #tray {
       padding: 0 12px;
       margin: 4px 2px;

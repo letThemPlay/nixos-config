@@ -45,6 +45,19 @@ in
     format = "  {}%";
   };
 
+  wireplumber = {
+    format = "{icon}  {volume}%";
+    format-muted = "    Muted";
+    on-click = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+    format-icons = [
+      "  "
+      "  "
+      "  "
+    ];
+    max-volume = 100;
+    scroll-step = 5;
+  };
+
   battery = {
     states = {
       warning = 30;
