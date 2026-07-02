@@ -1,35 +1,27 @@
 input {
     touchpad {
         tap
-        dwt // Disable-while-typing
+        dwt
     }
 }
 
+// 👑 Settings that influence how windows are positioned and sized
 layout {
-    gap 12
+    // 👑 THE PLURAL FIX: Changed 'gap' to 'gaps' to pass KDL validation passes!
+    gaps 12
+    
     default-column-width { proportion 0.5; }
     focus-ring {
         width 2
-        // Stylix automatically overrides these hex values with your Base16 themes!
-        active-color "#7aa2f7"
-        inactive-color "#414868"
     }
 }
 
 binds {
     "Mod+Return" { spawn "alacritty"; }
-    
     "Mod+Q" { close-window; }
     
     "Mod+Left"  { focus-column-left; }
     "Mod+Right" { focus-column-right; }
     
-    "Mod+Minus" { set-column-width "-10%"; }
-    "Mod+Equal" { set-column-width "+10%"; }
-
-    "Mod+Shift+Left"  { move-column-left; }
-    "Mod+Shift+Right" { move-column-right; }
-
     "Mod+Shift+E" { quit; }
 }
-
