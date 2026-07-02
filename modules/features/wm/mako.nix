@@ -1,4 +1,3 @@
-# modules/features/wm/mako.nix
 _: {
   flake.nixosModules.mako =
     {
@@ -16,28 +15,31 @@ _: {
       };
 
       config = lib.mkIf cfg.enable {
+        environment.systemPackages = [
+          pkgs.mako
+        ];
+
         services.dbus.packages = [ pkgs.mako ];
 
         home-manager.sharedModules = [
           (_: {
             services.mako = {
               enable = true;
-              systemd.enable = true;
 
-              layer = "overlay";
-              anchor = "top-right";
-              margin = "12,12";
-              padding = "15";
-              borderSize = 2;
-              borderRadius = 8;
-              defaultTimeout = 5000;
-              groupBy = "category";
-              maxIconSize = 48;
+              settings = {
+                layer = "overlay";
+                anchor = "top-right";
+                margin = "12,12";
+                padding = "15";
+                "border-size" = 2;
+                "border-radius" = 8;
+                "default-timeout" = 5000;
+                "group-by" = "category";
+                "max-icon-size" = 48;
+              };
             };
 
             stylix.targets.mako.enable = true;
-
-            home.packages = [ pkgs.mako ];
 
             systemd.user.services.mako = {
               Unit = {
