@@ -47,6 +47,13 @@ _: {
                 After = [ "graphical-session.target" ];
                 PartOf = [ "graphical-session.target" ];
               };
+
+              Service = {
+                ExecStart = "${pkgs.mako}/bin/mako";
+                ExecReload = "${pkgs.mako}/bin/makoctl reload";
+                Restart = "on-failure";
+              };
+
               Install = {
                 WantedBy = [ "graphical-session.target" ];
               };
