@@ -8,6 +8,8 @@ _: {
     }:
     let
       cfg = config.features.greetd;
+
+      waylandSessionsDir = "${config.services.xserver.displayManager.sessionData.desktops}/share/wayland-sessions";
     in
     {
       options.features.greetd.enable =
@@ -22,7 +24,7 @@ _: {
 
           settings = {
             default_session = {
-              command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --remember-session --sessions /run/current-system/sw/share/wayland-sessions exec uwsm start --";
+              command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --remember-session --sessions ${waylandSessionsDir} exec uwsm start --";
               user = "greeter";
             };
           };
