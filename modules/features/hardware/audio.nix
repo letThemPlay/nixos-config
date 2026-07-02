@@ -1,6 +1,11 @@
 _: {
   flake.nixosModules.audio =
-    { config, lib, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
       cfg = config.features.hardware.audio;
     in
@@ -10,6 +15,7 @@ _: {
       };
 
       config = lib.mkIf cfg.enable {
+        environment.systemPackages = [ pkgs.playerctl ];
         services.pulseaudio.enable = false;
         security.rtkit.enable = true;
 
