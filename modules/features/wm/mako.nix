@@ -1,6 +1,11 @@
-{ pkgs, ... }: {
+_: {
   flake.nixosModules.mako =
-    { config, lib, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
       cfg = config.features.mako;
     in
@@ -14,10 +19,15 @@
           pkgs.mako
         ];
 
+        services.dbus.packages = [ pkgs.mako ];
+
         home-manager.sharedModules = [
           (_: {
             services.mako = {
               enable = true;
+
+              systemd.enable = true;
+
               layer = "overlay";
               anchor = "top-right";
               margin = "12,12";
@@ -33,12 +43,12 @@
 
             systemd.user.services.mako = {
               Unit = {
-                Description = "Mako notification daemon (UWSM Controlled)";
-                After = [ "niri-session.target" ];
-                PartOf = [ "niri-session.target" ];
+                Description = "Mako notification daemon (UWSM Integrated)";
+                After = [ "graphical-session.target" ];
+                PartOf = [ "graphical-session.target" ];
               };
               Install = {
-                WantedBy = [ "niri-session.target" ];
+                WantedBy = [ "graphical-session.target" ];
               };
             };
           })
