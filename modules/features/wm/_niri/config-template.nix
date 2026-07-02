@@ -1,3 +1,4 @@
+# modules/features/wm/_niri/config-template.nix
 { profileThemeImage, pkgs }:
 ''
   input {
@@ -28,16 +29,29 @@
       "Mod+Escape"       { spawn "${pkgs.mako}/bin/makoctl" "dismiss"; }
       "Mod+Shift+Escape" { spawn "${pkgs.mako}/bin/makoctl" "dismiss" "-a"; }
 
-      // Horizontal workspace navigation across the ribbon
+      // Horizontal Focus and Window Movement across the Ribbon
       "Mod+Left"  { focus-column-left; }
       "Mod+Right" { focus-column-right; }
       "Mod+Shift+Left"  { move-column-left; }
       "Mod+Shift+Right" { move-column-right; }
 
+      // Window size control
+      "Mod+F"       { maximize-column; }
       "Mod+Shift+F" { fullscreen-window; }
-      "Mod+F" { maximize-column; }
 
-      // 3. Super + Minus / Equal: Dynamically scales column widths by 10% [INDEX: 1.1.2]
+      // VERTICAL STACK CONTROL BINDS:
+      "Mod+Up"    { focus-window-or-workspace-up; }
+      "Mod+Down"  { focus-window-or-workspace-down; }
+      "Mod+Shift+Up"   { move-window-up; }
+      "Mod+Shift+Down" { move-window-down; }
+
+      // COLUMN EXTRA CONTROLS:
+      "Mod+V"     { consume-window-into-column; }
+      "Mod+H"     { expel-window-from-column; }
+      "Mod+C"     { center-column; }
+      "Mod+Space" { switch-preset-column-width; }
+
+      // Column Sizing
       "Mod+Minus" { set-column-width "-10%"; }
       "Mod+Equal" { set-column-width "+10%"; }
       
