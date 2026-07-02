@@ -52,7 +52,8 @@
             git.enable = enabled.git or false;
             flashgbx.enable = enabled.flashgbx or false;
             nixvim.enable = enabled.nixvim or false;
-            hyprland.enable = enabled.hyprland or false;
+            hyprland.enable = false;
+            niri.enable = enabled.niri or true; # default to true for now
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
           };
