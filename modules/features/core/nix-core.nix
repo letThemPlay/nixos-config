@@ -26,6 +26,11 @@
 
       config = lib.mkIf config.ltp.core.enable {
 
+        fonts.packages = with pkgs; [
+          nerd-fonts.symbols-only
+          nerd-fonts.jet-brains-mono
+        ];
+
         # 👑 THE DEFINITIVE FIX: Discard the path context tracking from the filename
         # string BEFORE it registers as an official key inside the theme catalog map!
         ltp.theme.catalog = lib.listToAttrs (
