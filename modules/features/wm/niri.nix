@@ -41,7 +41,7 @@ _: {
             '';
           })
           (_: {
-            xdg.configFile."niri/config.kdl".source = ./_niri/config.kdl;
+            xdg.configFile."niri/config.kdl".text = import ./_niri/config-template.nix { inherit config; };
           })
         ];
       };
