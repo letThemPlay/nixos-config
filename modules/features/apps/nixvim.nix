@@ -19,6 +19,8 @@
           (_: {
             programs.nixvim = {
               enable = true;
+              nixpkgs.source = inputs.nixpkgs;
+
               defaultEditor = true;
 
               opts = {
@@ -53,7 +55,9 @@
 
                 neo-tree = {
                   enable = true;
-                  closeIfLastWindow = true;
+                  settings = {
+                    close_if_last_window = true;
+                  };
                 };
 
                 nvim-autopairs.enable = true;
