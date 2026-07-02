@@ -29,7 +29,6 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
-            stylix.targets.niri.enable = true;
             xdg.configFile."niri/config.kdl".source = ./_niri/config.kdl;
           })
         ];
