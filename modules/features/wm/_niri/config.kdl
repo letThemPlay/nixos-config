@@ -5,14 +5,15 @@ input {
     }
 }
 
-// 👑 Settings that influence how windows are positioned and sized
 layout {
-    // 👑 THE PLURAL FIX: Changed 'gap' to 'gaps' to pass KDL validation passes!
     gaps 12
-    
     default-column-width { proportion 0.5; }
-    focus-ring {
-        width 2
+    focus-ring { width 2; }
+
+    // 👑 THE INSET FIX: Reserves a 32px safety clearance zone at the top of the monitor
+    // This perfectly prevents application panels from overlapping your active Waybar!
+    struts {
+        top 32
     }
 }
 

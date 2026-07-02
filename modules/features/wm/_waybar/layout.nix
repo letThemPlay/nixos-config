@@ -5,9 +5,10 @@
   height = 32;
   spacing = 4;
 
+  # 👑 THE NIRI UPGRADE: Track native niri workspaces instead of hyprland!
   modules-left = [
-    "hyprland/workspaces"
-    "hyprland/submap"
+    "niri/workspaces"
+    "niri/window"
   ];
   modules-center = [ "clock" ];
   modules-right = [
@@ -18,10 +19,15 @@
     "tray"
   ];
 
-  "hyprland/workspaces" = {
-    disable-scroll = true;
+  "niri/workspaces" = {
+    format = "{name}";
     all-outputs = true;
-    active-only = false;
+  };
+
+  "niri/window" = {
+    format = "{}";
+    max-length = 50;
+    separate-outputs = true;
   };
 
   clock = {
