@@ -57,6 +57,7 @@
             fuzzel.enable = enabled.fuzzel or false;
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
+            mako.enable = enabled.mako or false;
 
             hardware = {
               proxmox-qemu.enable = enabled.proxmox-qemu or false;

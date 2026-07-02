@@ -13,7 +13,7 @@
     "stylix"
     "waybar"
     "fuzzel"
-    "make"
+    "mako"
   ];
 
   users = [ "kelvin" ];
