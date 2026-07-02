@@ -54,6 +54,7 @@
             nixvim.enable = enabled.nixvim or false;
             hyprland.enable = false;
             niri.enable = enabled.niri or true; # default to true for now
+            fuzzel.enable = enabled.fuzzel or false;
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
 

@@ -12,6 +12,7 @@
     "greetd"
     "stylix"
     "waybar"
+    "fuzzel"
   ];
 
   users = [ "kelvin" ];

@@ -22,6 +22,8 @@
       "Mod+Return" { spawn "alacritty"; }
       "Mod+Q" { close-window; }
       
+      "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
+
       "Mod+Left"  { focus-column-left; }
       "Mod+Right" { focus-column-right; }
       
