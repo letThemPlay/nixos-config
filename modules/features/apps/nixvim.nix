@@ -62,7 +62,6 @@
                   enable = true;
                   settings = {
                     close_if_last_window = true;
-
                     filesystem = {
                       follow_current_file = {
                         enabled = true;
@@ -72,6 +71,21 @@
                 };
 
                 nvim-autopairs.enable = true;
+
+                toggleterm = {
+                  enable = true;
+                  settings = {
+                    open_mapping = "[[<C-/>]]";
+
+                    direction = "horizontal";
+                    size = 15;
+
+                    insert_mappings = true;
+                    terminal_mappings = true;
+
+                    start_in_insert = true;
+                  };
+                };
               };
 
               keymaps = [
