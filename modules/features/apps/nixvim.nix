@@ -1,10 +1,6 @@
 { inputs, ... }: {
   flake.nixosModules.nixvim =
-    {
-      config,
-      lib,
-      ...
-    }:
+    { config, lib, ... }:
     let
       cfg = config.features.nixvim;
     in
@@ -16,12 +12,17 @@
       config = lib.mkIf cfg.enable {
         home-manager.sharedModules = [
           inputs.nixvim.homeModules.nixvim
-          (_: {
+
+          ({ pkgs, ... }: {
             programs.nixvim = {
               enable = true;
+              defaultEditor = true;
+
               nixpkgs.source = inputs.nixpkgs;
 
-              defaultEditor = true;
+              extraPackages = [
+                pkgs.ripgrep
+              ];
 
               opts = {
                 number = true;
