@@ -18,6 +18,7 @@ _: {
         };
 
       config = lib.mkIf cfg.enable {
+        environment.systemPackages = [ pkgs.bluetoothctl ];
         networking = {
           networkmanager = {
             enable = true;
