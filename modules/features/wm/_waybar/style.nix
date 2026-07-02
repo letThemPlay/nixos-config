@@ -31,6 +31,13 @@
       background-color: @base01;
   }
 
+  #mpris {
+    color: @base0D;
+  }
+  #mpris.paused {
+      color: @base04;
+  }
+
   #workspaces button {
       padding: 0 6px;
       color: @base04;
