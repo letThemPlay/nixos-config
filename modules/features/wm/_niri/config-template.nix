@@ -22,29 +22,28 @@
 
       // 👑 Clean, un-bordered minimalist layout across your fleet
       focus-ring {
-          width 0
+          off
       }
 
-      // 👑 THE SHADOW FIX: 
-      // Setting color to "#0000" (fully transparent) completely eliminates 
-      // window shadows without triggering any KDL parser token errors! [INDEX: 1.2.1]
+      // 👑 THE SHADOW PARSER FIX:
+      // Uses the native 'off' keyword node to cleanly disable compositor layout shadows! [INDEX: 1.4.12]
       shadow {
-          color "#0000"
+          off
       }
   }
 
-  // 👑 THE GLOBAL ACTIVE WINDOW RULE:
-  // Keeps your currently focused window completely crisp and opaque [INDEX: 1.2.4]
+  // 👑 1. THE GLOBAL ACTIVE WINDOW RULE:
+  // Forces whichever application holds active cursor focus to remain 100% solid and opaque [INDEX: 1.2.1].
   window-rule {
-      match-is-active true
+      match is-active=true
       opacity 1.0
   }
 
-  // 👑 THE GLOBAL INACTIVE WINDOW DISTINCTION RULE:
-  // Automatically fades ALL background windows down to 85% opacity [INDEX: 1.2.4].
-  // This builds an incredibly clean visual distinction across your horizontal ribbon!
+  // 👑 2. THE GLOBAL INACTIVE WINDOW DISTINCTION RULE:
+  // Catches EVERY background window (Alacritty, Firefox, etc.) and dims them down to 85% opacity! [INDEX: 1.2.1, 1.2.8]
+  // This creates a beautiful, unified visual depth-of-field across your infinite horizontal ribbon.
   window-rule {
-      match-is-active false
+      match is-active=false
       opacity 0.85
   }
 
