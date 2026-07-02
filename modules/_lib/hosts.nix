@@ -59,6 +59,7 @@
             waybar.enable = enabled.waybar or false;
             mako.enable = enabled.mako or false;
             alacritty.enable = enabled.alacritty or false;
+            control-center.enable = true;
             hardware = {
               proxmox-qemu.enable = enabled.proxmox-qemu or false;
             };
