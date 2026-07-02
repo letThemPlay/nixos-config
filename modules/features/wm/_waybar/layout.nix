@@ -1,3 +1,6 @@
+let
+  ethernetIcon = builtins.fromJSON "\"\\uf0200\"";
+in
 {
   layer = "top";
   position = "top";
@@ -62,7 +65,7 @@
   network = {
     format-wifi = "  {essid}";
 
-    format-ethernet = "\\uF0200  {ipaddr}/{cidr}";
+    format-ethernet = "${ethernetIcon}  {ipaddr}/{cidr}";
 
     format-disconnected = "⚠  Disconnected";
   };
