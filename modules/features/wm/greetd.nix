@@ -9,7 +9,7 @@ _: {
     let
       cfg = config.features.greetd;
 
-      waylandSessionsDir = "${config.services.xserver.displayManager.sessionData.desktops}/share/wayland-sessions";
+      waylandSessionsDir = "${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
     in
     {
       options.features.greetd.enable =

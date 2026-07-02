@@ -29,6 +29,11 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
+            home.extraProfileCommands = ''
+              export HM_DISPLAY_VARS="WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE DISPLAY"
+            '';
+          })
+          (_: {
             xdg.configFile."niri/config.kdl".source = ./_niri/config.kdl;
           })
         ];
