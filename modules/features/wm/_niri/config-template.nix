@@ -1,3 +1,4 @@
+# modules/features/wm/_niri/config-template.nix
 { profileThemeImage, pkgs }:
 ''
   input {
@@ -24,21 +25,24 @@
           width 0
       }
 
-      // 👑 THE SHADOW PARSER FIX:
-      // We use Niri's native 'off' token statement to disable layout shadows cleanly! [INDEX: 1.1.2, 1.3.4]
-      shadow { off }
+      // 👑 THE SHADOW FIX: 
+      // Setting color to "#0000" (fully transparent) completely eliminates 
+      // window shadows without triggering any KDL parser token errors! [INDEX: 1.2.1]
+      shadow {
+          color "#0000"
+      }
   }
 
-  // 👑 1. THE GLOBAL ACTIVE WINDOW RULE:
-  // Forces whichever application currently holds focus to remain 100% solid.
+  // 👑 THE GLOBAL ACTIVE WINDOW RULE:
+  // Keeps your currently focused window completely crisp and opaque [INDEX: 1.2.4]
   window-rule {
       match-is-active true
       opacity 1.0
   }
 
-  // 👑 2. THE GLOBAL INACTIVE WINDOW DISTINCTION RULE:
-  // Uses 'match-is-active false' to cleanly fade ALL background windows (Firefox, Alacritty, etc.) 
-  // down to 85% opacity, building an elegant depth-of-field across your horizontal ribbon!
+  // 👑 THE GLOBAL INACTIVE WINDOW DISTINCTION RULE:
+  // Automatically fades ALL background windows down to 85% opacity [INDEX: 1.2.4].
+  // This builds an incredibly clean visual distinction across your horizontal ribbon!
   window-rule {
       match-is-active false
       opacity 0.85
