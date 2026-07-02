@@ -1,3 +1,4 @@
+# modules/features/wm/_niri/config-template.nix
 { profileThemeImage, pkgs }:
 ''
   input {
@@ -12,12 +13,16 @@
       }
   }
 
+  // 👑 THE GOLDILOCKS NIRI MATRIX:
+  // 1. Uniform gaps around all window edges remains at 12 pixels.
+  // 2. We set 'top 4' (The exact mathematical middle ground between 20 and -12) [INDEX: 1.2.1].
+  //    This gives your windows a beautifully balanced, subtle separation from Waybar.
   layout {
       gaps 12
       default-column-width { proportion 0.5; }
       focus-ring { width 2; }
       struts {
-          top -12
+          top 4
       }
   }
 
