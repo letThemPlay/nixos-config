@@ -5,6 +5,8 @@
   height = 32;
   spacing = 4;
 
+  fixed-center = true;
+
   modules-left = [
     "niri/workspaces"
     "niri/window"
@@ -27,25 +29,23 @@
 
   "niri/window" = {
     format = "{}";
-    max-length = 50;
+    max-length = 20;
     separate-outputs = true;
+
+    expand = false;
   };
 
-  mpris = {
-    format = "{player_icon} {title} - {artist}";
-    format-paused = "{status_icon} <i>{title}</i>";
-    max-length = 40;
+  "mpris" = {
+    format = "{player_icon}  {title}";
+    format-paused = "{status_icon}  <i>{title}</i>";
+    max-length = 35;
     player-icons = {
       default = "🎵";
-      firefox = ""; # Displays a crisp Firefox logo when YouTube is active!
-      chromium = "";
-      spotify = "";
+      firefox = "";
     };
     status-icons = {
       paused = "⏸";
     };
-    # Ignored players can be filtered out to keep logs clean
-    ignored-players = [ "vlc" ];
   };
 
   clock = {
@@ -57,7 +57,6 @@
     format = "  {usage}%";
     tooltip = false;
   };
-
   memory = {
     format = "  {}%";
   };
