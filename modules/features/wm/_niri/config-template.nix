@@ -1,4 +1,3 @@
-# modules/features/wm/_niri/config-template.nix
 { profileThemeImage, pkgs }:
 ''
   input {
@@ -20,28 +19,28 @@
           top 4
       }
 
-      // 👑 Clean, un-bordered minimalist layout across the entire fleet
+      // 👑 Clean, un-bordered minimalist layout across your fleet
       focus-ring {
           width 0
       }
 
-      shadow {
-          enable false
-      }
+      // 👑 THE SHADOW PARSER FIX:
+      // We use Niri's native 'off' token statement to disable layout shadows cleanly! [INDEX: 1.1.2, 1.3.4]
+      shadow { off }
   }
 
   // 👑 1. THE GLOBAL ACTIVE WINDOW RULE:
-  // Forces whichever application you are currently typing in to be 100% solid and opaque [INDEX: 1.2.2]
+  // Forces whichever application currently holds focus to remain 100% solid.
   window-rule {
-      match is-active=true
+      match-is-active true
       opacity 1.0
   }
 
   // 👑 2. THE GLOBAL INACTIVE WINDOW DISTINCTION RULE:
-  // Catches EVERY background window (Alacritty, Firefox, etc.) and dims them down to 85% opacity! [INDEX: 1.2.1, 1.2.2]
-  // This creates a beautiful, unified visual depth-of-field across your infinite horizontal ribbon.
+  // Uses 'match-is-active false' to cleanly fade ALL background windows (Firefox, Alacritty, etc.) 
+  // down to 85% opacity, building an elegant depth-of-field across your horizontal ribbon!
   window-rule {
-      match is-active=false
+      match-is-active false
       opacity 0.85
   }
 
