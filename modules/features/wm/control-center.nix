@@ -34,21 +34,23 @@ _: {
             home.packages = [
               (pkgs.writeShellScriptBin "control-center" ''
                 #!/bin/sh
+                # 👑 DEFENSIVE DRIVER LOOKUPS:
+                # Appending '|| true' ensures that if the hardware commands fail inside your bare VM,
+                # the script doesn't crash or throw errors; it handles the empty tracking data safely! [INDEX: 1.2.2]
+                WIFI_STATUS=$(${pkgs.networkmanager}/bin/nmcli radio wifi 2>/dev/null || echo "disabled")
 
-                # 1. Query live system hardware states natively
-                WIFI_STATUS=$(${pkgs.networkmanager}/bin/nmcli radio wifi)
-                BT_STATUS=$(${pkgs.bluez}/bin/bluetoothctl show | grep "Powered:" | awk '{print $2}')
+                # Ensure bluetoothctl exits instantly even if no hardware controller is plugged into the VM [INDEX: 1.2.2]
+                BT_RAW=$(echo "show" | ${pkgs.bluez}/bin/bluetoothctl 2>/dev/null || echo "Powered: no")
+                BT_STATUS=$(echo "$BT_RAW" | grep "Powered:" | awk '{print $2}')
 
-                # 2. Formulate icon strings based on active interface metrics
+                # Evaluate icons and text parameters safely [INDEX: 1.1.5]
                 if [ "$WIFI_STATUS" = "enabled" ]; then WIFI_OPTION="    Disable Wi-Fi"; else WIFI_OPTION="    Enable Wi-Fi"; fi
                 if [ "$BT_STATUS" = "yes" ]; then BT_OPTION="  Disable Bluetooth"; else BT_OPTION="    Enable Bluetooth"; fi
 
-                # 👑 THE DEFINITIVE STREAM FIX:
-                # We use printf to explicitly split choices into distinct line-break strings [INDEX: 1.3.4].
-                # This breaks the input wait-lock, allowing Fuzzel to render its menu instantly! [INDEX: 1.3.2]
+                # Present choice matrix to Fuzzel
                 SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$WIFI_OPTION" "$BT_OPTION" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --p "Control Center: " --width 25 --lines 4)
 
-                # 3. Route selected macro changes straight to target hardware backends
+                # Process toggles securely
                 case "$SELECTION" in
                     *Disable\ Wi-Fi*) ${pkgs.networkmanager}/bin/nmcli radio wifi off ;;
                     *Enable\ Wi-Fi*)  ${pkgs.networkmanager}/bin/nmcli radio wifi on ;;
