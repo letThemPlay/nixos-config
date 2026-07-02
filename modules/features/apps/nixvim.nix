@@ -26,7 +26,7 @@
 
               opts = {
                 number = true;
-                relativenumber = true;
+                relativenumber = false;
                 shiftwidth = 2;
                 tabstop = 2;
                 expandtab = true;
@@ -65,6 +65,12 @@
               };
 
               keymaps = [
+                {
+                  mode = "n";
+                  key = "<leader>qq";
+                  action = "<cmd>qa<cr>";
+                  options.desc = "Quit Neovim Entirely";
+                }
                 {
                   mode = "n";
                   key = "<leader>e";
