@@ -1,4 +1,4 @@
-_: {
+{ inputs, ... }: {
   flake.nixosModules.niri =
     {
       config,
@@ -8,6 +8,7 @@ _: {
     }:
     let
       cfg = config.features.niri;
+      themesVault = config.ltp.theme.catalog;
     in
     {
       options.features.niri.enable = lib.mkEnableOption "Niri scrollable-tiling Wayland compositor" // {
@@ -34,16 +35,29 @@ _: {
           extraPortals = [ pkgs.xdg-desktop-portal-gnome ];
         };
 
-        home-manager.sharedModules = [
-          (_: {
-            home.extraProfileCommands = ''
-              export HM_DISPLAY_VARS="WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE DISPLAY"
-            '';
-          })
-          (_: {
-            xdg.configFile."niri/config.kdl".text = import ./_niri/config-template.nix { inherit config; };
-          })
-        ];
+        home-manager.users = lib.mapAttrs (_: profile: _: {
+          xdg.configFile."niri/config.kdl".text =
+            let
+              cleanThemeToken = builtins.unsafeDiscardStringContext (profile.theme or "tokyonight");
+              selected = themesVault.${cleanThemeToken} or themesVault.tokyonight;
+
+              resolvedImagePath = "${inputs.self}/modules/features/theme/_theme/${selected.imageName}";
+            in
+            import ./_niri/config-template.nix {
+              profileThemeImage = resolvedImagePath;
+            };
+        }) config.ltp.users.registry;
+
+        #   home-manager.sharedModules = [
+        #     (_: {
+        #       home.extraProfileCommands = ''
+        #         export HM_DISPLAY_VARS="WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE DISPLAY"
+        #       '';
+        #     })
+        #     (_: {
+        #       xdg.configFile."niri/config.kdl".text = import ./_niri/config-template.nix { inherit config; };
+        #     })
+        #   ];
       };
     };
 }

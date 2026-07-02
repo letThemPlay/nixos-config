@@ -1,4 +1,4 @@
-{ config }:
+{ profileThemeImage }:
 ''
   input {
       touchpad {
@@ -16,7 +16,7 @@
       }
   }
 
-  spawn-at-startup "swaybg" "-m" "fill" "-i" "${toString config.stylix.image}"
+  spawn-at-startup "swaybg" "-m" "fill" "-i" "${profileThemeImage}"
 
   binds {
       "Mod+Return" { spawn "alacritty"; }
