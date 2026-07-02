@@ -22,13 +22,17 @@ _: {
 
           settings = {
             default_session = {
-              command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --sessions /run/current-system/sw/share/wayland-sessions --session-wrapper 'uwsm start --'";
+              command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --remember-session --sessions /run/current-system/sw/share/wayland-sessions --session-wrapper 'uwsm start --' --cmd 'hyprland-uwsm'";
               user = "greeter";
             };
           };
 
           useTextGreeter = true;
         };
+
+        systemd.tmpfiles.rules = [
+          "d /var/cache/tuigreet 0755 greeter greeter -"
+        ];
 
         systemd.services.greetd = {
           after = [ "display-manager.service" ];
