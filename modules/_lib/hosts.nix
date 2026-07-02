@@ -52,9 +52,15 @@
             git.enable = enabled.git or false;
             flashgbx.enable = enabled.flashgbx or false;
             nixvim.enable = enabled.nixvim or false;
-            hyprland.enable = enabled.hyprland or false;
+            hyprland.enable = false;
+            niri.enable = enabled.niri or true; # default to true for now
+            fuzzel.enable = enabled.fuzzel or false;
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
+            mako.enable = enabled.mako or false;
+            hardware = {
+              proxmox-qemu.enable = enabled.proxmox-qemu or false;
+            };
           };
 
           ltp = {
@@ -63,12 +69,7 @@
               tpmUnlock.enable = enabled.tpm or false;
             };
 
-            hardware = {
-              proxmox-qemu.enable = enabled.proxmox-qemu or false;
-            };
-
             bluetooth.enable = hasBluetooth;
-            audio.pipewire.enable = enabled.pipewire or false;
 
             network = {
               wifi.enable = hasWifi;

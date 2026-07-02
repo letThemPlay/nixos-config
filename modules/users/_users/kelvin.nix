@@ -9,6 +9,9 @@
   extraPackages = [
     "firefox"
     "vlc"
+    "git"
+    "alacritty"
   ];
   theme = "catppuccin";
+  defaultShell = "zsh";
 }

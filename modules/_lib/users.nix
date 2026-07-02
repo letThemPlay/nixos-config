@@ -8,6 +8,7 @@
       features ? [ ],
       extraGroups ? [ "networkmanager" ],
       extraPackages ? [ ],
+      defaultShell ? "bash",
       ...
     }:
     { config, pkgs, ... }: {
@@ -22,12 +23,16 @@
             ];
             adminGroups = if admin then [ "wheel" ] else [ ];
             finalGroups = baseGroups ++ extraGroups ++ adminGroups;
+
+            shellMap = {
+              inherit (pkgs) bash zsh;
+            };
           in
           {
             isNormalUser = true;
             description = fullName;
             extraGroups = finalGroups;
-            shell = pkgs.zsh;
+            shell = shellMap.${defaultShell} or pkgs.bash;
           };
 
         ltp.users.registry.${username} = {
@@ -36,6 +41,7 @@
             fullName
             email
             features
+            defaultShell
             ;
         };
 

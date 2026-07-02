@@ -4,6 +4,7 @@ _: {
     {
       config,
       lib,
+      pkgs,
       ...
     }:
     let
@@ -26,7 +27,7 @@ _: {
               };
 
               settings = {
-                mainBar = import ./_waybar/layout.nix;
+                mainBar = import ./_waybar/layout.nix { inherit pkgs; };
               };
 
               style = import ./_waybar/style.nix;

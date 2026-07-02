@@ -1,27 +1,51 @@
-# modules/features/wm/_waybar/layout.nix
+{ pkgs }:
 {
   layer = "top";
   position = "top";
   height = 32;
   spacing = 4;
 
+  fixed-center = true;
+
   modules-left = [
-    "hyprland/workspaces"
-    "hyprland/submap"
+    "niri/workspaces"
+    "niri/window"
+    "mpris"
   ];
   modules-center = [ "clock" ];
   modules-right = [
     "network"
     "cpu"
     "memory"
+    "wireplumber"
     "battery"
     "tray"
   ];
 
-  "hyprland/workspaces" = {
-    disable-scroll = true;
+  "niri/workspaces" = {
+    format = "{name}";
     all-outputs = true;
-    active-only = false;
+  };
+
+  "niri/window" = {
+    format = "{}";
+    max-length = 20;
+    separate-outputs = true;
+
+    expand = false;
+  };
+
+  "mpris" = {
+    format = "{player_icon}  {title}";
+    format-paused = "{status_icon}  <i>{title}</i>";
+    max-length = 35;
+    player-icons = {
+      default = "🎵";
+      firefox = "";
+    };
+    status-icons = {
+      paused = "⏸";
+    };
   };
 
   clock = {
@@ -33,9 +57,21 @@
     format = "  {usage}%";
     tooltip = false;
   };
-
   memory = {
     format = "  {}%";
+  };
+
+  wireplumber = {
+    format = "{icon}  {volume}%";
+    format-muted = "    Muted";
+    on-click = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+    format-icons = [
+      "  "
+      "  "
+      "  "
+    ];
+    max-volume = 100;
+    scroll-step = 5;
   };
 
   battery = {
@@ -57,7 +93,7 @@
 
   network = {
     format-wifi = "  {essid}";
-    format-ethernet = "  {ipaddr}/{cidr}";
+    format-ethernet = "${builtins.fromJSON "\"\\uf0200\""}  {ipaddr}/{cidr}";
     format-disconnected = "⚠  Disconnected";
   };
 }

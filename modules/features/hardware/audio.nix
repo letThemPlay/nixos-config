@@ -1,27 +1,30 @@
 _: {
   flake.nixosModules.audio =
     {
-      lib,
       config,
+      lib,
+      pkgs,
       ...
     }:
     let
-      cfg = config.ltp.audio;
+      cfg = config.features.hardware.audio;
     in
     {
-      options.ltp.audio = {
-        pipewire = {
-          enable = lib.mkEnableOption "PipeWire audio server framework" // {
-            default = true;
-          };
-        };
+      options.features.hardware.audio.enable = lib.mkEnableOption "PipeWire sound subsystem" // {
+        default = true;
       };
 
-      config = lib.mkIf cfg.pipewire.enable {
+      config = lib.mkIf cfg.enable {
+        environment.systemPackages = [ pkgs.playerctl ];
+        services.pulseaudio.enable = false;
+        security.rtkit.enable = true;
+
         services.pipewire = {
           enable = true;
           alsa.enable = true;
+          alsa.support32Bit = true;
           pulse.enable = true;
+          wireplumber.enable = true;
         };
       };
     };

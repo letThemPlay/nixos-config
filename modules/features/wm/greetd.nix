@@ -8,6 +8,8 @@ _: {
     }:
     let
       cfg = config.features.greetd;
+
+      waylandSessionsDir = "${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
     in
     {
       options.features.greetd.enable =
@@ -22,13 +24,17 @@ _: {
 
           settings = {
             default_session = {
-              command = "${pkgs.tuigreet}/bin/tuigreet --cmd uswm start hyprland-uwsm.desktop";
+              command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --remember-session --sessions ${waylandSessionsDir} exec uwsm start --";
               user = "greeter";
             };
           };
 
           useTextGreeter = true;
         };
+
+        systemd.tmpfiles.rules = [
+          "d /var/cache/tuigreet 0755 greeter greeter -"
+        ];
 
         systemd.services.greetd = {
           after = [ "display-manager.service" ];
