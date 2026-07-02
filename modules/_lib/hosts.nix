@@ -50,6 +50,7 @@
 
           features = {
             git.enable = enabled.git or false;
+            flashgbx.enable = enabled.flashgbx or false;
             nixvim.enable = enabled.nixvim or false;
             hyprland.enable = enabled.hyprland or false;
             greetd.enable = enabled.greetd or false;
@@ -71,6 +72,7 @@
 
             network = {
               wifi.enable = hasWifi;
+              wired.enable = !hasWifi || (enabled.wired or false);
               tailscale.enable = enabled.tailscale or false;
               nextdns.enable = enabled.nextdns or false;
             };

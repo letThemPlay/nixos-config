@@ -5,6 +5,7 @@
   isLaptop = false;
 
   features = [
+    "wired"
     "proxmox-qemu" # Activates kernel structures, memory trim controllers, and guest agent scripts
     "nixvim"
     "hyprland"

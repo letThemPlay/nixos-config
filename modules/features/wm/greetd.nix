@@ -19,29 +19,30 @@ _: {
       config = lib.mkIf cfg.enable {
         services.greetd = {
           enable = true;
+
           settings = {
             default_session = {
-              command = ''
-                ${pkgs.tuigreet}/bin/tuigreet \
-                  --time \
-                  --remember \
-                  --remember-user \
-                  --asterisks \
-                  --cmd "uwsm start hyprland-uwsm.desktop"
-              '';
+              command = "${pkgs.tuigreet}/bin/tuigreet --cmd uswm start hyprland-uwsm.desktop";
               user = "greeter";
             };
           };
+
+          useTextGreeter = true;
         };
 
-        systemd.services.greetd.serviceConfig = lib.mkForce {
-          Type = "simple";
-          StandardInput = "tty";
-          StandardOutput = "tty";
-          StandardError = "journal";
-          TTYReset = true;
-          TTYVHangup = true;
-          TTYVTDisallocate = true;
+        systemd.services.greetd = {
+          after = [ "display-manager.service" ];
+          wants = [ "display-manager.service" ];
+
+          serviceConfig = {
+            Type = lib.mkForce "simple";
+            StandardInput = "tty";
+            StandardOutput = "tty";
+            StandardError = "journal";
+            TTYReset = true;
+            TTYVHangup = true;
+            TTYVTDisallocate = true;
+          };
         };
       };
     };

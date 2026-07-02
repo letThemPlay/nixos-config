@@ -17,7 +17,10 @@
         "sd_mod"
         "sr_mod"
       ];
-      kernelModules = [ ];
+      kernelModules = [
+        "virtio_gpu"
+        "qxl"
+      ];
     };
 
     kernelModules = [ ];
