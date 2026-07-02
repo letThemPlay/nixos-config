@@ -9,6 +9,7 @@
   extraPackages = [
     "firefox"
     "vlc"
+    "git"
   ];
   theme = "catppuccin";
 }

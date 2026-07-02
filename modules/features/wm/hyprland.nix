@@ -35,8 +35,9 @@
             wayland.windowManager.hyprland = {
               enable = true;
               package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-
               systemd.enable = false;
+
+              configType = "hyprlang";
 
               plugins = [
                 inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
