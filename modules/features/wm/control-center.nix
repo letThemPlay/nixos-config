@@ -1,4 +1,3 @@
-# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -34,23 +33,36 @@ _: {
               (pkgs.writeShellScriptBin "control-center" ''
                 #!/bin/sh
 
-                WIFI_STATUS=$(${pkgs.networkmanager}/bin/nmcli radio wifi 2>/dev/null || echo "disabled")
+                # 👑 THE UNBLOCKING FIX: Avoid radio hardware polling inside virtualized environments!
+                # Checking general network connectivity returns an instant text token without hanging.
+                NET_CHECK=$(${pkgs.networkmanager}/bin/nmcli networking connectivity 2>/dev/null || echo "none")
+
+                # Safe non-interactive bluetooth query string pass
                 BT_RAW=$(echo "show" | ${pkgs.bluez}/bin/bluetoothctl 2>/dev/null || echo "Powered: no")
                 BT_STATUS=$(echo "$BT_RAW" | grep "Powered:" | awk '{print $2}')
 
-                if [ "$WIFI_STATUS" = "enabled" ]; then WIFI_OPTION="    Disable Wi-Fi"; else WIFI_OPTION="    Enable Wi-Fi"; fi
-                if [ "$BT_STATUS" = "yes" ]; then BT_OPTION="  Disable Bluetooth"; else BT_OPTION="    Enable Bluetooth"; fi
+                # Translate text states safely into visual layout options
+                if [ "$NET_CHECK" = "full" ] || [ "$NET_CHECK" = "limited" ]; then 
+                    WIFI_OPTION="    Disconnect Network"
+                else 
+                    WIFI_OPTION="    Connect Network"
+                fi
 
-                # 👑 THE SOFTWARE RENDERING FIX:
-                # Adding '--render-mode=pixman' instructs Fuzzel to skip GPU hardware pipeline scans! [INDEX: 1.1.2]
-                # This breaks the infinite loop lock inside your Proxmox VM, forcing it to draw instantly.
+                if [ "$BT_STATUS" = "yes" ]; then 
+                    BT_OPTION="  Disable Bluetooth"
+                else 
+                    BT_OPTION="    Enable Bluetooth"
+                fi
+
+                # Stream the choice array down into Fuzzel using standard CPU rendering
                 SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$WIFI_OPTION" "$BT_OPTION" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --render-mode=pixman --p "Control Center: " --width 25 --lines 4)
 
+                # Process toggles securely based on choice selection string tokens
                 case "$SELECTION" in
-                    *Disable\ Wi-Fi*) ${pkgs.networkmanager}/bin/nmcli radio wifi off ;;
-                    *Enable\ Wi-Fi*)  ${pkgs.networkmanager}/bin/nmcli radio wifi on ;;
-                    *Disable\ Bluetooth*) ${pkgs.bluez}/bin/bluetoothctl power off ;;
-                    *Enable\ Bluetooth*)  ${pkgs.bluez}/bin/bluetoothctl power on ;;
+                    *Disconnect*) ${pkgs.networkmanager}/bin/nmcli networking off ;;
+                    *Connect*)    ${pkgs.networkmanager}/bin/nmcli networking on ;;
+                    *Bluetooth\ off*|*Disable*) ${pkgs.bluez}/bin/bluetoothctl power off ;;
+                    *Bluetooth\ on*|*Enable*)  ${pkgs.bluez}/bin/bluetoothctl power on ;;
                     *Suspend*) systemctl suspend ;;
                     *Power\ Off*) systemctl poweroff ;;
                 esac
