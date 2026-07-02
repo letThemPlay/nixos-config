@@ -5,12 +5,15 @@
 
   /* Global bar background - Base16 Dark Neutral */
   window#waybar {
-      background-color: @transparent-base;
-      border-bottom: 2px solid @base01;
-      color: @base05;
-      transition-property: background-color;
-      transition-duration: .5s;
+    background-color: @transparent-base;
+    border-bottom: 2px solid @base01;
+    color: @base05;
+    transition-property: background-color;
+    transition-duration: .5s;
+
+    font-family: "JetBrains Mono", "Symbols Nerd Font Mono", sans-serif;
   }
+
 
   /* Universal module configuration container spacing padding */
   #workspaces,
