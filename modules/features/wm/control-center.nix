@@ -29,15 +29,20 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
+            # 👑 Your script layout lives embedded natively inside this local store binary! [INDEX: 1.2.3]
             home.packages = [
               (pkgs.writeShellScriptBin "control-center" ''
+                #!/bin/sh
                 WIFI_STATUS=$(${pkgs.networkmanager}/bin/nmcli radio wifi)
                 BT_STATUS=$(${pkgs.bluez}/bin/bluetoothctl show | grep "Powered:" | awk '{print $2}')
 
                 if [ "$WIFI_STATUS" = "enabled" ]; then WIFI_OPTION="    Disable Wi-Fi"; else WIFI_OPTION="    Enable Wi-Fi"; fi
                 if [ "$BT_STATUS" = "yes" ]; then BT_OPTION="  Disable Bluetooth"; else BT_OPTION="    Enable Bluetooth"; fi
 
-                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off" "$WIFI_OPTION" "$BT_OPTION" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --p "Control Center: " --width 25 --lines 4)
+                # 👑 Group options into a clean string layout to preserve data streams under systemd scopes
+                MENU_OPTIONS=$(echo "$WIFI_OPTION\n$BT_STATUS\n    Suspend System\n    Power Off")
+
+                SELECTION=$(echo "$MENU_OPTIONS" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --p "Control Center: " --width 25 --lines 4)
 
                 case "$SELECTION" in
                     *Disable\ Wi-Fi*) ${pkgs.networkmanager}/bin/nmcli radio wifi off ;;
