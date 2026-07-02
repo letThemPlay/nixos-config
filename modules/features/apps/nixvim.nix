@@ -1,6 +1,10 @@
 { inputs, ... }: {
   flake.nixosModules.nixvim =
-    { config, lib, ... }:
+    {
+      config,
+      lib,
+      ...
+    }:
     let
       cfg = config.features.nixvim;
     in
@@ -58,11 +62,11 @@
                   enable = true;
                   settings = {
                     close_if_last_window = true;
-                  };
 
-                  filesystem = {
-                    followCurrentFile = {
-                      enabled = true;
+                    filesystem = {
+                      follow_current_file = {
+                        enabled = true;
+                      };
                     };
                   };
                 };
