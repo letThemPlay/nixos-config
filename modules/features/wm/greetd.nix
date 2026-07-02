@@ -22,7 +22,7 @@ _: {
 
           settings = {
             default_session = {
-              command = "${pkgs.tuigreet}/bin/tuigreet --cmd uwsm start hyprland-uwsm.desktop";
+              command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --sessions /run/current-system/sw/share/wayland-sessions --session-wrapper 'uwsm start --'";
               user = "greeter";
             };
           };
