@@ -1,6 +1,4 @@
-let
-  ethernetIcon = builtins.fromJSON "\"\\uf0200\"";
-in
+{ pkgs }:
 {
   layer = "top";
   position = "top";
@@ -16,6 +14,7 @@ in
     "network"
     "cpu"
     "memory"
+    "wireplumber"
     "battery"
     "tray"
   ];
@@ -77,9 +76,7 @@ in
 
   network = {
     format-wifi = "  {essid}";
-
-    format-ethernet = "${ethernetIcon}  {ipaddr}/{cidr}";
-
+    format-ethernet = "${builtins.fromJSON "\"\\uf0200\""}  {ipaddr}/{cidr}";
     format-disconnected = "⚠  Disconnected";
   };
 }

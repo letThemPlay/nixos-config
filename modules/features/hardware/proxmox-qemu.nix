@@ -6,10 +6,10 @@ _: {
       ...
     }:
     let
-      cfg = config.ltp.hardware.proxmox-qemu;
+      cfg = config.features.hardware.proxmox-qemu;
     in
     {
-      options.ltp.hardware.proxmox-qemu.enable =
+      options.features.hardware.proxmox-qemu.enable =
         lib.mkEnableOption "Proxmox QEMU VM integration optimizations"
         // {
           default = false;

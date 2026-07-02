@@ -56,6 +56,10 @@
             niri.enable = enabled.niri or true; # default to true for now
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
+
+            hardware = {
+              proxmox-qemu.enable = enabled.proxmox-qemu or false;
+            };
           };
 
           ltp = {
@@ -64,12 +68,7 @@
               tpmUnlock.enable = enabled.tpm or false;
             };
 
-            hardware = {
-              proxmox-qemu.enable = enabled.proxmox-qemu or false;
-            };
-
             bluetooth.enable = hasBluetooth;
-            audio.pipewire.enable = enabled.pipewire or false;
 
             network = {
               wifi.enable = hasWifi;

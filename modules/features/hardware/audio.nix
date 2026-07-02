@@ -1,10 +1,6 @@
 _: {
   flake.nixosModules.audio =
-    {
-      config,
-      lib,
-      ...
-    }:
+    { config, lib, ... }:
     let
       cfg = config.features.hardware.audio;
     in
@@ -14,7 +10,7 @@ _: {
       };
 
       config = lib.mkIf cfg.enable {
-        hardware.pulseaudio.enable = false;
+        services.pulseaudio.enable = false;
         security.rtkit.enable = true;
 
         services.pipewire = {
@@ -22,7 +18,6 @@ _: {
           alsa.enable = true;
           alsa.support32Bit = true;
           pulse.enable = true;
-
           wireplumber.enable = true;
         };
       };
