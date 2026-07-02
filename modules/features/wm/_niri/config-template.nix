@@ -25,8 +25,6 @@
       "Mod+Left"  { focus-column-left; }
       "Mod+Right" { focus-column-right; }
       
-      "Mod+Shift+E" { quit; }
-
       "XF86AudioRaiseVolume" allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
       "XF86AudioLowerVolume" allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
       "XF86AudioMute"        allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-mute"   "@DEFAULT_AUDIO_SINK@" "toggle"; }
