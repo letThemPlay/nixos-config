@@ -1,5 +1,11 @@
-{ pkgs, profileThemeImage }:
+{ profileThemeImage, pkgs }:
 ''
+  // modules/features/wm/_niri/config.kdl (Compiled dynamic output)
+
+  debug {
+      renderer "pixman"
+  }
+
   input {
       touchpad {
           tap
@@ -16,7 +22,7 @@
       }
   }
 
-  spawn-at-startup "swaybg" "-m" "fill" "-i" "${profileThemeImage}"
+  spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
 
   binds {
       "Mod+Return" { spawn "alacritty"; }
@@ -25,9 +31,11 @@
       "Mod+Left"  { focus-column-left; }
       "Mod+Right" { focus-column-right; }
       
-      "XF86AudioRaiseVolume" allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
-      "XF86AudioLowerVolume" allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
-      "XF86AudioMute"        allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-mute"   "@DEFAULT_AUDIO_SINK@" "toggle"; }
+      // 👑 THE STRING ENCAPSULATION FIX: 
+      // All flags are wrapped safely inside a single, unified text string block per spawn directive!
+      "XF86AudioRaiseVolume" allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"; }
+      "XF86AudioLowerVolume" allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"; }
+      "XF86AudioMute"        allow-inhibitors=true { spawn "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
 
       "Mod+Shift+E" { quit; }
   }
