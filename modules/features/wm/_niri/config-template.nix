@@ -13,17 +13,36 @@
       }
   }
 
-  // 👑 THE GOLDILOCKS NIRI MATRIX:
-  // 1. Uniform gaps around all window edges remains at 12 pixels.
-  // 2. We set 'top 4' (The exact mathematical middle ground between 20 and -12) [INDEX: 1.2.1].
-  //    This gives your windows a beautifully balanced, subtle separation from Waybar.
   layout {
       gaps 12
       default-column-width { proportion 0.5; }
-      focus-ring { width 2; }
       struts {
           top 4
       }
+
+      // 👑 Clean, un-bordered minimalist layout across the entire fleet
+      focus-ring {
+          width 0
+      }
+
+      shadow {
+          enable false
+      }
+  }
+
+  // 👑 1. THE GLOBAL ACTIVE WINDOW RULE:
+  // Forces whichever application you are currently typing in to be 100% solid and opaque [INDEX: 1.2.2]
+  window-rule {
+      match is-active=true
+      opacity 1.0
+  }
+
+  // 👑 2. THE GLOBAL INACTIVE WINDOW DISTINCTION RULE:
+  // Catches EVERY background window (Alacritty, Firefox, etc.) and dims them down to 85% opacity! [INDEX: 1.2.1, 1.2.2]
+  // This creates a beautiful, unified visual depth-of-field across your infinite horizontal ribbon.
+  window-rule {
+      match is-active=false
+      opacity 0.85
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
