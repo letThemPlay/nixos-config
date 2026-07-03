@@ -1,3 +1,4 @@
+# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -29,13 +30,10 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
-            # 👑 THE FONT & THEME PROVISIONING HOOK:
-            # We explicitly add gnome icon assets and nerdfonts to your user path profile.
-            # This guarantees that fallback music designs and glyph symbols have a real file source!
             home.packages = [
               pkgs.swaynotificationcenter
-              pkgs.nerd-fonts.symbols-only # Provides absolute system font maps for glyph tokens like
-              pkgs.adwaita-icon-theme # Delivers standard backup imagery assets for your media control frames
+              pkgs.nerd-fonts.symbols-only
+              pkgs.adwaita-icon-theme
             ];
 
             xdg.configFile."swaync/config.json".text = builtins.toJSON {
@@ -45,7 +43,7 @@ _: {
               layer = "top";
               control-center-margin-top = 12;
               control-center-margin-right = 12;
-              control-center-width = 300; # Tighter width to mimic an authentic mobile control tray panel
+              control-center-width = 300;
 
               widgets = [
                 "buttons-grid"
@@ -59,19 +57,25 @@ _: {
                 "buttons-grid" = {
                   actions = [
                     {
-                      label = "    Network";
+                      # 👑 THE ICON MAPPING FIX:
+                      # We split the glyph character entirely out of the text label!
+                      # This gives SwayNC a separate icon reference that renders perfectly.
+                      label = "Network";
+                      icon = "  ";
                       type = "toggle";
                       active = true;
                       command = "sh -c '${pkgs.networkmanager}/bin/nmcli networking off || ${pkgs.networkmanager}/bin/nmcli networking on'";
                     }
                     {
-                      label = "  Bluetooth";
+                      label = "Bluetooth";
+                      icon = "";
                       type = "toggle";
                       active = true;
                       command = "sh -c '${pkgs.bluez}/bin/bluetoothctl power off || ${pkgs.bluez}/bin/bluetoothctl power on'";
                     }
                     {
-                      label = "    Power";
+                      label = "Power";
+                      icon = "  ";
                       type = "button";
                       command = "systemctl poweroff";
                     }
@@ -80,14 +84,14 @@ _: {
               };
             };
 
-            # 👑 THE DESIGN REFINEMENT: Ultra-Clean Symmetrical Android/iOS Material Layout Sheet!
+            # Clean material-style layout adjustments
             xdg.configFile."swaync/style.css".text = ''
-              /* Enforce clean sans-serif and Nerd Font families across all layout buttons */
+              /* Apply our Symbols Font explicitly across all selectors */
               * {
                   font-family: "Symbols Nerd Font", "Inter", sans-serif;
               }
 
-              /* Main Dropdown Drawer Box Container */
+              /* Main Dropdown Container Box */
               .control-center {
                   background: rgba(26, 27, 38, 0.95);
                   border: 1px solid #414868;
@@ -142,7 +146,6 @@ _: {
               .widget-mpris-title { font-size: 13px; font-weight: bold; color: #7aa2f7; }
               .widget-mpris-subtitle { font-size: 11px; color: #a9b1d6; }
 
-              /* Sizing constraints for the media control glyphs icons */
               .widget-mpris-controls button {
                   color: #c0caf5;
                   font-size: 14px;
