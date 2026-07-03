@@ -57,7 +57,7 @@
             fuzzel.enable = enabled.fuzzel or false;
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
-            mako.enable = enabled.mako or false;
+            mako.enable = false;
             alacritty.enable = enabled.alacritty or false;
             control-center.enable = true;
             hardware = {
