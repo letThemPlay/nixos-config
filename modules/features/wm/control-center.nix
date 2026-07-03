@@ -1,3 +1,4 @@
+# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -17,6 +18,7 @@ _: {
         };
 
       config = lib.mkIf cfg.enable {
+        # Group network settings to prevent Statix key duplication errors
         networking = {
           networkmanager = {
             enable = true;
@@ -29,42 +31,44 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
+            # 👑 THE HYPERVISOR-SAFE PACKAGE WRAPPER:
+            # Compiles the menu into an absolute, path-native store package bin!
             home.packages = [
               (pkgs.writeShellScriptBin "control-center" ''
                 #!/bin/sh
 
-                # 👑 THE UNBLOCKING FIX: Avoid radio hardware polling inside virtualized environments!
-                # Checking general network connectivity returns an instant text token without hanging.
-                NET_CHECK=$(${pkgs.networkmanager}/bin/nmcli networking connectivity 2>/dev/null || echo "none")
+                # 1. Query general software state matrices (Safe on both Proxmox and Laptops!)
+                # 'nmcli -t -f STATE general' returns 'connected', 'disconnected', or 'asleep' instantly [INDEX: 1.2.3, 1.3.5].
+                NET_STATE=$(${pkgs.networkmanager}/bin/nmcli -t -f STATE general 2>/dev/null || echo "disconnected")
 
-                # Safe non-interactive bluetooth query string pass
+                # Query Bluetooth safely via a non-interactive pipe string layout
                 BT_RAW=$(echo "show" | ${pkgs.bluez}/bin/bluetoothctl 2>/dev/null || echo "Powered: no")
-                BT_STATUS=$(echo "$BT_RAW" | grep "Powered:" | awk '{print $2}')
+                BT_STATE=$(echo "$BT_RAW" | grep "Powered:" | awk '{print $2}')
 
-                # Translate text states safely into visual layout options
-                if [ "$NET_CHECK" = "full" ] || [ "$NET_CHECK" = "limited" ]; then 
-                    WIFI_OPTION="    Disconnect Network"
-                else 
-                    WIFI_OPTION="    Connect Network"
+                # 2. Formulate icon choices based on text tokens
+                if [ "$NET_STATE" = "connected" ]; then
+                    NET_OPT="    Disable Networking"
+                else
+                    NET_OPT="    Enable Networking"
                 fi
 
-                if [ "$BT_STATUS" = "yes" ]; then 
-                    BT_OPTION="  Disable Bluetooth"
-                else 
-                    BT_OPTION="    Enable Bluetooth"
+                if [ "$BT_STATE" = "yes" ]; then
+                    BT_OPT="  Disable Bluetooth"
+                else
+                    BT_OPT="    Enable Bluetooth"
                 fi
 
-                # Stream the choice array down into Fuzzel using standard CPU rendering
-                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$WIFI_OPTION" "$BT_OPTION" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --render-mode=pixman --p "Control Center: " --width 25 --lines 4)
+                # 3. Present the selection matrix to Fuzzel via standard CPU rendering
+                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --render-mode=pixman --p "Control Center: " --width 25 --lines 4)
 
-                # Process toggles securely based on choice selection string tokens
+                # 4. Route commands straight to core system daemons
                 case "$SELECTION" in
-                    *Disconnect*) ${pkgs.networkmanager}/bin/nmcli networking off ;;
-                    *Connect*)    ${pkgs.networkmanager}/bin/nmcli networking on ;;
-                    *Bluetooth\ off*|*Disable*) ${pkgs.bluez}/bin/bluetoothctl power off ;;
-                    *Bluetooth\ on*|*Enable*)  ${pkgs.bluez}/bin/bluetoothctl power on ;;
-                    *Suspend*) systemctl suspend ;;
-                    *Power\ Off*) systemctl poweroff ;;
+                    *Disable\ Networking*) ${pkgs.networkmanager}/bin/nmcli networking off ;;
+                    *Enable\ Networking*)  ${pkgs.networkmanager}/bin/nmcli networking on ;;
+                    *Disable\ Bluetooth*)  ${pkgs.bluez}/bin/bluetoothctl power off ;;
+                    *Enable\ Bluetooth*)   ${pkgs.bluez}/bin/bluetoothctl power on ;;
+                    *Suspend*)            systemctl suspend ;;
+                    *Power\ Off*)          systemctl poweroff ;;
                 esac
               '')
             ];
