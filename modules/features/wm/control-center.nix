@@ -55,21 +55,29 @@ _: {
 
               "widget-config" = {
                 "buttons-grid" = {
+                  # 👑 THE CHASSIS TEXT ALIGNMENT:
+                  # Setting 'xalign' to 0 forces all button text contents to anchor
+                  # perfectly to the far-left edge of the pills natively!
+                  xalign = 0;
+
                   actions = [
                     {
-                      label = "  Network";
+                      # 👑 THE PANGO SCALING FIX:
+                      # We wrap symbols inside a span block to scale the icon to 150%
+                      # while keeping them on the same line with perfect linear spacing!
+                      label = "<span size='14000' font_desc='Symbols Nerd Font Mono'></span>    Network";
                       type = "toggle";
                       active = true;
                       command = "sh -c '${pkgs.networkmanager}/bin/nmcli networking off || ${pkgs.networkmanager}/bin/nmcli networking on'";
                     }
                     {
-                      label = "  Bluetooth";
+                      label = "<span size='14000' font_desc='Symbols Nerd Font Mono'></span>    Bluetooth";
                       type = "toggle";
                       active = true;
                       command = "sh -c '${pkgs.bluez}/bin/bluetoothctl power off || ${pkgs.bluez}/bin/bluetoothctl power on'";
                     }
                     {
-                      label = "  Power";
+                      label = "<span size='14000' font_desc='Symbols Nerd Font Mono'></span>    Power";
                       type = "button";
                       command = "systemctl poweroff";
                     }
@@ -78,7 +86,8 @@ _: {
               };
             };
 
-            # 👑 THE DEFINITIVE INNER-BOX ALIGNMENT & SCALING CSS SHEET:
+            # 👑 THE CLEAN CSS SHEET:
+            # We strip out the broken child overrides, leaving clean container styles
             xdg.configFile."swaync/style.css".text = ''
               * {
                   font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
@@ -93,7 +102,7 @@ _: {
                   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
               }
 
-              /* Quick Settings Buttons Grid Container Scaling */
+              /* Quick Settings Buttons Grid Box Wrapper styling */
               .widget-buttons-grid {
                   background: #1f2335;
                   border-radius: 12px;
@@ -101,31 +110,17 @@ _: {
                   margin-bottom: 8px;
               }
 
+              /* Add side padding to keep left-aligned text from touching the edge */
               .widget-buttons-grid button {
                   background: #24283b;
                   border: 1px solid #292e42;
                   border-radius: 8px;
                   color: #c0caf5;
+                  font-weight: bold;
+                  font-size: 13px;
                   margin: 3px;
-                  padding: 8px 12px;
+                  padding: 12px 16px;
                   transition: all 0.1s ease-in-out;
-              }
-
-              /* 👑 THE INNER-BOX CONTENT ALIGNMENT FIX:
-                 We target the internal box container inside the button to force left-alignment! */
-              .widget-buttons-grid button > box {
-                  display: flex !important;
-                  align-items: center !important;
-                  justify-content: flex-start !important;
-                  min-width: 100%;
-              }
-
-              /* 👑 THE ICON SCALING FIX:
-                 Isolate the layout labels inside the active nested GTK box. 
-                 We target the first child, which scales up your icons to look prominent! */
-              .widget-buttons-grid button > box > label {
-                  font-size: 15px !important; /* Forces icons to scale up properly */
-                  margin-right: 8px !important; /* Uniform gap between icon and text */
               }
 
               .widget-buttons-grid button:hover {
