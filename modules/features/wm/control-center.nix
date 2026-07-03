@@ -224,15 +224,54 @@ _: {
 
               /* FLOATING CARD 4: Individual Incoming Notification Card Items */
               .notification-row {
-                  background: #${config.lib.stylix.colors.base01};
-                  border: none !important;
-                  border-radius: 16px;
+                  background-color: #${config.lib.stylix.colors.base01} !important;
+                  background: #${config.lib.stylix.colors.base01} !important;
+                  opacity: 1.0 !important;
+                  border: 1px solid #${config.lib.stylix.colors.base03};
+                  border-radius: 14px;
                   margin-top: 8px;
-                  padding: 12px;
-                  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.4);
+                  margin-bottom: 4px;
+                  padding: 0px !important; /* 👑 Stripping this pushes cards completely flat to the edges! */
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
               }
-              .notification-title { font-size: 12px; font-weight: bold; color: #${config.lib.stylix.colors.base0D}; }
-              .notification-body { font-size: 11px; color: #${config.lib.stylix.colors.base05}; margin-top: 1px; }
+
+              /* Target the internal notification box container [INDEX: 1.4.1] */
+              .notification {
+                  background: transparent !important;
+                  background-color: transparent !important;
+                  padding: 12px !important; /* Standardize card interior margins cleanly */
+                  margin: 0px !important;
+                  border-radius: 14px;
+              }
+
+              /* Force text parameters to remain sharp and color-consistent [INDEX: 1.1.6, 1.4.1] */
+              .notification-title { 
+                  font-size: 13px; 
+                  font-weight: 800; 
+                  color: #${config.lib.stylix.colors.base0D} !important; 
+              }
+
+              .notification-body { 
+                  font-size: 12px; 
+                  font-weight: 500; 
+                  color: #${config.lib.stylix.colors.base05} !important; 
+                  margin-top: 3px; 
+              }
+
+              /* Clean up individual action buttons inside expanding alerts [INDEX: 1.4.1] */
+              .notification-action {
+                  background: #${config.lib.stylix.colors.base02} !important;
+                  border: 1px solid #${config.lib.stylix.colors.base03} !important;
+                  border-radius: 8px !important;
+                  color: #${config.lib.stylix.colors.base05} !important;
+                  font-size: 11px;
+                  margin: 4px;
+                  padding: 6px;
+              }
+              .notification-action:hover {
+                  background: #${config.lib.stylix.colors.base03} !important;
+                  color: #${config.lib.stylix.colors.base0D} !important;
+              }
             '';
           })
         ];
