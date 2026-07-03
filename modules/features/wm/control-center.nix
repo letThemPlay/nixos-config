@@ -59,7 +59,7 @@ _: {
                 fi
 
                 # 3. Present the selection matrix to Fuzzel via standard CPU rendering
-                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --render-mode=pixman --p "Control Center: " --width 25 --lines 4)
+                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --p "Control Center: " --width 25 --lines 4)
 
                 # 4. Route commands straight to core system daemons
                 case "$SELECTION" in
