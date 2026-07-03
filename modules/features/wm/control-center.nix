@@ -1,3 +1,4 @@
+# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -31,15 +32,17 @@ _: {
         home-manager.sharedModules = [
           (_: {
             home.packages = [
-              pkgs.ags # Aylur's GTK Shell Core Engine v2 [INDEX: 1.3.8]
-              pkgs.material-symbols # Android/iOS icon glyph layouts
+              pkgs.ags
+              pkgs.material-symbols
 
               (pkgs.writeShellScriptBin "control-center" ''
                 #!/bin/sh
 
+                # Build a temporary workspace directory to store configuration streams securely
                 RUN_DIR="/tmp/ags-control-center-$USER"
                 mkdir -p "$RUN_DIR"
 
+                # 1. DECLARATIVE JAVASCRIPT LAYER:
                 cat << 'EOF' > "$RUN_DIR/main.js"
                 import App from "resource:///com/github/Aylur/ags/app.js";
                 import Widget from "resource:///com/github/Aylur/ags/widget.js";
@@ -80,12 +83,13 @@ _: {
                     margin_top: 40,
                     margin_right: 12,
                     child: ControlCenterPanel(),
-                    visible: true, // Set to true since our Niri keybind manages spawning/killing the lifecycle
+                    visible: true,
                 });
 
                 App.config({ windows: [ccWindow] });
                 EOF
 
+                # 2. DECLARATIVE CSS STYLING SHEET:
                 cat << 'EOF' > "$RUN_DIR/style.css"
                 .control-center-panel {
                     background-color: #1a1b26;
@@ -111,11 +115,11 @@ _: {
                 .label { font-size: 12px; margin-top: 4px; }
                 EOF
 
-                if ${pkgs.ags}/bin/ags -q -n "control-center-window" 2>/dev/null; then
-                    exit 0
-                else
-                    exec ${pkgs.ags}/bin/ags run --config "$RUN_DIR/main.js" --style "$RUN_DIR/style.css" --name "control-center"
-                fi
+                # 3. 👑 CLEAN COMPILATION AND REFINED EXECUTION RUNTIME:
+                # We drop the unsupported long flags! In AGS v2, you change directory directly into 
+                # your target assets root workspace and pass your style file parameters natively! [INDEX: 1.4.2]
+                cd "$RUN_DIR"
+                exec ${pkgs.ags}/bin/ags run main.js
               '')
             ];
           })
