@@ -78,8 +78,9 @@ _: {
               };
             };
 
-            # 👑 THE ADVANCED GTK DESIGN ALIGNMENT SHEET:
+            # 👑 THE ACCURATE LEFT-ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
+              /* Map fonts across all sub-components */
               * {
                   font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               }
@@ -93,7 +94,7 @@ _: {
                   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
               }
 
-              /* 📱 Quick Settings Buttons Grid Container Scaling */
+              /* Quick Settings Buttons Grid Container Scaling */
               .widget-buttons-grid {
                   background: #1f2335;
                   border-radius: 12px;
@@ -101,34 +102,38 @@ _: {
                   margin-bottom: 8px;
               }
 
-              /* 👑 THE VERTICAL SYMMETRY FIX:
-                 Using an explicit flex alignment model forces both the character vectors 
-                 and the font labels to match the same absolute center line! */
+              /* 👑 THE LEFT-ALIGNMENT FIX:
+                 1. We switch 'justify-content' from center to 'flex-start' to force icons left!
+                 2. We add 'padding-left' to prevent the text items from kissing the border. */
               .widget-buttons-grid button {
                   background: #24283b;
                   border: 1px solid #292e42;
                   border-radius: 8px;
                   color: #c0caf5;
                   font-weight: bold;
-                  font-size: 12px;
+                  font-size: 13px;
                   margin: 3px;
-                  padding: 10px 6px;
+                  padding: 10px 14px;
                   display: flex;
                   align-items: center;
-                  justify-content: center;
+                  justify-content: flex-start; 
                   transition: all 0.1s ease-in-out;
               }
 
-              /* 👑 THE ICON SCALING UPGRADE:
-                 Isolates first-character string nodes inside the GTK box button layout, 
-                 stepping up their scale while counteracting the downward baseline drift! */
-              .widget-buttons-grid button label {
-                  font-size: 12px;
+              /* 👑 THE ICON SCALING FIX:
+                 GTK structures inline text nodes using separate labels. 
+                 By targeting the first icon-font container child separately, 
+                 we can scale the symbol size without inflating your description text! */
+              .widget-buttons-grid button > box > label:first-child {
+                  font-size: 16px;          /* Scaled up from 12px to look prominent like a mobile app */
+                  margin-right: 10px;       /* Adds a clean, uniform gap between the icon and word */
+                  padding-bottom: 1px;      /* Micro-nudge upward to center the baseline perfectly */
               }
 
-              /* Precision macro padding tweak specifically to nudge glyph symbols up 1.5px */
-              .widget-buttons-grid button > box {
-                  padding-bottom: 2px;
+              /* Ensure the descriptive text stays neat and compact */
+              .widget-buttons-grid button > box > label:last-child {
+                  font-size: 12px;
+                  font-weight: bold;
               }
 
               .widget-buttons-grid button:hover {
@@ -140,7 +145,7 @@ _: {
                   color: #1a1b26;
               }
 
-              /*    Premium Slim Media Player Box Card Layout */
+              /* Premium Slim Media Player Box Card Layout */
               .widget-mpris {
                   background: #1f2335;
                   border-radius: 12px;
