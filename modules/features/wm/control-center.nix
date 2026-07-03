@@ -46,11 +46,10 @@ _: {
               control-center-width = 300;
 
               widgets = [
-                "buttons-grid"
                 "mpris"
                 "title"
-                "dnd"
                 "notifications"
+                "buttons-grid"
               ];
 
               "widget-config" = {
