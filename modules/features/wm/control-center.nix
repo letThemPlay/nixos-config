@@ -18,7 +18,6 @@ _: {
         };
 
       config = lib.mkIf cfg.enable {
-        # Group network attributes cleanly to pass Statix validation check arrays
         networking = {
           networkmanager = {
             enable = true;
@@ -31,11 +30,10 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
-            # Provision the standalone phone-style panel binary
             home.packages = [ pkgs.swaynotificationcenter ];
 
-            # 👑 THE PHONE DROPDOWN CONFIGURATION BLOCK:
-            # We map out a type-safe visual control grid using standard JSON!
+            # 👑 THE ACCURATE SCHEMATIC PAYLOAD:
+            # We rewrite the JSON parameters to perfectly match SwayNC's required schema keywords!
             xdg.configFile."swaync/config.json".text = builtins.toJSON {
               "$schema" = "${pkgs.swaynotificationcenter}/etc/xdg/swaync/config.json";
               positionX = "right";
@@ -45,18 +43,19 @@ _: {
               control-center-margin-right = 12;
               control-center-width = 340;
 
-              # 👑 THE DROPDOWN CONTENT DRAWER LAYOUT GRID:
+              # 👑 Exact schema properties mapping keys!
               widgets = [
-                "buttons-grid" # 1. Top row mobile style toggle blocks
-                "mpris" # 2. Interactive media playback card
-                "title" # 3. Notification tracking label header
-                "dnd" # 4. Do Not Disturb activation button
-                "notifications" # 5. Persistent historical notification list
+                "buttons-grid"
+                "mpris"
+                "title"
+                "dnd"
+                "notifications"
               ];
 
-              # 📱 Define the individual action button grid parameters (Android Layout)
-              widget-config = {
-                buttons-grid = {
+              # 👑 FIXED SYNTAX: SwayNC parses individual button configuration grids
+              # directly under the explicit widget definition keyword block!
+              "widget-config" = {
+                "buttons-grid" = {
                   actions = [
                     {
                       label = "    Network";
@@ -80,7 +79,7 @@ _: {
               };
             };
 
-            # Let Stylix handle the base theme styles, but we can match your Niri window designs
+            # Clean styled layout sheets
             xdg.configFile."swaync/style.css".text = ''
               .control-center {
                   background: #1a1b26;
