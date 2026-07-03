@@ -82,17 +82,21 @@ _: {
             # 👑 THE DEFINITIVE GEOMETRY ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
                             # modules/features/wm/control-center.nix snippet inside style.css
-              /* 👑 THE COMPLETE BACKGROUND OBLITERATION MATRIX:
-                 We target the window layer and the control center chassis together, 
-                 forcing a pure alpha 0 alpha channel to kill the opaque tile background permanently! [INDEX: 1.4.1] */
+              /* 👑 THE DEFINITIVE BACKGROUND LAYER WIPEOUT:
+                 We target the deep .blank-window container class that SwayNC maps over GtkWindow!
+                 This strips out the hidden background layer, forcing pure transparency. [INDEX: 1.4.1] */
+              .blank-window,
               window,
-              window.control-center,
-              .control-center {
-                  background: rgba(0, 0, 0, 0) !important;
+              #window,
+              .control-center,
+              .control-center-box,
+              box.control-center {
+                  background: transparent !important;
                   background-color: rgba(0, 0, 0, 0) !important;
                   border: none !important;
                   box-shadow: none !important;
-                  padding: 4px;
+                  padding: 0px;
+                  margin: 0px;
               }
 
               /* 📱 FLOATING CARD 1: Quick Settings Grid */
@@ -187,6 +191,7 @@ _: {
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #7aa2f7; }
               .notification-body { font-size: 11px; color: #c0caf5; margin-top: 1px; }
+
             '';
           })
         ];
