@@ -81,26 +81,21 @@ _: {
 
             # 👑 THE DEFINITIVE GEOMETRY ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
-              /* 👑 THE FLUID-CARD THEME LAYOUT SHEET */
-
-              /* 👑 THE DEFINITIVE TRANSPARENCY FIX:
-                 By overriding GTK's core color tokens at the root layer, we force SwayNC's 
-                 invisible backdrop wrappers to drop their default opaque tints permanently! [INDEX: 1.4.1] */
+              # modules/features/wm/control-center.nix snippet inside style.css
+              /* 👑 THE DEFINITIVE BACKGROUND BYPASS MATRIX:
+                 We override GTK's core color tokens at the root layer AND strip out all 
+                 parent layouts, forcing the ghost under-tile backdrop to drop its default opaque tints permanently! [INDEX: 1.4.1] */
               @define-color cc-bg rgba(0, 0, 0, 0);
 
-              /* Global text baseline scaling across all widgets */
-              * {
-                  font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
-              }
-
-              /* Strip any leftover hardcoded background color rules from the window surface classes [INDEX: 1.4.1] */
               window,
               #window,
               .blank-window,
               .control-center,
               .control-center-box,
-              box.control-center {
-                  background: transparent !important;
+              box.control-center,
+              .control-center.sidebar,
+              .widget-box {
+                  background: none !important;
                   background-color: rgba(0, 0, 0, 0) !important;
                   border: none !important;
                   box-shadow: none !important;
@@ -108,12 +103,15 @@ _: {
                   margin: 0px !important;
               }
 
+              /* Global text baseline scaling across all widgets */
+              * {
+                  font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
+              }
+
               /* 📱 FLOATING CARD 1: Quick Settings Grid Box Wrapper */
               .widget-buttons-grid {
-                  /* 👑 FIXED: Using an absolute, solid hex color ensures it remains 100% opaque! [INDEX: 1.4.1] */
+                  /* 👑 FIXED: Explicit background-color + absolute hex forces cards to stay completely solid! [INDEX: 1.4.1] */
                   background-color: #1f2335 !important;
-                  background: #1f2335 !important;
-                  opacity: 1.0 !important;
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 10px;
@@ -138,8 +136,6 @@ _: {
               /*    FLOATING CARD 2: Slim Media Player Box Card */
               .widget-mpris {
                   background-color: #1f2335 !important;
-                  background: #1f2335 !important;
-                  opacity: 1.0 !important;
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 10px;
@@ -179,8 +175,6 @@ _: {
               /*    FLOATING CARD 3: Do Not Disturb Toggle Layout Module Switch */
               .widget-dnd {
                   background-color: #1f2335 !important;
-                  background: #1f2335 !important;
-                  opacity: 1.0 !important;
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 12px;
@@ -199,8 +193,6 @@ _: {
               /*    FLOATING CARD 4: Individual Incoming Notification Box Items */
               .notification-row {
                   background-color: #1f2335 !important;
-                  background: #1f2335 !important;
-                  opacity: 1.0 !important;
                   border: 1px solid #292e42;
                   border-radius: 12px;
                   margin-top: 8px;
