@@ -81,11 +81,12 @@ _: {
 
             # 👑 THE DEFINITIVE GEOMETRY ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
+                            # modules/features/wm/control-center.nix snippet inside style.css
               * {
                   font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               }
 
-              /* Main Dropdown Drawer Box Container */
+              /* Main Dropdown Container Box */
               .control-center {
                   background: rgba(26, 27, 38, 0.95);
                   border: 1px solid #414868;
@@ -94,7 +95,7 @@ _: {
                   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
               }
 
-              /* Quick Settings Buttons Grid Container Scaling */
+              /* Quick Settings Buttons Grid Container Box Wrapper styling */
               .widget-buttons-grid {
                   background: #1f2335;
                   border-radius: 12px;
@@ -102,40 +103,34 @@ _: {
                   margin-bottom: 8px;
               }
 
+              /* 📱 RESTORE COMPACT SIZES:
+                 We return to tight padding heights to make the pills compact like a phone screen! */
               .widget-buttons-grid button {
                   background: #24283b;
                   border: 1px solid #292e42;
                   border-radius: 8px;
                   color: #c0caf5;
+                  font-weight: bold;
+                  font-size: 13px;
                   margin: 3px;
-                  padding: 10px 14px;
+                  padding: 8px 12px; /* 👑 Tight padding prevents oversized button bloat! */
                   transition: all 0.1s ease-in-out;
               }
 
-              /* 👑 THE COMPLETE LEFT-ALIGNMENT BYPASS FIX:
-                 1. We use 'all: unset' to completely strip SwayNC's hardcoded centered constraints! [INDEX: 1.4.1]
-                 2. We enforce a 100% width block layout, snapping all text and icons flush left! [INDEX: 1.4.1] */
-              .widget-buttons-grid button box {
-                  all: unset;
-                  display: box !important;
+              /* 👑 THE TRUE LEFT-ALIGNMENT OVERRIDE:
+                 By targeting the label element inside the button box and forcing it to fill 
+                 the entire available width, text-align snaps your text and icons flush left! [INDEX: 1.4.1] */
+              .widget-buttons-grid button label {
                   text-align: left !important;
-                  min-width: 100% !important;
+                  width: 100% !important;
               }
 
-              /* 👑 THE ICON SCALING FIX:
-                 Now that the text engine is running flat, we target the icon character node separately!
-                 This steps up its font scale to look prominent while preserving your inline row text. */
-              .widget-buttons-grid button box label:first-child {
+              /* 👑 THE DEFINITIVE ICON SCALING OVERRIDE:
+                 Isolates the first character (the hardware symbol) natively inside the label.
+                 This steps up its size to 16px while keeping the descriptive text inline! */
+              .widget-buttons-grid button label::first-letter {
                   font-size: 16px !important;
                   font-weight: normal !important;
-                  margin-right: 8px !important;
-                  padding-bottom: 1px !important;
-              }
-
-              /* Keep the descriptions readable and compact */
-              .widget-buttons-grid button box label:last-child {
-                  font-size: 12px !important;
-                  font-weight: bold !important;
               }
 
               .widget-buttons-grid button:hover {
