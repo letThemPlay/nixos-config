@@ -47,7 +47,7 @@
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
 
-      "Mod+I" { spawn "control-center"; }
+      "Mod+I" { spawn "uwsm" "app" "--" "wayland-control-center" "toggle"; 
 
       "Mod+Escape"       { spawn "${pkgs.mako}/bin/makoctl" "dismiss"; }
       "Mod+Shift+Escape" { spawn "${pkgs.mako}/bin/makoctl" "dismiss" "-a"; }
