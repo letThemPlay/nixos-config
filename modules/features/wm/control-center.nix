@@ -86,68 +86,49 @@ _: {
                   font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               }
 
-              /* Main Dropdown Container Box */
+              /* 👑 THE OBLITERATED MAIN BACKGROUND:
+                 We make the parent container completely transparent and borderless.
+                 This pulls the main chassis background out of view entirely! [INDEX: 1.4.1] */
               .control-center {
-                  background: rgba(26, 27, 38, 0.95);
-                  border: 1px solid #414868;
-                  border-radius: 16px;
-                  padding: 12px;
-                  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+                  background: transparent !important;
+                  border: none !important;
+                  box-shadow: none !important;
+                  padding: 4px;
               }
 
-              /* Quick Settings Buttons Grid Container Box Wrapper styling */
+              /* 📱 FLOATING CARD 1: Quick Settings Grid */
               .widget-buttons-grid {
-                  background: #1f2335;
-                  border-radius: 12px;
-                  padding: 6px;
-                  margin-bottom: 8px;
+                  /* Enforces your exact dark base background color! */
+                  background: #1f2335; 
+                  border: 1px solid #292e42;
+                  border-radius: 14px;
+                  padding: 10px;
+                  margin-bottom: 12px;
+                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
               }
 
-              /* 📱 RESTORE COMPACT SIZES:
-                 We return to tight padding heights to make the pills compact like a phone screen! */
               .widget-buttons-grid button {
                   background: #24283b;
-                  border: 1px solid #292e42;
+                  border: 1px solid #383e5a;
                   border-radius: 8px;
                   color: #c0caf5;
                   font-weight: bold;
                   font-size: 13px;
-                  margin: 3px;
-                  padding: 8px 12px; /* 👑 Tight padding prevents oversized button bloat! */
+                  margin: 4px;
+                  padding: 10px;
                   transition: all 0.1s ease-in-out;
               }
+              .widget-buttons-grid button:hover { background: #414868; color: #7aa2f7; }
+              .widget-buttons-grid button:checked { background: #7aa2f7; color: #1a1b26; }
 
-              /* 👑 THE TRUE LEFT-ALIGNMENT OVERRIDE:
-                 By targeting the label element inside the button box and forcing it to fill 
-                 the entire available width, text-align snaps your text and icons flush left! [INDEX: 1.4.1] */
-              .widget-buttons-grid button label {
-                  text-align: left !important;
-                  width: 100% !important;
-              }
-
-              /* 👑 THE DEFINITIVE ICON SCALING OVERRIDE:
-                 Isolates the first character (the hardware symbol) natively inside the label.
-                 This steps up its size to 16px while keeping the descriptive text inline! */
-              .widget-buttons-grid button label::first-letter {
-                  font-size: 16px !important;
-                  font-weight: normal !important;
-              }
-
-              .widget-buttons-grid button:hover {
-                  background: #414868;
-                  color: #7aa2f7;
-              }
-              .widget-buttons-grid button:checked {
-                  background: #7aa2f7;
-                  color: #1a1b26;
-              }
-
-              /* Slim Media Player Box Card Layout */
+              /*    FLOATING CARD 2: Slim Media Player Box */
               .widget-mpris {
                   background: #1f2335;
-                  border-radius: 12px;
-                  padding: 8px;
-                  margin-bottom: 8px;
+                  border: 1px solid #292e42;
+                  border-radius: 14px;
+                  padding: 10px;
+                  margin-bottom: 12px;
+                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
               }
               .widget-mpris-player {
                   background: #24283b;
@@ -156,55 +137,55 @@ _: {
               }
               .widget-mpris-album-art {
                   border-radius: 6px;
-                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
               }
               .widget-mpris-title { font-size: 13px; font-weight: bold; color: #7aa2f7; }
               .widget-mpris-subtitle { font-size: 11px; color: #a9b1d6; }
-
-              .widget-mpris-controls button {
-                  color: #c0caf5;
-                  font-size: 14px;
-                  padding: 4px;
-              }
+              .widget-mpris-controls button { color: #c0caf5; font-size: 14px; padding: 4px; }
               .widget-mpris-controls button:hover { color: #7aa2f7; }
 
-              /* Notifications Shelf Text Header Split */
+              /* Historical Notifications Logs Header Text Section */
               .widget-title {
+                  margin-top: 4px;
                   margin-bottom: 6px;
-                  padding: 2px 4px;
+                  padding: 2px 6px;
               }
               .widget-title > label { font-size: 13px; font-weight: bold; color: #bb9af3; }
               .widget-title > button {
-                  background: #24283b;
+                  background: #1f2335;
+                  border: 1px solid #292e42;
                   border-radius: 6px;
                   color: #f7768e;
-                  padding: 3px 6px;
-                  font-size: 10px;
+                  padding: 4px 8px;
+                  font-size: 11px;
               }
               .widget-title > button:hover { background: #f7768e; color: #1a1b26; }
 
-              /* Do Not Disturb Toggle Layout Module Switch */
+              /*    FLOATING CARD 3: Do Not Disturb Toggle Layout Module */
               .widget-dnd {
                   background: #1f2335;
-                  border-radius: 12px;
-                  padding: 8px 12px;
-                  margin-bottom: 8px;
+                  border: 1px solid #292e42;
+                  border-radius: 14px;
+                  padding: 12px;
+                  margin-bottom: 12px;
                   font-size: 12px;
                   color: #c0caf5;
+                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
               }
               .widget-dnd switch {
                   border-radius: 10px;
                   background: #24283b;
+                  border: 1px solid #383e5a;
               }
               .widget-dnd switch:checked { background: #b4f9f8; }
 
-              /* Individual Notification Layout Box Cards */
+              /*    FLOATING CARD 4: Individual Incoming Notification Card Items */
               .notification-row {
                   background: #1f2335;
                   border: 1px solid #292e42;
-                  border-radius: 8px;
-                  margin-top: 6px;
-                  padding: 10px;
+                  border-radius: 12px;
+                  margin-top: 8px;
+                  padding: 12px;
+                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #7aa2f7; }
               .notification-body { font-size: 11px; color: #c0caf5; margin-top: 1px; }
