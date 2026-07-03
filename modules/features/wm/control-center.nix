@@ -81,10 +81,16 @@ _: {
 
             # 👑 THE DEFINITIVE GEOMETRY ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
-                            # modules/features/wm/control-center.nix snippet inside style.css
-              /* 👑 THE DEFINITIVE BACKGROUND LAYER WIPEOUT:
-                 We target the deep .blank-window container class that SwayNC maps over GtkWindow!
-                 This strips out the hidden background layer, forcing pure transparency. [INDEX: 1.4.1] */
+              /* 👑 THE COMPLETE FLUID-CARD THEME LAYOUT SHEET */
+
+              /* Global text baseline scaling across all widgets */
+              * {
+                  font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
+              }
+
+              /* 👑 THE ABSOLUTE BACKGROUND DROPOUT:
+                 Strips out the hidden background layers from SwayNC, passing a pure 
+                 alpha-zero mask straight down to Niri's transparency pipeline! [INDEX: 1.4.1] */
               .blank-window,
               window,
               #window,
@@ -95,18 +101,19 @@ _: {
                   background-color: rgba(0, 0, 0, 0) !important;
                   border: none !important;
                   box-shadow: none !important;
-                  padding: 0px;
-                  margin: 0px;
+                  padding: 0px !important;
+                  margin: 0px !important;
               }
 
-              /* 📱 FLOATING CARD 1: Quick Settings Grid */
+              /* 📱 FLOATING CARD 1: Quick Settings Grid Box Wrapper */
               .widget-buttons-grid {
-                  background: #1f2335; 
+                  background: #1f2335 !important; 
+                  opacity: 1.0 !important; /* Forces the card to remain solid over your wallpaper! [INDEX: 1.4.1] */
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
               }
 
               .widget-buttons-grid button {
@@ -123,14 +130,15 @@ _: {
               .widget-buttons-grid button:hover { background: #414868; color: #7aa2f7; }
               .widget-buttons-grid button:checked { background: #7aa2f7; color: #1a1b26; }
 
-              /*    FLOATING CARD 2: Slim Media Player Box */
+              /*    FLOATING CARD 2: Slim Media Player Box Card */
               .widget-mpris {
-                  background: #1f2335;
+                  background: #1f2335 !important;
+                  opacity: 1.0 !important;
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
               }
               .widget-mpris-player {
                   background: #24283b;
@@ -162,16 +170,17 @@ _: {
               }
               .widget-title > button:hover { background: #f7768e; color: #1a1b26; }
 
-              /*    FLOATING CARD 3: Do Not Disturb Toggle Layout Module */
+              /*    FLOATING CARD 3: Do Not Disturb Toggle Layout Module Switch */
               .widget-dnd {
-                  background: #1f2335;
+                  background: #1f2335 !important;
+                  opacity: 1.0 !important;
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 12px;
                   margin-bottom: 12px;
                   font-size: 12px;
                   color: #c0caf5;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
               }
               .widget-dnd switch {
                   border-radius: 10px;
@@ -180,18 +189,18 @@ _: {
               }
               .widget-dnd switch:checked { background: #b4f9f8; }
 
-              /*    FLOATING CARD 4: Individual Incoming Notification Card Items */
+              /*    FLOATING CARD 4: Individual Incoming Notification Box Items */
               .notification-row {
-                  background: #1f2335;
+                  background: #1f2335 !important;
+                  opacity: 1.0 !important;
                   border: 1px solid #292e42;
                   border-radius: 12px;
                   margin-top: 8px;
                   padding: 12px;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #7aa2f7; }
               .notification-body { font-size: 11px; color: #c0caf5; margin-top: 1px; }
-
             '';
           })
         ];
