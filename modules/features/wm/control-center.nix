@@ -57,25 +57,21 @@ _: {
                 "buttons-grid" = {
                   actions = [
                     {
-                      # 👑 THE ICON MAPPING FIX:
-                      # We split the glyph character entirely out of the text label!
-                      # This gives SwayNC a separate icon reference that renders perfectly.
-                      label = "Network";
-                      icon = "  ";
+                      # 👑 THE ICON UNIFICATION FIX:
+                      # We bundle your glyph strings directly inside the single valid label parameter!
+                      label = "    Network";
                       type = "toggle";
                       active = true;
                       command = "sh -c '${pkgs.networkmanager}/bin/nmcli networking off || ${pkgs.networkmanager}/bin/nmcli networking on'";
                     }
                     {
-                      label = "Bluetooth";
-                      icon = "";
+                      label = "  Bluetooth";
                       type = "toggle";
                       active = true;
                       command = "sh -c '${pkgs.bluez}/bin/bluetoothctl power off || ${pkgs.bluez}/bin/bluetoothctl power on'";
                     }
                     {
-                      label = "Power";
-                      icon = "  ";
+                      label = "    Power";
                       type = "button";
                       command = "systemctl poweroff";
                     }
@@ -84,14 +80,14 @@ _: {
               };
             };
 
-            # Clean material-style layout adjustments
+            # 👑 THE FONT REGISTRY REFINEMENT SHEET:
             xdg.configFile."swaync/style.css".text = ''
-              /* Apply our Symbols Font explicitly across all selectors */
+              /* 👑 FIXED: We use the exact system font identifier family name "Symbols Nerd Font Mono" */
+              /* This explicitly maps your UTF-8 glyph markers across all text labels natively! */
               * {
-                  font-family: "Symbols Nerd Font", "Inter", sans-serif;
+                  font-family: "Symbols Nerd Font Mono", "Inter", sans-serif;
               }
 
-              /* Main Dropdown Container Box */
               .control-center {
                   background: rgba(26, 27, 38, 0.95);
                   border: 1px solid #414868;
@@ -100,7 +96,6 @@ _: {
                   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
               }
 
-              /* 📱 Tighter Mobile Quick Settings Button Grids Layout */
               .widget-buttons-grid {
                   background: #1f2335;
                   border-radius: 12px;
@@ -127,7 +122,6 @@ _: {
                   color: #1a1b26;
               }
 
-              /*    Premium Slim Media Player Box Card Layout */
               .widget-mpris {
                   background: #1f2335;
                   border-radius: 12px;
@@ -153,7 +147,6 @@ _: {
               }
               .widget-mpris-controls button:hover { color: #7aa2f7; }
 
-              /* Notifications Shelf Text Header Split */
               .widget-title {
                   margin-bottom: 6px;
                   padding: 2px 4px;
@@ -168,7 +161,6 @@ _: {
               }
               .widget-title > button:hover { background: #f7768e; color: #1a1b26; }
 
-              /* Do Not Disturb Toggle Layout Module Switch */
               .widget-dnd {
                   background: #1f2335;
                   border-radius: 12px;
@@ -183,7 +175,6 @@ _: {
               }
               .widget-dnd switch:checked { background: #b4f9f8; }
 
-              /*    Individual Historical Notification Card Layout Items */
               .notification-row {
                   background: #1f2335;
                   border: 1px solid #292e42;
