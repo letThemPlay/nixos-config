@@ -113,27 +113,24 @@ _: {
               /*    👑 FIXED THEME: PREMIUM ERIK REIDER STYLE MEDIA CARD PLAYER */
               .widget-mpris {
                   background: #${config.lib.stylix.colors.base01}; 
-                  border: 1px solid #${config.lib.stylix.colors.base03};
+                  border: none !important;
                   border-radius: 16px;
                   padding: 12px;
                   margin-bottom: 12px;
                   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
               }
 
-              /* Drops the heavy internal solid borders, matching the reference image layout */
               .widget-mpris-player {
                   background: transparent !important;
                   padding: 4px;
               }
 
-              /* Album Art Framing Styles */
               .widget-mpris-album-art {
                   border-radius: 12px;
                   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
                   margin-right: 14px;
               }
 
-              /* High-Fidelity Font Assignments */
               .widget-mpris-title { 
                   font-size: 15px; 
                   font-weight: 800; 
@@ -146,7 +143,6 @@ _: {
                   color: #${config.lib.stylix.colors.base04}; 
               }
 
-              /* 👑 Media Control Glyphs Action Grid buttons style alignment */
               .widget-mpris-controls {
                   margin-top: 14px;
                   display: flex;
@@ -168,7 +164,7 @@ _: {
               /* 📱 FLOATING CARD 2: Quick Settings Grid */
               .widget-buttons-grid {
                   background: #${config.lib.stylix.colors.base01}; 
-                  border: 1px solid #${config.lib.stylix.colors.base03};
+                  border: none !important;
                   border-radius: 16px;
                   padding: 10px;
                   margin-bottom: 12px;
@@ -208,7 +204,7 @@ _: {
               /* FLOATING CARD 3: Do Not Disturb Toggle Layout Module */
               .widget-dnd {
                   background: #${config.lib.stylix.colors.base01};
-                  border: 1px solid #${config.lib.stylix.colors.base03};
+                  border: none !important;
                   border-radius: 16px;
                   padding: 12px;
                   margin-bottom: 12px;
@@ -226,7 +222,7 @@ _: {
               /* FLOATING CARD 4: Individual Incoming Notification Card Items */
               .notification-row {
                   background: #${config.lib.stylix.colors.base01};
-                  border: 1px solid #${config.lib.stylix.colors.base03};
+                  border: none !important;
                   border-radius: 16px;
                   margin-top: 8px;
                   padding: 12px;
