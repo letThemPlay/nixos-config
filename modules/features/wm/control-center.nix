@@ -82,15 +82,14 @@ _: {
             # 👑 THE DEFINITIVE GEOMETRY ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
                             # modules/features/wm/control-center.nix snippet inside style.css
-              * {
-                  font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
-              }
-
-              /* 👑 THE OBLITERATED MAIN BACKGROUND:
-                 We make the parent container completely transparent and borderless.
-                 This pulls the main chassis background out of view entirely! [INDEX: 1.4.1] */
+              /* 👑 THE COMPLETE BACKGROUND OBLITERATION MATRIX:
+                 We target the window layer and the control center chassis together, 
+                 forcing a pure alpha 0 alpha channel to kill the opaque tile background permanently! [INDEX: 1.4.1] */
+              window,
+              window.control-center,
               .control-center {
-                  background: transparent !important;
+                  background: rgba(0, 0, 0, 0) !important;
+                  background-color: rgba(0, 0, 0, 0) !important;
                   border: none !important;
                   box-shadow: none !important;
                   padding: 4px;
@@ -98,13 +97,12 @@ _: {
 
               /* 📱 FLOATING CARD 1: Quick Settings Grid */
               .widget-buttons-grid {
-                  /* Enforces your exact dark base background color! */
                   background: #1f2335; 
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
-                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
 
               .widget-buttons-grid button {
@@ -128,7 +126,7 @@ _: {
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
-                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
               .widget-mpris-player {
                   background: #24283b;
@@ -169,7 +167,7 @@ _: {
                   margin-bottom: 12px;
                   font-size: 12px;
                   color: #c0caf5;
-                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
               .widget-dnd switch {
                   border-radius: 10px;
@@ -185,11 +183,10 @@ _: {
                   border-radius: 12px;
                   margin-top: 8px;
                   padding: 12px;
-                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #7aa2f7; }
               .notification-body { font-size: 11px; color: #c0caf5; margin-top: 1px; }
-
             '';
           })
         ];
