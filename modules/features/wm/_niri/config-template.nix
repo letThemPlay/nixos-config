@@ -46,7 +46,6 @@
       "Mod+Return" { spawn "alacritty"; }
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
-           
       "Mod+I" { spawn "uwsm" "app" "--" "swaync-client" "-t" "-sw"; }
 
       "Mod+Escape"       { spawn "${pkgs.mako}/bin/makoctl" "dismiss"; }

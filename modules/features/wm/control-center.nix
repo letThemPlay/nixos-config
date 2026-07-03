@@ -1,4 +1,3 @@
-# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -32,18 +31,15 @@ _: {
           (_: {
             home.packages = [ pkgs.swaynotificationcenter ];
 
-            # 👑 THE ACCURATE SCHEMATIC PAYLOAD:
-            # We rewrite the JSON parameters to perfectly match SwayNC's required schema keywords!
             xdg.configFile."swaync/config.json".text = builtins.toJSON {
               "$schema" = "${pkgs.swaynotificationcenter}/etc/xdg/swaync/config.json";
               positionX = "right";
               positionY = "top";
               layer = "top";
-              control-center-margin-top = 40;
+              control-center-margin-top = 12; # Pulled tighter to match your Niri panel struts
               control-center-margin-right = 12;
-              control-center-width = 340;
+              control-center-width = 320; # Compact width matching phone quick-settings bounds
 
-              # 👑 Exact schema properties mapping keys!
               widgets = [
                 "buttons-grid"
                 "mpris"
@@ -52,12 +48,11 @@ _: {
                 "notifications"
               ];
 
-              # 👑 FIXED SYNTAX: SwayNC parses individual button configuration grids
-              # directly under the explicit widget definition keyword block!
               "widget-config" = {
                 "buttons-grid" = {
                   actions = [
                     {
+                      # 👑 ICON FIXED: Standard UTF-8 Nerdfont symbols embedded directly into the buttons!
                       label = "    Network";
                       type = "toggle";
                       active = true;
@@ -79,32 +74,99 @@ _: {
               };
             };
 
-            # Clean styled layout sheets
+            # 👑 THE DESIGN REFINEMENT: Premium iOS/Android Theming Layout Sheet!
             xdg.configFile."swaync/style.css".text = ''
+              /* Main Dropdown Container Box */
               .control-center {
-                  background: #1a1b26;
-                  border: 2px solid #7aa2f7;
-                  border-radius: 12px;
+                  background: rgba(26, 27, 38, 0.95); /* matching your transparent tokyonight layout */
+                  border: 1px solid #414868;
+                  border-radius: 16px;
                   padding: 16px;
+                  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
               }
+
+              /* 📱 Quick Settings Buttons Grid Scaling */
               .widget-buttons-grid {
+                  background: #24283b;
+                  border-radius: 12px;
                   padding: 8px;
                   margin-bottom: 12px;
               }
               .widget-buttons-grid button {
-                  background: #24283b;
+                  background: #1f2335;
+                  border: 1px solid #292e42;
                   border-radius: 8px;
                   color: #c0caf5;
-                  margin: 6px;
-                  padding: 12px;
+                  font-weight: bold;
+                  font-size: 13px;
+                  margin: 4px;
+                  padding: 10px;
+                  transition: all 0.15s ease-in-out;
               }
-              .widget-buttons-grid button:hover { background: #414868; }
+              .widget-buttons-grid button:hover {
+                  background: #414868;
+                  color: #7aa2f7;
+              }
+              /* Toggled Active Interfaces Highlight Color Block */
+              .widget-buttons-grid button:checked {
+                  background: #7aa2f7;
+                  color: #1a1b26;
+              }
+
+              /*    Media Player Card Layout Refinements */
+              .widget-mpris {
+                  background: #24283b;
+                  border-radius: 12px;
+                  padding: 12px;
+                  margin-bottom: 12px;
+              }
+              .widget-mpris-player {
+                  padding: 4px;
+              }
+              .widget-mpris-title { font-size: 14px; font-weight: bold; color: #7aa2f7; }
+              .widget-mpris-subtitle { font-size: 11px; color: #a9b1d6; }
+
+              /* Notifications Log Header Split */
+              .widget-title {
+                  margin-bottom: 8px;
+                  padding: 4px;
+              }
+              .widget-title > label { font-size: 15px; font-weight: bold; color: #bb9af3; }
+              .widget-title > button {
+                  background: #24283b;
+                  border-radius: 6px;
+                  color: #f7768e;
+                  padding: 4px 8px;
+                  font-size: 11px;
+              }
+              .widget-title > button:hover { background: #f7768e; color: #1a1b26; }
+
+              /* Do Not Disturb Toggle Layout Switch */
+              .widget-dnd {
+                  background: #24283b;
+                  border-radius: 12px;
+                  padding: 10px;
+                  margin-bottom: 12px;
+                  font-size: 13px;
+                  color: #c0caf5;
+              }
+              .widget-dnd switch {
+                  border-radius: 12px;
+                  background: #1f2335;
+              }
+              .widget-dnd switch:checked { background: #b4f9f8; }
+
+              /*    Individual Historical Notification Card Items */
               .notification-row {
                   background: #24283b;
-                  border-radius: 8px;
-                  margin-top: 6px;
-                  padding: 10px;
+                  border: 1px solid #292e42;
+                  border-radius: 10px;
+                  margin-top: 8px;
+                  padding: 12px;
               }
+              .notification-content { padding: 4px; }
+              .notification-title { font-size: 13px; font-weight: bold; color: #7aa2f7; }
+              .notification-body { font-size: 12px; color: #c0caf5; margin-top: 2px; }
             '';
           })
         ];
