@@ -56,7 +56,7 @@ _: {
                 fi
 
                 # 👑 THE FUZZEL OPTION FIX: Changed '--p' to '--prompt' to pass validation checks! [INDEX: 1.3.1]
-                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --render-mode=pixman --prompt "Control Center: " --width 25 --lines 4)
+                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --prompt "Control Center: " --width 25 --lines 4)
 
                 # 3. Route selected commands straight to system backends
                 case "$SELECTION" in
