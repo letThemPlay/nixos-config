@@ -1,4 +1,3 @@
-# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -30,13 +29,10 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
-            # 👑 THE UNIFIED EXTRA FONT PROVISION:
-            # We add font-awesome alongside your symbols font to guarantee a continuous,
-            # robust fallback stream for system hardware control tokens!
             home.packages = [
               pkgs.swaynotificationcenter
               pkgs.nerd-fonts.symbols-only
-              pkgs.font-awesome # 👑 Adds the classic universal hardware glyph vectors
+              pkgs.font-awesome
               pkgs.adwaita-icon-theme
             ];
 
@@ -61,9 +57,6 @@ _: {
                 "buttons-grid" = {
                   actions = [
                     {
-                      # 👑 THE UNIVERSAL GLYPH FIX:
-                      # We swap the high-range token for the standard '' wireless marker symbol.
-                      # This bypasses the GTK character-page dropping issue completely!
                       label = "  Network";
                       type = "toggle";
                       active = true;
@@ -76,7 +69,7 @@ _: {
                       command = "sh -c '${pkgs.bluez}/bin/bluetoothctl power off || ${pkgs.bluez}/bin/bluetoothctl power on'";
                     }
                     {
-                      label = "  Power"; # 👑 Fixed to use a classic universal system power glyph icon
+                      label = "  Power";
                       type = "button";
                       command = "systemctl poweroff";
                     }
@@ -85,13 +78,13 @@ _: {
               };
             };
 
-            # Sleek mobile-style theming configurations sheet
+            # 👑 THE ADVANCED GTK DESIGN ALIGNMENT SHEET:
             xdg.configFile."swaync/style.css".text = ''
-              /* Map font families cleanly to catch both Nerd Font metrics and Font Awesome */
               * {
                   font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               }
 
+              /* Main Dropdown Container Box */
               .control-center {
                   background: rgba(26, 27, 38, 0.95);
                   border: 1px solid #414868;
@@ -100,12 +93,17 @@ _: {
                   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
               }
 
+              /* 📱 Quick Settings Buttons Grid Container Scaling */
               .widget-buttons-grid {
                   background: #1f2335;
                   border-radius: 12px;
                   padding: 6px;
                   margin-bottom: 8px;
               }
+
+              /* 👑 THE VERTICAL SYMMETRY FIX:
+                 Using an explicit flex alignment model forces both the character vectors 
+                 and the font labels to match the same absolute center line! */
               .widget-buttons-grid button {
                   background: #24283b;
                   border: 1px solid #292e42;
@@ -114,9 +112,25 @@ _: {
                   font-weight: bold;
                   font-size: 12px;
                   margin: 3px;
-                  padding: 8px;
+                  padding: 10px 6px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
                   transition: all 0.1s ease-in-out;
               }
+
+              /* 👑 THE ICON SCALING UPGRADE:
+                 Isolates first-character string nodes inside the GTK box button layout, 
+                 stepping up their scale while counteracting the downward baseline drift! */
+              .widget-buttons-grid button label {
+                  font-size: 12px;
+              }
+
+              /* Precision macro padding tweak specifically to nudge glyph symbols up 1.5px */
+              .widget-buttons-grid button > box {
+                  padding-bottom: 2px;
+              }
+
               .widget-buttons-grid button:hover {
                   background: #414868;
                   color: #7aa2f7;
@@ -126,6 +140,7 @@ _: {
                   color: #1a1b26;
               }
 
+              /*    Premium Slim Media Player Box Card Layout */
               .widget-mpris {
                   background: #1f2335;
                   border-radius: 12px;
@@ -151,6 +166,7 @@ _: {
               }
               .widget-mpris-controls button:hover { color: #7aa2f7; }
 
+              /* Notifications Shelf Text Header Split */
               .widget-title {
                   margin-bottom: 6px;
                   padding: 2px 4px;
@@ -165,6 +181,7 @@ _: {
               }
               .widget-title > button:hover { background: #f7768e; color: #1a1b26; }
 
+              /* Do Not Disturb Toggle Layout Module Switch */
               .widget-dnd {
                   background: #1f2335;
                   border-radius: 12px;
@@ -179,6 +196,7 @@ _: {
               }
               .widget-dnd switch:checked { background: #b4f9f8; }
 
+              /* Individual Notification Layout Box Cards */
               .notification-row {
                   background: #1f2335;
                   border: 1px solid #292e42;
