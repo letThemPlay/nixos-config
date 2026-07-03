@@ -78,9 +78,8 @@ _: {
               };
             };
 
-            # 👑 THE ACCURATE LEFT-ALIGNMENT & SCALING CSS SHEET:
+            # 👑 THE DEFINITIVE INNER-BOX ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
-              /* Map fonts across all sub-components */
               * {
                   font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               }
@@ -102,38 +101,31 @@ _: {
                   margin-bottom: 8px;
               }
 
-              /* 👑 THE LEFT-ALIGNMENT FIX:
-                 1. We switch 'justify-content' from center to 'flex-start' to force icons left!
-                 2. We add 'padding-left' to prevent the text items from kissing the border. */
               .widget-buttons-grid button {
                   background: #24283b;
                   border: 1px solid #292e42;
                   border-radius: 8px;
                   color: #c0caf5;
-                  font-weight: bold;
-                  font-size: 13px;
                   margin: 3px;
-                  padding: 10px 14px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: flex-start; 
+                  padding: 8px 12px;
                   transition: all 0.1s ease-in-out;
               }
 
-              /* 👑 THE ICON SCALING FIX:
-                 GTK structures inline text nodes using separate labels. 
-                 By targeting the first icon-font container child separately, 
-                 we can scale the symbol size without inflating your description text! */
-              .widget-buttons-grid button > box > label:first-child {
-                  font-size: 16px;          /* Scaled up from 12px to look prominent like a mobile app */
-                  margin-right: 10px;       /* Adds a clean, uniform gap between the icon and word */
-                  padding-bottom: 1px;      /* Micro-nudge upward to center the baseline perfectly */
+              /* 👑 THE INNER-BOX CONTENT ALIGNMENT FIX:
+                 We target the internal box container inside the button to force left-alignment! */
+              .widget-buttons-grid button > box {
+                  display: flex !important;
+                  align-items: center !important;
+                  justify-content: flex-start !important;
+                  min-width: 100%;
               }
 
-              /* Ensure the descriptive text stays neat and compact */
-              .widget-buttons-grid button > box > label:last-child {
-                  font-size: 12px;
-                  font-weight: bold;
+              /* 👑 THE ICON SCALING FIX:
+                 Isolate the layout labels inside the active nested GTK box. 
+                 We target the first child, which scales up your icons to look prominent! */
+              .widget-buttons-grid button > box > label {
+                  font-size: 15px !important; /* Forces icons to scale up properly */
+                  margin-right: 8px !important; /* Uniform gap between icon and text */
               }
 
               .widget-buttons-grid button:hover {
