@@ -1,3 +1,4 @@
+# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -30,84 +31,88 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
-            # Provision our core asset tracking packages
             home.packages = [
-              pkgs.ags # Aylur's GTK Shell Core Engine v2 [INDEX: 1.3.1]
-              pkgs.material-symbols # Android/iOS icon glyph layouts
+              pkgs.ags # Aylur's GTK Shell Core Engine v2 [INDEX: 1.2.5]
+              pkgs.material-symbols # Android/iOS design icon glyph maps
 
-              # 👑 THE ERROR-FREE BUNDLED BINARY FIX:
-              # writeShellScriptBin automatically prepends a safe Linux shell header (#!/bin/sh).
-              # This guarantees your terminal runs the script as a shell loop, rather than trying to parse JS raw!
+              # 👑 THE DETERMINISTIC INTERPROSPECTIVE BUNDLE FIX:
               (pkgs.writeShellScriptBin "control-center" ''
                 #!/bin/sh
 
-                # Build a temporary workspace directory to store configuration streams securely
+                # 👑 LINK THE NIX STORE TYPELIBS:
+                # We inject Astal's exact store paths directly into GObject Introspection.
+                # This explicitly satisfies GJS, clearing the 'namespace not found' panic instantly! [INDEX: 1.1.1]
+                export GI_TYPELIB_PATH="${pkgs.ags}/lib/girepository-1.0:${pkgs.glib.out}/lib/girepository-1.0:$GI_TYPELIB_PATH"
+                export LD_LIBRARY_PATH="${pkgs.ags}/lib:${pkgs.glib.out}/lib:$LD_LIBRARY_PATH"
+
+                # Set up our temporary, tracking-free configuration sandbox
                 RUN_DIR="/tmp/ags-control-center-$USER"
                 mkdir -p "$RUN_DIR"
 
-                # 👑 1. WE PACK THE ASTAL JAVASCRIPT TARGET DOWN TO AN ISOLATED TEMP FILE:
+                # 👑 THE PURE ASTAL V2 JAVASCRIPT LAYER:
                 cat << 'EOF' > "$RUN_DIR/main.js"
-                import App from "gi://AstalApp";
-                import Widget from "gi://AstalWidget";
-                import Utils from "gi://AstalUtils";
+                import pkg from "gi://Astal?version=3.0";
+                import AstalGtk from "gi://AstalGtk?version=3.0";
+                import Gtk from "gi://Gtk?version=3.0";
+
+                // Native introspective connections straight to Linux hardware layers [INDEX: 2.3.2]
                 import Network from "gi://AstalNetwork";
                 import Bluetooth from "gi://AstalBluetooth";
 
-                const QuickButton = (icon, label, callback) => Widget.Button({
+                const QuickButton = (icon, label, callback) => new AstalGtk.Button({
                     className: "quick-button",
                     onClicked: callback,
-                    child: Widget.Box({
+                    child: new AstalGtk.Box({
                         vertical: true,
                         children: [
-                            Widget.Label({ label: icon, className: "icon" }),
-                            Widget.Label({ label: label, className: "label" })
+                            new AstalGtk.Label({ label: icon, className: "icon" }),
+                            new AstalGtk.Label({ label: label, className: "label" })
                         ]
                     })
                 });
 
-                const ControlCenterPanel = () => Widget.Box({
+                const ControlCenterPanel = () => new AstalGtk.Box({
                     className: "control-center-panel",
                     vertical: true,
                     children: [
-                        Widget.Box({
+                        new AstalGtk.Box({
                             className: "grid-container",
                             children: [
                                 QuickButton("  ", "Network", () => {
                                     const nw = Network.get_default();
-                                    if (nw) nw.wifi.toggle();
+                                    if (nw && nw.wifi) nw.wifi.toggle();
                                 }),
                                 QuickButton("", "Bluetooth", () => {
                                     const bt = Bluetooth.get_default();
                                     if (bt) bt.toggle();
-                                }),
-                                QuickButton("  ", "Power Off", () => Utils.execAsync("systemctl poweroff"))
+                                })
                             ]
                         })
                     ]
                 });
 
-                App.start({
-                    instanceName: "control-center",
-                    windows: [
-                        Widget.Window({
+                // Fire up our native standalone Astal layout instance [INDEX: 2.5.2]
+                pkg.main({
+                    requestHandler: (request, res) => res("Control Center Running"),
+                    main: () => {
+                        new AstalGtk.Window({
                             name: "control-center-window",
-                            anchor: Widget.WindowAnchor.TOP | Widget.WindowAnchor.RIGHT,
+                            anchor: AstalGtk.WindowAnchor.TOP | AstalGtk.WindowAnchor.RIGHT,
                             marginTop: 40,
                             marginRight: 12,
                             child: ControlCenterPanel(),
-                        })
-                    ]
+                        });
+                    }
                 });
                 EOF
 
-                # 👑 2. THE COMPACT RUNTIME EXECUTION OVERRIDE:
-                # We hop inside our temporary sandbox directory and feed the code into ags natively! [INDEX: 1.2.1]
+                # Execute our application inside its local cache namespace [INDEX: 2.5.2]
                 cd "$RUN_DIR"
                 exec ${pkgs.ags}/bin/ags run main.js
               '')
             ];
 
-            # Custom layout design borders styles
+            # Clean styling declarations
             xdg.configFile."ags/style.css".text = ''
               .control-center-panel {
                   background-color: #1a1b26;
