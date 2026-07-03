@@ -38,6 +38,16 @@
       opacity 0.85
   }
 
+  window-rule {
+      geometry-corner-radius 16
+      clip-to-geometry true
+      
+      match app-id="^swaync$"
+      match app-id="^swaynotificationcenter$"
+      
+      draw-background false
+  }
+
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
 
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
