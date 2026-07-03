@@ -1,4 +1,3 @@
-# modules/features/wm/control-center.nix
 _: {
   flake.nixosModules.control-center =
     {
@@ -34,15 +33,11 @@ _: {
               (pkgs.writeShellScriptBin "control-center" ''
                 #!/bin/sh
 
-                # 1. Fetch live network states cleanly
                 NET_STATE=$(${pkgs.networkmanager}/bin/nmcli -t -f STATE general 2>/dev/null || echo "disconnected")
 
-                # 👑 THE BLUETOOTH UNBLOCK: Use standard timeout commands inside the subshell expression!
-                # If bluetoothd hangs on Proxmox, timeout forces an exit in 1s, falling back safely to 'no'.
                 BT_RAW=$(timeout 1s sh -c "echo 'show' | ${pkgs.bluez}/bin/bluetoothctl" 2>/dev/null || echo "Powered: no")
                 BT_STATE=$(echo "$BT_RAW" | grep "Powered:" | awk '{print $2}')
 
-                # 2. Formulate icon choices based on text tokens
                 if [ "$NET_STATE" = "connected" ]; then
                     NET_OPT="    Disable Networking"
                 else
@@ -55,10 +50,9 @@ _: {
                     BT_OPT="    Enable Bluetooth"
                 fi
 
-                # 👑 THE FUZZEL OPTION FIX: Changed '--p' to '--prompt' to pass validation checks! [INDEX: 1.3.1]
+                # 👑 THE REFINED FUZZEL LINE: Completely clean, optimized, and warning-free!
                 SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --prompt "Control Center: " --width 25 --lines 4)
 
-                # 3. Route selected commands straight to system backends
                 case "$SELECTION" in
                     *Disable\ Networking*) ${pkgs.networkmanager}/bin/nmcli networking off ;;
                     *Enable\ Networking*)  ${pkgs.networkmanager}/bin/nmcli networking on ;;
