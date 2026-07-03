@@ -43,7 +43,7 @@ _: {
                 echo "GOT NET_STATE"
 
                 # Query Bluetooth safely via a non-interactive pipe string layout
-                BT_RAW=$(echo "show" | ${pkgs.bluez}/bin/bluetoothctl 2>/dev/null || echo "Powered: no")
+                BT_RAW=$(echo "show" | ${pkgs.bluez}/bin/bluetoothctl --timeout 1 2>/dev/null || echo "Powered: no")
                 BT_STATE=$(echo "$BT_RAW" | grep "Powered:" | awk '{print $2}')
 
                 echo "GOT BT STATE"
