@@ -57,7 +57,6 @@ _: {
                 "buttons-grid" = {
                   actions = [
                     {
-                      # 👑 FIXED LABELS: Clean text strings returned to normal!
                       label = "   Network";
                       type = "toggle";
                       active = true;
@@ -79,12 +78,18 @@ _: {
               };
             };
 
-            # 👑 THE DEFINITIVE GEOMETRY ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
-                            # modules/features/wm/control-center.nix snippet inside style.css
-              /* 👑 THE DEFINITIVE BACKGROUND LAYER WIPEOUT:
-                 We target the deep .blank-window container class that SwayNC maps over GtkWindow!
-                 This strips out the hidden background layer, forcing pure transparency. [INDEX: 1.4.1] */
+
+              :root {
+                --border-radius: 22px;
+                --cc-bg: transparent;
+
+                --widget-background: rgba(46, 46, 46, 0.7);
+                --noti-bg-alpha: 0.6;
+
+                --padding: calc(var(--border-radius) / 2);
+              }
+
               .blank-window,
               window,
               #window,
