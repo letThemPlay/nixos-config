@@ -30,9 +30,13 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
+            # 👑 THE UNIFIED EXTRA FONT PROVISION:
+            # We add font-awesome alongside your symbols font to guarantee a continuous,
+            # robust fallback stream for system hardware control tokens!
             home.packages = [
               pkgs.swaynotificationcenter
               pkgs.nerd-fonts.symbols-only
+              pkgs.font-awesome # 👑 Adds the classic universal hardware glyph vectors
               pkgs.adwaita-icon-theme
             ];
 
@@ -57,9 +61,10 @@ _: {
                 "buttons-grid" = {
                   actions = [
                     {
-                      # 👑 THE ICON UNIFICATION FIX:
-                      # We bundle your glyph strings directly inside the single valid label parameter!
-                      label = "    Network";
+                      # 👑 THE UNIVERSAL GLYPH FIX:
+                      # We swap the high-range token for the standard '' wireless marker symbol.
+                      # This bypasses the GTK character-page dropping issue completely!
+                      label = "  Network";
                       type = "toggle";
                       active = true;
                       command = "sh -c '${pkgs.networkmanager}/bin/nmcli networking off || ${pkgs.networkmanager}/bin/nmcli networking on'";
@@ -71,7 +76,7 @@ _: {
                       command = "sh -c '${pkgs.bluez}/bin/bluetoothctl power off || ${pkgs.bluez}/bin/bluetoothctl power on'";
                     }
                     {
-                      label = "    Power";
+                      label = "  Power"; # 👑 Fixed to use a classic universal system power glyph icon
                       type = "button";
                       command = "systemctl poweroff";
                     }
@@ -80,12 +85,11 @@ _: {
               };
             };
 
-            # 👑 THE FONT REGISTRY REFINEMENT SHEET:
+            # Sleek mobile-style theming configurations sheet
             xdg.configFile."swaync/style.css".text = ''
-              /* 👑 FIXED: We use the exact system font identifier family name "Symbols Nerd Font Mono" */
-              /* This explicitly maps your UTF-8 glyph markers across all text labels natively! */
+              /* Map font families cleanly to catch both Nerd Font metrics and Font Awesome */
               * {
-                  font-family: "Symbols Nerd Font Mono", "Inter", sans-serif;
+                  font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               }
 
               .control-center {
