@@ -81,42 +81,32 @@ _: {
 
             # 👑 THE DEFINITIVE GEOMETRY ALIGNMENT & SCALING CSS SHEET:
             xdg.configFile."swaync/style.css".text = ''
-              # modules/features/wm/control-center.nix snippet inside style.css
-              /* 👑 THE DEFINITIVE BACKGROUND BYPASS MATRIX:
-                 We override GTK's core color tokens at the root layer AND strip out all 
-                 parent layouts, forcing the ghost under-tile backdrop to drop its default opaque tints permanently! [INDEX: 1.4.1] */
-              @define-color cc-bg rgba(0, 0, 0, 0);
-
+                            # modules/features/wm/control-center.nix snippet inside style.css
+              /* 👑 THE DEFINITIVE BACKGROUND LAYER WIPEOUT:
+                 We target the deep .blank-window container class that SwayNC maps over GtkWindow!
+                 This strips out the hidden background layer, forcing pure transparency. [INDEX: 1.4.1] */
+              .blank-window,
               window,
               #window,
-              .blank-window,
               .control-center,
               .control-center-box,
-              box.control-center,
-              .control-center.sidebar,
-              .widget-box {
-                  background: none !important;
+              box.control-center {
+                  background: transparent !important;
                   background-color: rgba(0, 0, 0, 0) !important;
                   border: none !important;
                   box-shadow: none !important;
-                  padding: 0px !important;
-                  margin: 0px !important;
+                  padding: 0px;
+                  margin: 0px;
               }
 
-              /* Global text baseline scaling across all widgets */
-              * {
-                  font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
-              }
-
-              /* 📱 FLOATING CARD 1: Quick Settings Grid Box Wrapper */
+              /* 📱 FLOATING CARD 1: Quick Settings Grid */
               .widget-buttons-grid {
-                  /* 👑 FIXED: Explicit background-color + absolute hex forces cards to stay completely solid! [INDEX: 1.4.1] */
-                  background-color: #1f2335 !important;
+                  background: #1f2335; 
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
-                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
 
               .widget-buttons-grid button {
@@ -133,14 +123,14 @@ _: {
               .widget-buttons-grid button:hover { background: #414868; color: #7aa2f7; }
               .widget-buttons-grid button:checked { background: #7aa2f7; color: #1a1b26; }
 
-              /*    FLOATING CARD 2: Slim Media Player Box Card */
+              /*    FLOATING CARD 2: Slim Media Player Box */
               .widget-mpris {
-                  background-color: #1f2335 !important;
+                  background: #1f2335;
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
-                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
               .widget-mpris-player {
                   background: #24283b;
@@ -172,16 +162,16 @@ _: {
               }
               .widget-title > button:hover { background: #f7768e; color: #1a1b26; }
 
-              /*    FLOATING CARD 3: Do Not Disturb Toggle Layout Module Switch */
+              /*    FLOATING CARD 3: Do Not Disturb Toggle Layout Module */
               .widget-dnd {
-                  background-color: #1f2335 !important;
+                  background: #1f2335;
                   border: 1px solid #292e42;
                   border-radius: 14px;
                   padding: 12px;
                   margin-bottom: 12px;
                   font-size: 12px;
                   color: #c0caf5;
-                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
               .widget-dnd switch {
                   border-radius: 10px;
@@ -190,14 +180,14 @@ _: {
               }
               .widget-dnd switch:checked { background: #b4f9f8; }
 
-              /*    FLOATING CARD 4: Individual Incoming Notification Box Items */
+              /*    FLOATING CARD 4: Individual Incoming Notification Card Items */
               .notification-row {
-                  background-color: #1f2335 !important;
+                  background: #1f2335;
                   border: 1px solid #292e42;
                   border-radius: 12px;
                   margin-top: 8px;
                   padding: 12px;
-                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #7aa2f7; }
               .notification-body { font-size: 11px; color: #c0caf5; margin-top: 1px; }

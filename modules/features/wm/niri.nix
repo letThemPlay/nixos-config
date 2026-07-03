@@ -22,7 +22,10 @@
         };
 
         environment = {
-          systemPackages = [ pkgs.swaybg ];
+          systemPackages = [
+            pkgs.swaybg
+            pkgs.uwsm
+          ];
           variables = {
             "WLR_RENDER_DRM_DEVICE" = "/dev/dri/renderD128";
           };
