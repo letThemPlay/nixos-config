@@ -42,9 +42,6 @@
       match app-id="^swaync$"
       match app-id="^swaynotificationcenter$"
       
-      open-animation {
-          slide-in from="right"
-      } 
       opacity 0.0
       
       focus-ring { off; }

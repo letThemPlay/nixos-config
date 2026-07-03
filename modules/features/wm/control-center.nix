@@ -47,6 +47,8 @@ _: {
               control-center-margin-right = 12;
               control-center-width = 300;
 
+              transition-time = 200;
+
               widgets = [
                 "mpris"
                 "title"
