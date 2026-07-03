@@ -18,7 +18,6 @@ _: {
         };
 
       config = lib.mkIf cfg.enable {
-        # Group network settings to prevent Statix key duplication errors
         networking = {
           networkmanager = {
             enable = true;
@@ -31,22 +30,17 @@ _: {
 
         home-manager.sharedModules = [
           (_: {
-            # 👑 THE HYPERVISOR-SAFE PACKAGE WRAPPER:
-            # Compiles the menu into an absolute, path-native store package bin!
             home.packages = [
               (pkgs.writeShellScriptBin "control-center" ''
                 #!/bin/sh
 
-                # 1. Query general software state matrices (Safe on both Proxmox and Laptops!)
-                # 'nmcli -t -f STATE general' returns 'connected', 'disconnected', or 'asleep' instantly [INDEX: 1.2.3, 1.3.5].
+                # 1. Fetch live network states cleanly
                 NET_STATE=$(${pkgs.networkmanager}/bin/nmcli -t -f STATE general 2>/dev/null || echo "disconnected")
-                echo "GOT NET_STATE"
 
-                # Query Bluetooth safely via a non-interactive pipe string layout
-                BT_RAW=$(echo "show" | ${pkgs.bluez}/bin/bluetoothctl --timeout 1 2>/dev/null || echo "Powered: no")
+                # 👑 THE BLUETOOTH UNBLOCK: Use standard timeout commands inside the subshell expression!
+                # If bluetoothd hangs on Proxmox, timeout forces an exit in 1s, falling back safely to 'no'.
+                BT_RAW=$(timeout 1s sh -c "echo 'show' | ${pkgs.bluez}/bin/bluetoothctl" 2>/dev/null || echo "Powered: no")
                 BT_STATE=$(echo "$BT_RAW" | grep "Powered:" | awk '{print $2}')
-
-                echo "GOT BT STATE"
 
                 # 2. Formulate icon choices based on text tokens
                 if [ "$NET_STATE" = "connected" ]; then
@@ -61,11 +55,10 @@ _: {
                     BT_OPT="    Enable Bluetooth"
                 fi
 
-                # 3. Present the selection matrix to Fuzzel via standard CPU rendering
-                echo "RUN fuzzel with selection"
-                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --p "Control Center: " --width 25 --lines 4)
+                # 👑 THE FUZZEL OPTION FIX: Changed '--p' to '--prompt' to pass validation checks! [INDEX: 1.3.1]
+                SELECTION=$(printf "%s\n%s\n    Suspend System\n    Power Off\n" "$NET_OPT" "$BT_OPT" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --render-mode=pixman --prompt "Control Center: " --width 25 --lines 4)
 
-                # 4. Route commands straight to core system daemons
+                # 3. Route selected commands straight to system backends
                 case "$SELECTION" in
                     *Disable\ Networking*) ${pkgs.networkmanager}/bin/nmcli networking off ;;
                     *Enable\ Networking*)  ${pkgs.networkmanager}/bin/nmcli networking on ;;
