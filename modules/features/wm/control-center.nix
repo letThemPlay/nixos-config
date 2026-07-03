@@ -85,7 +85,7 @@ _: {
                 --cc-bg: transparent;
 
                 --widget-background: rgba(46, 46, 46, 0.7);
-                --noti-bg-alpha: 0.6;
+                --noti-bg-alpha: 0.0;
 
                 --padding: calc(var(--border-radius) / 2);
               }
