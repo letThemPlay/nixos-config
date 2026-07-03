@@ -85,7 +85,7 @@ _: {
                   font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               }
 
-              /* Main Dropdown Container Box */
+              /* Main Dropdown Drawer Box Container */
               .control-center {
                   background: rgba(26, 27, 38, 0.95);
                   border: 1px solid #414868;
@@ -94,7 +94,7 @@ _: {
                   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
               }
 
-              /* Quick Settings Buttons Grid Box Wrapper */
+              /* Quick Settings Buttons Grid Container Scaling */
               .widget-buttons-grid {
                   background: #1f2335;
                   border-radius: 12px;
@@ -102,28 +102,40 @@ _: {
                   margin-bottom: 8px;
               }
 
-              /* 👑 THE COMPLETE LEFT-ALIGNMENT FIX:
-                 We target the text alignment property globally across the button labels, 
-                 forcing your entire content string to snap perfectly to the left margins! */
               .widget-buttons-grid button {
                   background: #24283b;
                   border: 1px solid #292e42;
                   border-radius: 8px;
                   color: #c0caf5;
-                  font-weight: bold;
-                  font-size: 13px;
                   margin: 3px;
-                  padding: 12px 18px;
-                  text-align: left;
+                  padding: 10px 14px;
                   transition: all 0.1s ease-in-out;
               }
 
-              /* 👑 THE DEFINITIVE ICON SCALING FIX:
-                 By using the native CSS pseudoclass selector 'first-letter', we isolate 
-                 the hardware glyph and step up its scale while leaving the text untouched! */
-              .widget-buttons-grid button label::first-letter {
+              /* 👑 THE COMPLETE LEFT-ALIGNMENT BYPASS FIX:
+                 1. We use 'all: unset' to completely strip SwayNC's hardcoded centered constraints! [INDEX: 1.4.1]
+                 2. We enforce a 100% width block layout, snapping all text and icons flush left! [INDEX: 1.4.1] */
+              .widget-buttons-grid button box {
+                  all: unset;
+                  display: box !important;
+                  text-align: left !important;
+                  min-width: 100% !important;
+              }
+
+              /* 👑 THE ICON SCALING FIX:
+                 Now that the text engine is running flat, we target the icon character node separately!
+                 This steps up its font scale to look prominent while preserving your inline row text. */
+              .widget-buttons-grid button box label:first-child {
                   font-size: 16px !important;
-                  font-weight: normal;
+                  font-weight: normal !important;
+                  margin-right: 8px !important;
+                  padding-bottom: 1px !important;
+              }
+
+              /* Keep the descriptions readable and compact */
+              .widget-buttons-grid button box label:last-child {
+                  font-size: 12px !important;
+                  font-weight: bold !important;
               }
 
               .widget-buttons-grid button:hover {
@@ -135,7 +147,7 @@ _: {
                   color: #1a1b26;
               }
 
-              /* Premium Slim Media Player Box Card Layout */
+              /* Slim Media Player Box Card Layout */
               .widget-mpris {
                   background: #1f2335;
                   border-radius: 12px;
@@ -201,6 +213,7 @@ _: {
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #7aa2f7; }
               .notification-body { font-size: 11px; color: #c0caf5; margin-top: 1px; }
+
             '';
           })
         ];
