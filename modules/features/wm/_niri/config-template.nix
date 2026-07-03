@@ -47,7 +47,7 @@
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
 
-      "Mod+I" { spawn "uwsm" "app" "--" "ags" "-t" "control-center-window";
+      "Mod+I" { spawn "uwsm" "app" "--" "ags" "-t" "control-center-window"; }
 
       "Mod+Escape"       { spawn "${pkgs.mako}/bin/makoctl" "dismiss"; }
       "Mod+Shift+Escape" { spawn "${pkgs.mako}/bin/makoctl" "dismiss" "-a"; }
