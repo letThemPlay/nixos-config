@@ -111,6 +111,7 @@ _: {
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
+                  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.6);
               }
 
               .widget-buttons-grid button {
@@ -134,7 +135,7 @@ _: {
                   border-radius: 14px;
                   padding: 10px;
                   margin-bottom: 12px;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+                  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.6);
               }
               .widget-mpris-player {
                   background: #24283b;
@@ -175,7 +176,7 @@ _: {
                   margin-bottom: 12px;
                   font-size: 12px;
                   color: #c0caf5;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+                  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.6);
               }
               .widget-dnd switch {
                   border-radius: 10px;
@@ -191,7 +192,7 @@ _: {
                   border-radius: 12px;
                   margin-top: 8px;
                   padding: 12px;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+                  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.6);
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #7aa2f7; }
               .notification-body { font-size: 11px; color: #c0caf5; margin-top: 1px; }
