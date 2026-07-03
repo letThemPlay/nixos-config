@@ -186,9 +186,12 @@ _: {
 
               /* Notifications Logs Header Text Section */
               .widget-title {
-                  margin-top: 4px;
-                  margin-bottom: 6px;
-                  padding: 2px 6px;
+                  background: #${config.lib.stylix.colors.base01};
+                  border: none !important;
+                  border-radius: 16px;
+                  margin-top: 8px;
+                  padding: 12px;
+                  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.4);
               }
               .widget-title > label { font-size: 13px; font-weight: bold; color: #${config.lib.stylix.colors.base0E}; }
               .widget-title > button {
@@ -226,7 +229,7 @@ _: {
                   border-radius: 16px;
                   margin-top: 8px;
                   padding: 12px;
-                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.4);
               }
               .notification-title { font-size: 12px; font-weight: bold; color: #${config.lib.stylix.colors.base0D}; }
               .notification-body { font-size: 11px; color: #${config.lib.stylix.colors.base05}; margin-top: 1px; }
