@@ -39,13 +39,12 @@
   }
 
   window-rule {
-      geometry-corner-radius 16
-      clip-to-geometry true
-      
       match app-id="^swaync$"
       match app-id="^swaynotificationcenter$"
       
-      draw-background false
+      opacity 0.0
+      
+      focus-ring { off; }
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
