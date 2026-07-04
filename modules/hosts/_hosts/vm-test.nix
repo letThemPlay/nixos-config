@@ -20,6 +20,10 @@
 
   users = [ "kelvin" ];
 
+  modules.features.activeList = [
+    "laptop"
+  ];
+
   extraModules = [
     "${inputs.self}/modules/hosts/_hosts/_settings/vm-test.nix"
   ];

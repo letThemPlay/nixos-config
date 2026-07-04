@@ -1,10 +1,11 @@
-{ lib, config, ... }:
-let
-  resolveFeature =
-    name:
-    lib.optional (builtins.hasAttr name config.modules.features.registry)
-      config.modules.features.registry.${name};
-in
+{ inputs, ... }:
 {
-  resolveFeatures = requestedFeatures: lib.concatMap resolveFeature requestedFeatures;
+  resolveFeatures =
+    requestedTokens:
+    builtins.filter (x: x != null) (
+      map (
+        name:
+        if builtins.hasAttr name inputs.self.nixosModules then inputs.self.nixosModules.${name} else null
+      ) requestedTokens
+    );
 }
