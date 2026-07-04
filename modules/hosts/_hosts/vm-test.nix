@@ -8,7 +8,6 @@
     "wired"
     "proxmox-qemu" # Activates kernel structures, memory trim controllers, and guest agent scripts
     "nixvim"
-    "hyprland"
     "greetd"
     "stylix"
     "waybar"

@@ -14,7 +14,6 @@
     "secureboot"
     "tpm"
     "tailscale"
-    "hyprland"
     "greetd"
     "stylix"
     "waybar"
