@@ -15,16 +15,21 @@
       extraModules ? [ ],
     }:
     let
+      inherit (inputs) self;
       enabled = lib.genAttrs features (_: true);
 
       hasWifi = enabled.wifi or false || isLaptop;
       hasBluetooth = enabled.bluetooth or false || isLaptop;
+      featuresLib = import "${self}/modules/_lib/filesystem.nix" { inherit lib config; };
+
+      resolvedFeatures = featuresLib.resolveFeatures features;
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
 
       modules = [
         inputs.home-manager.nixosModules.home-manager
+        resolvedFeatures
         (import ./features-gateway.nix { inherit config lib; })
         (_: {
           nixpkgs.config.allowUnfreePredicate = _: true;
