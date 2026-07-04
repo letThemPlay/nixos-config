@@ -32,9 +32,9 @@ ShellRoot {
     property string peekMon: ""
 
     function refresh() {
-        Hyprland.refreshMonitors();
-        Hyprland.refreshWorkspaces();
-        Hyprland.refreshToplevels();
+//        Hyprland.refreshMonitors();
+//        Hyprland.refreshWorkspaces();
+//        Hyprland.refreshToplevels();
     }
 
     Component.onCompleted: {
