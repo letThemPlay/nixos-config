@@ -32,7 +32,7 @@
       ]
       ++ builtins.attrValues (
         removeAttrs inputs.self.nixosModules [
-          "laptop"
+          "discord"
         ]
       )
       #++ (builtins.attrValues inputs.self.nixosModules)
