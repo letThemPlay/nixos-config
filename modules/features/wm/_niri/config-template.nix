@@ -56,7 +56,7 @@
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
 
-      "Mod+I" { spawn "uwsm" "app" "--" "swaync-client" "-t" "-sw"; }
+      "Mod+I" { spawn "sh" "-c" "pkill quickshell || uwsm app -- quickshell"; }
 
       "Mod+Escape"       { spawn "uwsm" "app" "--" "swaync-client" "-d"; }
       "Mod+Shift+Escape" { spawn "uwsm" "app" "--" "swaync-client" "-C"; }
