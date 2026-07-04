@@ -16,6 +16,7 @@
     "zsh"
     "alacritty"
     "laptop"
+    "git"
   ];
 
   users = [ "kelvin" ];

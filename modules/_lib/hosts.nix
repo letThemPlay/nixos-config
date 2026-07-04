@@ -12,7 +12,6 @@
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
-      activeList,
       ...
     }:
     let
@@ -21,14 +20,30 @@
       hasWifi = enabled.wifi or false || isLaptop;
       hasBluetooth = enabled.bluetooth or false || isLaptop;
 
-      requestedTokens = activeList;
+      requestedTokens = [ "laptop" ];
 
-      resolvedFeatures = builtins.filter (x: x != null) (
-        map (
-          name:
-          if builtins.hasAttr name inputs.self.nixosModules then inputs.self.nixosModules.${name} else null
-        ) requestedTokens
-      );
+      registryData = import (inputs.self + "/modules/features/_registry.nix") {
+        inherit inputs;
+        lib = inputs.nixpkgs.lib;
+      };
+
+      featureRegistryMap = registryData.config.modules.features.registry or { };
+
+      resolvedFeatures = builtins.concatMap (
+        name:
+        if builtins.hasAttr name featureRegistryMap then
+          let
+            val = featureRegistryMap.${name};
+          in
+          if builtins.isList val then
+            val
+          else if builtins.hasAttr "contents" val then
+            val.contents # Unpacks mkMerge lists safely! [INDEX: 1.2.5]
+          else
+            [ val ]
+        else
+          [ ]
+      ) requestedTokens;
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;

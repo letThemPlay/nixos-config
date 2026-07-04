@@ -10,7 +10,6 @@
     "nixvim"
     "wifi"
     "bluetooth"
-    "tailscale"
     "secureboot"
     "tpm"
     "tailscale"
