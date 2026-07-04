@@ -1,9 +1,9 @@
 { inputs, ... }: {
   flake =
-    { lib, ... }:
+    { lib, config, ... }:
     let
       fsLib = import "${inputs.self}/modules/_lib/filesystem.nix" { inherit lib; };
-      hostLib = import "${inputs.self}/modules/_lib/hosts.nix" { inherit inputs lib; };
+      hostLib = import "${inputs.self}/modules/_lib/hosts.nix" { inherit inputs lib config; };
 
       hostsDir = "${inputs.self}/modules/hosts/_hosts";
       hostFiles = fsLib.findFilesWithExt "nix" hostsDir;

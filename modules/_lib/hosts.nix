@@ -1,4 +1,9 @@
-{ inputs, lib }: {
+{
+  inputs,
+  lib,
+  config,
+}:
+{
   mkHost =
     {
       hostName,
@@ -20,8 +25,17 @@
 
       modules = [
         inputs.home-manager.nixosModules.home-manager
+        (import ./features-gateway.nix { inherit config lib; })
+        (_: {
+          nixpkgs.config.allowUnfreePredicate = _: true;
+        })
       ]
-      ++ (builtins.attrValues inputs.self.nixosModules)
+      ++ builtins.attrValues (
+        removeAttrs inputs.self.nixosModules [
+          "laptop"
+        ]
+      )
+      #++ (builtins.attrValues inputs.self.nixosModules)
       ++ [
         ({ pkgs, ... }: {
           system.stateVersion = stateVersion;
@@ -56,9 +70,8 @@
             fuzzel.enable = enabled.fuzzel or false;
             greetd.enable = enabled.greetd or false;
             waybar.enable = enabled.waybar or false;
-            mako.enable = false;
+            mako.enable = true;
             alacritty.enable = enabled.alacritty or false;
-            control-center.enable = true;
             hardware = {
               proxmox-qemu.enable = enabled.proxmox-qemu or false;
             };
