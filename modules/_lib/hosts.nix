@@ -1,6 +1,7 @@
 {
   inputs,
   lib,
+  config,
 }:
 {
   mkHost =
@@ -18,7 +19,6 @@
 
       hasWifi = enabled.wifi or false || isLaptop;
       hasBluetooth = enabled.bluetooth or false || isLaptop;
-      config.modules.features.activeList = features;
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
@@ -38,6 +38,7 @@
       #++ (builtins.attrValues inputs.self.nixosModules)
       ++ [
         ({ pkgs, ... }: {
+          modules.features.activeList = features;
           system.stateVersion = stateVersion;
           networking.hostName = hostName;
           nixpkgs.hostPlatform = lib.mkDefault architecture;
