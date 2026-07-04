@@ -1,7 +1,6 @@
-{ inputs, ... }: {
+_: {
   flake.nixosModules.discord = { pkgs, ... }: {
     config = {
-      modules.features.registry.laptop = inputs.self.nixosModules.discord;
 
       home-manager.sharedModules = [
         (_: {
