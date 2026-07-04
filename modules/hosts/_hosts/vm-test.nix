@@ -20,7 +20,7 @@
 
   users = [ "kelvin" ];
 
-  modules.features.activeList = [
+  activeList = [
     "laptop"
   ];
 

@@ -1,7 +1,6 @@
 {
   inputs,
   lib,
-  config,
 }:
 {
   mkHost =
@@ -13,29 +12,35 @@
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
+      activeList,
       ...
     }:
     let
-      #inherit (inputs) self;
       enabled = lib.genAttrs features (_: true);
 
       hasWifi = enabled.wifi or false || isLaptop;
       hasBluetooth = enabled.bluetooth or false || isLaptop;
-      #featuresLib = import "${self}/modules/_lib/features.nix" { inherit lib config; };
 
-      #resolvedFeatures = featuresLib.resolveFeatures features;
+      requestedTokens = activeList;
+
+      resolvedFeatures = builtins.filter (x: x != null) (
+        map (
+          name:
+          if builtins.hasAttr name inputs.self.nixosModules then inputs.self.nixosModules.${name} else null
+        ) requestedTokens
+      );
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
-
+      specialArgs = { inherit inputs; };
       modules = [
+        ../features/_registry.nix
         inputs.home-manager.nixosModules.home-manager
-        #resolvedFeatures
-        (import ./features-gateway.nix { inherit config lib; })
         (_: {
           nixpkgs.config.allowUnfreePredicate = _: true;
         })
       ]
+      ++ resolvedFeatures
       ++ builtins.attrValues (
         removeAttrs inputs.self.nixosModules [
           "discord"

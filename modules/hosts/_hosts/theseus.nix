@@ -20,6 +20,7 @@
   ];
 
   users = [ "kelvin" ];
+  activeList = [ ];
 
   extraModules = [
     inputs.nixos-hardware.nixosModules.framework-13-7040-amd
