@@ -15,6 +15,7 @@
     "mako"
     "zsh"
     "alacritty"
+    "laptop"
   ];
 
   users = [ "kelvin" ];
