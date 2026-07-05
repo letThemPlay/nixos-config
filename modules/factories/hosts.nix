@@ -20,24 +20,14 @@
         lib = inputs.nixpkgs.lib;
       };
 
-      featureRegistryMap = registryData.config.modules.features.registry or { };
-
-      unwrapFeature =
-        val:
-        if builtins.isList val then
-          val
-        else if builtins.hasAttr "contents" val then
-          val.contents
-        else
-          [ val ];
-
       resolvedFeatures =
-        features |> map (name: unwrapFeature (featureRegistryMap.${name} or [ ])) |> lib.lists.flatten;
+        features
+        |> map (featureName: registryData.config.modules.features.registry.${featureName} or [ ])
+        |> lib.flatten;
 
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
-      #specialArgs = { inherit inputs; };
       modules = [
         inputs.home-manager.nixosModules.home-manager
         (_: {
@@ -68,8 +58,7 @@
 
           environment.systemPackages = [ pkgs.curl ];
         })
-
-        (import "${inputs.self}/modules/hosts/_hosts/_hardware/${hostName}.nix")
+        (import (inputs.self + "/modules/hosts/_hosts/_hardware/${hostName}.nix"))
       ]
       ++ extraModules;
     };

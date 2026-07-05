@@ -39,7 +39,7 @@
         nix = {
           settings.auto-optimise-store = true;
           package = pkgs.nixVersions.latest;
-          extraOptions = "experimental-features = nix-command flakes";
+          extraOptions = "experimental-features = nix-command flakes pipe-operators";
         };
 
         time.timeZone = "Europe/London";

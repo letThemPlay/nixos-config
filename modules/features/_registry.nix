@@ -1,19 +1,21 @@
 { lib, inputs, ... }: {
   options.modules.features = {
     registry = lib.mkOption {
-      type = lib.types.attrsOf lib.types.deferredModule;
+      type = lib.types.attrsOf (lib.types.listOf lib.types.deferredModule);
       default = { };
-      description = "👑 Central Dendritic cumulative feature registry map holding merged modules.";
+      description = "Central cumulative feature registry map holding merged modules.";
     };
   };
 
   config = {
     modules.features.registry = {
-      # Individual feature modules that can be imported
-      inherit (inputs.self.nixosModules) tailscale gpg nextdns;
+      # Individual features wrapped in a list to match the type
+      tailscale = [ inputs.self.nixosModules.tailscale ];
+      gpg = [ inputs.self.nixosModules.gpg ];
+      nextdns = [ inputs.self.nixosModules.nextdns ];
 
-      # Feature Groups
-      base = lib.mkMerge [
+      # Feature Groups as clean lists of modules
+      base = [
         inputs.self.nixosModules.boot
         inputs.self.nixosModules.nix-core
         inputs.self.nixosModules.network
@@ -24,20 +26,20 @@
         inputs.self.nixosModules.zsh
       ];
 
-      laptop = lib.mkMerge [
+      laptop = [
         inputs.self.nixosModules.discord
         inputs.self.nixosModules.wifi
         inputs.self.nixosModules.bluetooth
         inputs.self.nixosModules.audio
       ];
 
-      vm = lib.mkMerge [
+      vm = [
         inputs.self.nixosModules.proxmox-qemu
         inputs.self.nixosModules.wired
         inputs.self.nixosModules.audio
       ];
 
-      ui = lib.mkMerge [
+      ui = [
         inputs.self.nixosModules.niri
         inputs.self.nixosModules.waybar
         inputs.self.nixosModules.fuzzel
@@ -45,7 +47,7 @@
         inputs.self.nixosModules.greetd
       ];
 
-      core-apps = lib.mkMerge [
+      core-apps = [
         inputs.self.nixosModules.alacritty
         inputs.self.nixosModules.git
         inputs.self.nixosModules.nixvim
