@@ -8,7 +8,6 @@
       hostName,
       architecture,
       stateVersion,
-      isLaptop ? false,
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
@@ -17,10 +16,10 @@
     let
       enabled = lib.genAttrs features (_: true);
 
-      hasWifi = enabled.wifi or false || isLaptop;
-      hasBluetooth = enabled.bluetooth or false || isLaptop;
-
-      requestedTokens = [ "laptop" ];
+      requestedTokens = [
+        "base"
+        "laptop"
+      ];
 
       registryData = import (inputs.self + "/modules/features/_registry.nix") {
         inherit inputs;
@@ -38,7 +37,7 @@
           if builtins.isList val then
             val
           else if builtins.hasAttr "contents" val then
-            val.contents # Unpacks mkMerge lists safely! [INDEX: 1.2.5]
+            val.contents
           else
             [ val ]
         else
@@ -49,7 +48,6 @@
       system = architecture;
       specialArgs = { inherit inputs; };
       modules = [
-        ../features/_registry.nix
         inputs.home-manager.nixosModules.home-manager
         (_: {
           nixpkgs.config.allowUnfreePredicate = _: true;
@@ -59,12 +57,16 @@
       ++ builtins.attrValues (
         removeAttrs inputs.self.nixosModules [
           "discord"
+          "wifi"
+          "users"
+          "stylix"
+          "nix-core"
+          "security"
+          "network"
         ]
       )
-      #++ (builtins.attrValues inputs.self.nixosModules)
       ++ [
         ({ pkgs, ... }: {
-          modules.features.activeList = features;
           system.stateVersion = stateVersion;
           networking.hostName = hostName;
           nixpkgs.hostPlatform = lib.mkDefault architecture;
@@ -74,20 +76,15 @@
               hostName
               architecture
               stateVersion
-              isLaptop
               features
               users
               extraModules
               ;
           };
 
-          users.profiles =
-            (lib.genAttrs users (_: {
-              enable = true;
-            }))
-            // {
-              enable = true;
-            };
+          users.profiles = lib.genAttrs users (_: {
+            enable = true;
+          });
 
           features = {
             git.enable = enabled.git or false;
@@ -110,23 +107,13 @@
               tpmUnlock.enable = enabled.tpm or false;
             };
 
-            bluetooth.enable = hasBluetooth;
-
             network = {
-              wifi.enable = hasWifi;
-              wired.enable = !hasWifi || (enabled.wired or false);
-              tailscale.enable = enabled.tailscale or false;
               nextdns.enable = enabled.nextdns or false;
             };
 
             security = {
-              core.enable = enabled.security or true; # Enabled by default unless forced false
               gpg.enable = enabled.gpg or false;
               secrets.enable = enabled.secrets or true; # Agenix decryption defaults true
-            };
-
-            theme = {
-              stylix.enable = enabled.stylix or false;
             };
           };
 

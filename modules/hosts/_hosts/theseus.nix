@@ -2,7 +2,6 @@
   hostName = "theseus";
   architecture = "x86_64-linux";
   stateVersion = "22.11";
-  isLaptop = true;
 
   features = [
     "gpg"
@@ -19,7 +18,6 @@
   ];
 
   users = [ "kelvin" ];
-  activeList = [ ];
 
   extraModules = [
     inputs.nixos-hardware.nixosModules.framework-13-7040-amd

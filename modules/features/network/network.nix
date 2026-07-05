@@ -1,4 +1,3 @@
-# modules/features/network.nix
 _: {
   flake.nixosModules.network =
     {
@@ -7,12 +6,10 @@ _: {
       ...
     }:
     let
-      cfg = config.ltp.network;
+      cfg = config.features.network;
       nextDnsActive = config.ltp.network.nextdns.enable or false;
 
       inherit (lib)
-        mkIf
-        mkEnableOption
         types
         mkOption
         mapAttrsToList
@@ -34,14 +31,8 @@ _: {
       };
     in
     {
-      options.ltp.network = {
-        enable = mkEnableOption "Default Network configuration" // {
-          default = true;
-        };
+      options.features.network = {
         wired = {
-          enable = mkEnableOption "Wired network configuration" // {
-            default = false;
-          };
           interfaceName = mkOption {
             default = "en*";
             type = types.str;
@@ -49,7 +40,7 @@ _: {
         };
       };
 
-      config = mkIf cfg.enable {
+      config = {
         networking = {
           firewall.enable = false;
           dhcpcd.enable = false;
@@ -79,15 +70,13 @@ _: {
 
         systemd = {
           network = {
-            # 👑 Wired connections remain as a baseline standard
-            networks."20-wired" = mkIf cfg.wired.enable {
+            networks."20-wired" = {
               enable = true;
               name = cfg.wired.interfaceName;
               inherit networkConfig;
               dhcpV4Config.RouteMetric = 1024;
             };
 
-            # Dynamically ignores interfaces that match submodules from ltp.network
             wait-online.ignoredInterfaces =
               let
                 interfaceSubmodules = filterAttrs (
@@ -96,9 +85,6 @@ _: {
               in
               mapAttrsToList (_: v: baseNameOf v.interfaceName) interfaceSubmodules;
           };
-
-          services.NetworkManager-wait-online.enable = mkIf (config.ltp.environment.gnome.enable or false
-          ) false;
         };
       };
     };

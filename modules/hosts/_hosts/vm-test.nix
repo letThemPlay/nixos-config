@@ -2,7 +2,6 @@
   hostName = "vm-test";
   architecture = "x86_64-linux";
   stateVersion = "26.05";
-  isLaptop = false;
 
   features = [
     "wired"
@@ -20,10 +19,6 @@
   ];
 
   users = [ "kelvin" ];
-
-  activeList = [
-    "laptop"
-  ];
 
   extraModules = [
     "${inputs.self}/modules/hosts/_hosts/_settings/vm-test.nix"

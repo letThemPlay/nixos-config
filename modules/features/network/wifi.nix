@@ -13,9 +13,6 @@ _: {
     in
     {
       options.ltp.network.wifi = {
-        enable = lib.mkEnableOption "Wi-Fi wireless networking stack" // {
-          default = false;
-        };
         interfaceName = lib.mkOption {
           type = lib.types.str;
           default = "wl*";
@@ -23,7 +20,7 @@ _: {
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         environment.systemPackages = [ pkgs.iwgtk ];
 
         networking.wireless.iwd = {
