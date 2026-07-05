@@ -4,17 +4,16 @@
   stateVersion = "26.05";
 
   features = [
-    "wired"
-    "proxmox-qemu" # Activates kernel structures, memory trim controllers, and guest agent scripts
+    "base"
+    "vm"
+    "laptop"
+
     "nixvim"
     "greetd"
-    "stylix"
     "waybar"
     "fuzzel"
     "mako"
-    "zsh"
     "alacritty"
-    "laptop"
     "git"
   ];
 

@@ -1,9 +1,25 @@
 _: {
   flake.nixosModules.nextdns = { lib, ... }: {
-    options.ltp.network.nextdns.enable =
-      lib.mkEnableOption "NextDNS secure encrypted upstream configuration"
-      // {
-        default = true;
+    config = {
+      services.resolved = {
+        enable = true;
+        settings.Resolve = lib.mkForce {
+          DNSOverTLS = true;
+          DNS = map (i: "${i}#965e8b.dns.nextdns.io") [
+            "45.90.28.0"
+            "2a07:a8c0::"
+            "45.90.30.0"
+            "2a07:a8c1::"
+          ];
+          FallbackDNS = [ ];
+        };
       };
+
+      systemd.network.networks = lib.mapAttrs (
+        _: _: {
+          networkConfig.DNS = lib.mkForce [ ];
+        }
+      );
+    };
   };
 }

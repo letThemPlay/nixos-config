@@ -56,13 +56,21 @@
       ++ resolvedFeatures
       ++ builtins.attrValues (
         removeAttrs inputs.self.nixosModules [
+          "nix-core"
           "discord"
           "wifi"
+          "wired"
           "users"
           "stylix"
           "nix-core"
           "security"
           "network"
+          "secrets"
+          "gpg"
+          "nextdns"
+          "wifi"
+          "tailcale"
+          "audio"
         ]
       )
       ++ [
@@ -96,24 +104,12 @@
             waybar.enable = enabled.waybar or false;
             mako.enable = true;
             alacritty.enable = enabled.alacritty or false;
-            hardware = {
-              proxmox-qemu.enable = enabled.proxmox-qemu or false;
-            };
           };
 
           ltp = {
             boot = {
               secureBoot.enable = enabled.secureboot or false;
               tpmUnlock.enable = enabled.tpm or false;
-            };
-
-            network = {
-              nextdns.enable = enabled.nextdns or false;
-            };
-
-            security = {
-              gpg.enable = enabled.gpg or false;
-              secrets.enable = enabled.secrets or true; # Agenix decryption defaults true
             };
           };
 

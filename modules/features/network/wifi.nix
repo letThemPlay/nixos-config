@@ -1,4 +1,4 @@
-_: {
+{ inputs, ... }: {
   flake.nixosModules.wifi =
     {
       pkgs,
@@ -7,8 +7,6 @@ _: {
       ...
     }:
     let
-      nextDnsActive = config.ltp.network.nextdns.enable or false;
-
       cfg = config.ltp.network.wifi;
     in
     {
@@ -19,6 +17,14 @@ _: {
           description = "The target wireless hardware network interface matching string.";
         };
       };
+
+      imports = [
+        (inputs.self.factory.network {
+          networkName = "25-wireless";
+          inherit (cfg.wireless) interfaceName;
+          routeMetric = 2048;
+        })
+      ];
 
       config = {
         environment.systemPackages = [ pkgs.iwgtk ];
@@ -33,25 +39,6 @@ _: {
             Settings = {
               AutoConnect = true;
             };
-          };
-        };
-
-        systemd.network.networks."25-wireless" = {
-          enable = true;
-          name = cfg.interfaceName;
-          dhcpV4Config.RouteMetric = 2048;
-          networkConfig = {
-            DHCP = "yes";
-            DNSSEC = "no";
-            DNSOverTLS = "yes";
-            DNS =
-              if nextDnsActive then
-                [ ]
-              else
-                [
-                  "1.1.1.1"
-                  "1.0.0.1"
-                ];
           };
         };
       };
