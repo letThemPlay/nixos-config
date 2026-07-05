@@ -1,9 +1,10 @@
 {
   inputs,
   lib,
+  ...
 }:
 {
-  mkHost =
+  config.flake.factory.host =
     {
       hostName,
       architecture,
@@ -21,25 +22,22 @@
 
       featureRegistryMap = registryData.config.modules.features.registry or { };
 
-      resolvedFeatures = builtins.concatMap (
-        name:
-        if builtins.hasAttr name featureRegistryMap then
-          let
-            val = featureRegistryMap.${name};
-          in
-          if builtins.isList val then
-            val
-          else if builtins.hasAttr "contents" val then
-            val.contents
-          else
-            [ val ]
+      unwrapFeature =
+        val:
+        if builtins.isList val then
+          val
+        else if builtins.hasAttr "contents" val then
+          val.contents
         else
-          [ ]
-      ) features;
+          [ val ];
+
+      resolvedFeatures =
+        features |> map (name: unwrapFeature (featureRegistryMap.${name} or [ ])) |> lib.lists.flatten;
+
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
-      specialArgs = { inherit inputs; };
+      #specialArgs = { inherit inputs; };
       modules = [
         inputs.home-manager.nixosModules.home-manager
         (_: {
