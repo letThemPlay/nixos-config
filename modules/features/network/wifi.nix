@@ -7,10 +7,10 @@
       ...
     }:
     let
-      cfg = config.ltp.network.wifi;
+      cfg = config.ltp.network.wireless;
     in
     {
-      options.ltp.network.wifi = {
+      options.ltp.network.wireless = {
         interfaceName = lib.mkOption {
           type = lib.types.str;
           default = "wl*";
@@ -21,7 +21,7 @@
       imports = [
         (inputs.self.factory.network {
           networkName = "25-wireless";
-          inherit (cfg.wireless) interfaceName;
+          inherit (cfg) interfaceName;
           routeMetric = 2048;
         })
       ];

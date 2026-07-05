@@ -25,7 +25,7 @@ _: {
               enable = true;
               name = interfaceName;
               inherit networkConfig;
-              dchpV4Config.RouteMetric = routeMetric;
+              dhcpV4Config.RouteMetric = routeMetric;
             };
           };
         };
