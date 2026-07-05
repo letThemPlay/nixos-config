@@ -7,9 +7,8 @@ _: {
       ...
     }:
     {
-      options.features.git.enable = lib.mkEnableOption "Git configuration";
 
-      config = lib.mkIf config.features.git.enable {
+      config = {
         environment.systemPackages = [ pkgs.git ];
 
         home-manager.users = lib.mapAttrs (_: profile: {

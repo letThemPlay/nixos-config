@@ -1,7 +1,6 @@
 { inputs, ... }: {
   flake.nixosModules.nix-core =
     {
-      config,
       lib,
       pkgs,
       ...
@@ -16,11 +15,7 @@
     {
       imports = schemaFiles;
 
-      options.ltp.core.enable = lib.mkEnableOption "Core baseline configurations" // {
-        default = true;
-      };
-
-      config = lib.mkIf config.ltp.core.enable {
+      config = {
 
         fonts.packages = with pkgs; [
           nerd-fonts.symbols-only

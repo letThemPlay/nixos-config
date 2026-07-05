@@ -7,22 +7,21 @@
       ...
     }:
     let
-      cfg = config.features.niri;
       themesVault = config.ltp.theme.catalog;
     in
     {
-      options.features.niri.enable = lib.mkEnableOption "Niri scrollable-tiling Wayland compositor" // {
-        default = false;
-      };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         programs.niri = {
           enable = true;
           package = pkgs.niri;
         };
 
         environment = {
-          systemPackages = [ pkgs.swaybg ];
+          systemPackages = [
+            pkgs.swaybg
+            pkgs.uwsm
+          ];
           variables = {
             "WLR_RENDER_DRM_DEVICE" = "/dev/dri/renderD128";
           };

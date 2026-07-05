@@ -11,7 +11,12 @@
       defaultShell ? "bash",
       ...
     }:
-    { config, pkgs, ... }: {
+    {
+      config,
+      pkgs,
+      ...
+    }:
+    {
       options.users.profiles.${username}.enable = lib.mkEnableOption "${username}'s user profile";
 
       config = lib.mkIf (config.users.profiles.enable && config.users.profiles.${username}.enable) {
@@ -45,10 +50,14 @@
             ;
         };
 
-        home-manager.users.${username} = _: {
-          home.stateVersion = "26.05";
+        home-manager = {
+          sharedModules = [
+          ];
+          users.${username} = _: {
+            home.stateVersion = "26.05";
 
-          home.packages = map (p: pkgs.${p}) extraPackages;
+            home.packages = map (p: pkgs.${p}) extraPackages;
+          };
         };
       };
     };

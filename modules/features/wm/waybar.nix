@@ -1,21 +1,11 @@
-# modules/features/wm/waybar.nix
 _: {
   flake.nixosModules.waybar =
     {
-      config,
-      lib,
       pkgs,
       ...
     }:
-    let
-      cfg = config.features.waybar;
-    in
     {
-      options.features.waybar.enable = lib.mkEnableOption "Waybar status bar component" // {
-        default = false;
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         home-manager.sharedModules = [
           (_: {
             programs.waybar = {

@@ -7,18 +7,10 @@ _: {
       ...
     }:
     let
-      cfg = config.features.greetd;
-
       waylandSessionsDir = "${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
     in
     {
-      options.features.greetd.enable =
-        lib.mkEnableOption "Greetd login manager with tuigreet frontend"
-        // {
-          default = false;
-        };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         services.greetd = {
           enable = true;
 

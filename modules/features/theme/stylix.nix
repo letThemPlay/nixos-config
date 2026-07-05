@@ -7,8 +7,6 @@
       ...
     }:
     let
-      cfg = config.ltp.theme.stylix;
-
       themesVault = config.ltp.theme.catalog;
     in
     {
@@ -16,13 +14,7 @@
         inputs.stylix.nixosModules.stylix
       ];
 
-      options.ltp.theme.stylix.enable =
-        lib.mkEnableOption "Stylix multi-user theme management engine"
-        // {
-          default = false;
-        };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         stylix.enable = false;
 
         home-manager.users = lib.mapAttrs (_: profile: { ... }: {

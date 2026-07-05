@@ -18,16 +18,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland?tag=v0.55.0";
-
-    hy3 = {
-      url = "github:outfoxxed/hy3?tag=hl0.55.0";
-    };
-
     stylix.url = "github:nix-community/stylix";
 
     agenix = {
       url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell?ref=refs/tags/v0.3.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

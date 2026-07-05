@@ -1,17 +1,11 @@
 { inputs, ... }: {
 
-  flake.nixosModules.secrets = { config, lib, ... }: {
+  flake.nixosModules.secrets = _: {
     imports = [
       inputs.agenix.nixosModules.default
     ];
 
-    options.ltp.security.secrets.enable =
-      lib.mkEnableOption "Agenix cryptographic secrets decryption engine"
-      // {
-        default = true; # Automatically ready for everything unless explicitly toggled false
-      };
-
-    config = lib.mkIf config.ltp.security.secrets.enable {
+    config = {
       age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     };
   };

@@ -5,14 +5,10 @@
       gpgLib = import "${inputs.self}/modules/_lib/gpg.nix" { inherit inputs; };
     in
     {
-      options.ltp.security.gpg.enable = lib.mkEnableOption "GPG signature space";
-
-      config = lib.mkIf config.ltp.security.gpg.enable {
-        # Maps Home Manager settings using the global user registry
+      config = {
         home-manager.users = lib.mapAttrs (
           _: profile:
           let
-            # Calls your pure library method effortlessly
             userKeys = gpgLib.importAscFiles profile.username;
           in
           if userKeys != [ ] then
@@ -28,7 +24,6 @@
             }
           else
             {
-              # Safe Fallback: Returns empty config if no keys are found
               _module.args = { };
             }
         ) config.ltp.users.registry;

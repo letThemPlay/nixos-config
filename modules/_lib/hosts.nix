@@ -1,27 +1,52 @@
-{ inputs, lib }: {
+{
+  inputs,
+  lib,
+}:
+{
   mkHost =
     {
       hostName,
       architecture,
       stateVersion,
-      isLaptop ? false,
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
+      ...
     }:
     let
-      enabled = lib.genAttrs features (_: true);
+      registryData = import (inputs.self + "/modules/features/_registry.nix") {
+        inherit inputs;
+        lib = inputs.nixpkgs.lib;
+      };
 
-      hasWifi = enabled.wifi or false || isLaptop;
-      hasBluetooth = enabled.bluetooth or false || isLaptop;
+      featureRegistryMap = registryData.config.modules.features.registry or { };
+
+      resolvedFeatures = builtins.concatMap (
+        name:
+        if builtins.hasAttr name featureRegistryMap then
+          let
+            val = featureRegistryMap.${name};
+          in
+          if builtins.isList val then
+            val
+          else if builtins.hasAttr "contents" val then
+            val.contents
+          else
+            [ val ]
+        else
+          [ ]
+      ) features;
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
-
+      specialArgs = { inherit inputs; };
       modules = [
         inputs.home-manager.nixosModules.home-manager
+        (_: {
+          nixpkgs.config.allowUnfreePredicate = _: true;
+        })
       ]
-      ++ (builtins.attrValues inputs.self.nixosModules)
+      ++ resolvedFeatures
       ++ [
         ({ pkgs, ... }: {
           system.stateVersion = stateVersion;
@@ -33,61 +58,15 @@
               hostName
               architecture
               stateVersion
-              isLaptop
               features
               users
               extraModules
               ;
           };
 
-          users.profiles =
-            (lib.genAttrs users (_: {
-              enable = true;
-            }))
-            // {
-              enable = true;
-            };
-
-          features = {
-            git.enable = enabled.git or false;
-            flashgbx.enable = enabled.flashgbx or false;
-            nixvim.enable = enabled.nixvim or false;
-            hyprland.enable = false;
-            niri.enable = enabled.niri or true; # default to true for now
-            fuzzel.enable = enabled.fuzzel or false;
-            greetd.enable = enabled.greetd or false;
-            waybar.enable = enabled.waybar or false;
-            mako.enable = enabled.mako or false;
-            hardware = {
-              proxmox-qemu.enable = enabled.proxmox-qemu or false;
-            };
-          };
-
-          ltp = {
-            boot = {
-              secureBoot.enable = enabled.secureboot or false;
-              tpmUnlock.enable = enabled.tpm or false;
-            };
-
-            bluetooth.enable = hasBluetooth;
-
-            network = {
-              wifi.enable = hasWifi;
-              wired.enable = !hasWifi || (enabled.wired or false);
-              tailscale.enable = enabled.tailscale or false;
-              nextdns.enable = enabled.nextdns or false;
-            };
-
-            security = {
-              core.enable = enabled.security or true; # Enabled by default unless forced false
-              gpg.enable = enabled.gpg or false;
-              secrets.enable = enabled.secrets or true; # Agenix decryption defaults true
-            };
-
-            theme = {
-              stylix.enable = enabled.stylix or false;
-            };
-          };
+          users.profiles = lib.genAttrs users (_: {
+            enable = true;
+          });
 
           environment.systemPackages = [ pkgs.curl ];
         })

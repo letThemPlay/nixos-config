@@ -1,7 +1,11 @@
-# modules/features/wm/_niri/config-template.nix
 { profileThemeImage, pkgs }:
 ''
   input {
+      keyboard {
+          xkb {
+              layout "gb"
+          }
+      }
       touchpad {
           tap
           dwt
@@ -11,10 +15,36 @@
   layout {
       gaps 12
       default-column-width { proportion 0.5; }
-      focus-ring { width 2; }
       struts {
-          top 32
+          top 4
       }
+
+      focus-ring {
+          off
+      }
+
+      shadow {
+          off
+      }
+  }
+
+  window-rule {
+      match is-active=true
+      opacity 1.0
+  }
+
+  window-rule {
+      match is-active=false
+      opacity 0.85
+  }
+
+  window-rule {
+      match app-id="^swaync$"
+      match app-id="^swaynotificationcenter$"
+      
+      opacity 0.0
+      
+      focus-ring { off; }
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
@@ -26,41 +56,36 @@
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
 
-      "Mod+Escape"       { spawn "${pkgs.mako}/bin/makoctl" "dismiss"; }
-      "Mod+Shift+Escape" { spawn "${pkgs.mako}/bin/makoctl" "dismiss" "-a"; }
+      "Mod+I" { spawn "sh" "-c" "pkill quickshell || uwsm app -- quickshell"; }
 
-      // Horizontal Focus and Window Movement across the Ribbon
+      "Mod+Escape"       { spawn "uwsm" "app" "--" "swaync-client" "-d"; }
+      "Mod+Shift+Escape" { spawn "uwsm" "app" "--" "swaync-client" "-C"; }
+
       "Mod+Left"  { focus-column-left; }
       "Mod+Right" { focus-column-right; }
       "Mod+Shift+Left"  { move-column-left; }
       "Mod+Shift+Right" { move-column-right; }
 
-      // Window size control
       "Mod+F"       { maximize-column; }
       "Mod+Shift+F" { fullscreen-window; }
 
-      // VERTICAL STACK CONTROL BINDS:
       "Mod+Up"    { focus-window-or-workspace-up; }
       "Mod+Down"  { focus-window-or-workspace-down; }
       "Mod+Shift+Up"   { move-window-up; }
       "Mod+Shift+Down" { move-window-down; }
 
-      // COLUMN EXTRA CONTROLS:
       "Mod+V"     { consume-window-into-column; }
       "Mod+H"     { expel-window-from-column; }
       "Mod+C"     { center-column; }
       "Mod+Space" { switch-preset-column-width; }
 
-      // Column Sizing
       "Mod+Minus" { set-column-width "-10%"; }
       "Mod+Equal" { set-column-width "+10%"; }
       
-      // Hardware Audio Volume Controls (WirePlumber)
       "XF86AudioRaiseVolume" allow-inhibiting=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
       "XF86AudioLowerVolume" allow-inhibiting=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
       "XF86AudioMute"        allow-inhibiting=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-mute"   "@DEFAULT_AUDIO_SINK@" "toggle"; }
 
-      // Hardware Media Controls (Playerctl)
       "XF86AudioPlay"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
       "XF86AudioNext"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
       "XF86AudioPrev"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
