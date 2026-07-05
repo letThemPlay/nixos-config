@@ -8,23 +8,34 @@
     }:
     let
       cfg = config.ltp.network.wireless;
+      inherit (lib) types mkOption;
     in
     {
       options.ltp.network.wireless = {
-        interfaceName = lib.mkOption {
-          type = lib.types.str;
+        networkName = mkOption {
+          type = types.str;
+          default = "25-wireless";
+        };
+        interfaceName = mkOption {
+          type = types.str;
           default = "wl*";
           description = "The target wireless hardware network interface matching string.";
         };
+        routeMetric = mkOption {
+          default = 2048;
+          type = types.int;
+        };
       };
 
-      imports = [
-        (inputs.self.factory.network {
-          networkName = "25-wireless";
-          inherit (cfg) interfaceName;
-          routeMetric = 2048;
-        })
-      ];
+      imports =
+        let
+          networkcfg = {
+            inherit (cfg) networkName interfaceName routeMetric;
+          };
+        in
+        [
+          (inputs.self.factory.network networkcfg)
+        ];
 
       config = {
         environment.systemPackages = [ pkgs.iwgtk ];
