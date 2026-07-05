@@ -6,13 +6,9 @@
   features = [
     "base"
     "vm"
-    "laptop"
+    "ui"
 
     "nixvim"
-    "greetd"
-    "waybar"
-    "fuzzel"
-    "mako"
     "alacritty"
     "git"
   ];

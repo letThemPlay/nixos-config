@@ -33,6 +33,15 @@
       vm = lib.mkMerge [
         inputs.self.nixosModules.proxmox-qemu
         inputs.self.nixosModules.wired
+        inputs.self.nixosModules.audio
+      ];
+
+      ui = lib.mkMerge [
+        inputs.self.nixosModules.niri
+        inputs.self.nixosModules.waybar
+        inputs.self.nixosModules.fuzzel
+        inputs.self.nixosModules.mako
+        inputs.self.nixosModules.greetd
       ];
     };
   };
