@@ -4,17 +4,10 @@
   stateVersion = "22.11";
 
   features = [
-    "gpg"
-    "git"
-    "nixvim"
-    "wifi"
-    "bluetooth"
-    "secureboot"
-    "tpm"
-    "tailscale"
-    "greetd"
-    "stylix"
-    "waybar"
+    "base"
+    "laptop"
+    "ui"
+    "core-apps"
   ];
 
   users = [ "kelvin" ];

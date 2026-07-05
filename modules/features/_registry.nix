@@ -14,6 +14,7 @@
 
       # Feature Groups
       base = lib.mkMerge [
+        inputs.self.nixosModules.boot
         inputs.self.nixosModules.nix-core
         inputs.self.nixosModules.network
         inputs.self.nixosModules.security
@@ -42,6 +43,12 @@
         inputs.self.nixosModules.fuzzel
         inputs.self.nixosModules.mako
         inputs.self.nixosModules.greetd
+      ];
+
+      core-apps = lib.mkMerge [
+        inputs.self.nixosModules.alacritty
+        inputs.self.nixosModules.git
+        inputs.self.nixosModules.nixvim
       ];
     };
   };

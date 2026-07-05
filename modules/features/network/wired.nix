@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.nixosModules.network =
+  flake.nixosModules.wired =
     {
       lib,
       config,

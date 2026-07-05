@@ -7,15 +7,11 @@
       ...
     }:
     let
-      cfg = config.features.niri;
       themesVault = config.ltp.theme.catalog;
     in
     {
-      options.features.niri.enable = lib.mkEnableOption "Niri scrollable-tiling Wayland compositor" // {
-        default = false;
-      };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         programs.niri = {
           enable = true;
           package = pkgs.niri;

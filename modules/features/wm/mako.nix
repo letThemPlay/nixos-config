@@ -1,20 +1,11 @@
 _: {
   flake.nixosModules.mako =
     {
-      config,
-      lib,
       pkgs,
       ...
     }:
-    let
-      cfg = config.features.mako;
-    in
     {
-      options.features.mako.enable = lib.mkEnableOption "Mako Wayland notification daemon" // {
-        default = false;
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         environment.systemPackages = [
           pkgs.mako
         ];

@@ -14,13 +14,6 @@
       ...
     }:
     let
-      enabled = lib.genAttrs features (_: true);
-
-      requestedTokens = [
-        "base"
-        "laptop"
-      ];
-
       registryData = import (inputs.self + "/modules/features/_registry.nix") {
         inherit inputs;
         lib = inputs.nixpkgs.lib;
@@ -42,7 +35,7 @@
             [ val ]
         else
           [ ]
-      ) requestedTokens;
+      ) features;
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
@@ -54,25 +47,6 @@
         })
       ]
       ++ resolvedFeatures
-      ++ builtins.attrValues (
-        removeAttrs inputs.self.nixosModules [
-          "nix-core"
-          "discord"
-          "wifi"
-          "wired"
-          "users"
-          "stylix"
-          "nix-core"
-          "security"
-          "network"
-          "secrets"
-          "gpg"
-          "nextdns"
-          "wifi"
-          "tailcale"
-          "audio"
-        ]
-      )
       ++ [
         ({ pkgs, ... }: {
           system.stateVersion = stateVersion;
@@ -93,25 +67,6 @@
           users.profiles = lib.genAttrs users (_: {
             enable = true;
           });
-
-          features = {
-            git.enable = enabled.git or false;
-            flashgbx.enable = enabled.flashgbx or false;
-            nixvim.enable = enabled.nixvim or false;
-            niri.enable = enabled.niri or true; # default to true for now
-            fuzzel.enable = enabled.fuzzel or false;
-            greetd.enable = enabled.greetd or false;
-            waybar.enable = enabled.waybar or false;
-            mako.enable = true;
-            alacritty.enable = enabled.alacritty or false;
-          };
-
-          ltp = {
-            boot = {
-              secureBoot.enable = enabled.secureboot or false;
-              tpmUnlock.enable = enabled.tpm or false;
-            };
-          };
 
           environment.systemPackages = [ pkgs.curl ];
         })

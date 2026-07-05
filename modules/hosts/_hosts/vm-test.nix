@@ -7,10 +7,7 @@
     "base"
     "vm"
     "ui"
-
-    "nixvim"
-    "alacritty"
-    "git"
+    "core-apps"
   ];
 
   users = [ "kelvin" ];
