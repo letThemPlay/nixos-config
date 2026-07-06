@@ -48,8 +48,7 @@
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
       "Mod+L" { spawn "loginctl" "lock-session"; }
-
-      "Mod+I" { spawn "sh" "-c" "pkill quickshell || uwsm app -- quickshell"; }
+      "Mod+V" { spawn "sh" "-c" "~/.local/bin/cliphist-picker"; }
 
       "Mod+Escape"       { spawn "uwsm" "app" "--" "swaync-client" "-d"; }
       "Mod+Shift+Escape" { spawn "uwsm" "app" "--" "swaync-client" "-C"; }
