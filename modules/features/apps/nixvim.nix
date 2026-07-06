@@ -121,6 +121,33 @@
 
             keymaps = [
               {
+                mode = "n"; # 1. Normal Mode
+                key = "<C-s>";
+                action = "<cmd>w<CR>";
+                options = {
+                  silent = true;
+                  desc = "👑 Save current file buffer instantly";
+                };
+              }
+              {
+                mode = "i"; # 2. Insert Mode (Saves instantly without forcing you to hit Escape first!)
+                key = "<C-s>";
+                action = "<Esc><cmd>w<CR>a"; # Drops out, saves, and pops you straight back into editing!
+                options = {
+                  silent = true;
+                  desc = "👑 Save current file buffer inline from insert mode";
+                };
+              }
+              {
+                mode = "v"; # 3. Visual Mode
+                key = "<C-s>";
+                action = "<Esc><cmd>w<CR>gv"; # Drops out, saves, and re-selects your original visual block highlights!
+                options = {
+                  silent = true;
+                  desc = "👑 Save current file buffer from visual selection mode";
+                };
+              }
+              {
                 mode = "n";
                 key = "<leader>qq";
                 action = "<cmd>qa<cr>";
