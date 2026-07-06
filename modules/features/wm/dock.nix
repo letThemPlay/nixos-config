@@ -46,10 +46,19 @@ _: {
           };
         };
 
-        # 👑 THE DEFINITIVE, CROSS-COMPUTED GTK-3 TRANSPARENCY SHEET:
-        # We drop raw 8-digit hex string blocks and leverage the bulletproof,
-        # native GTK-3 'rgba(#hex, alpha)' declaration format! [INDEX: 1.4.1]
+        # 👑 THE DEFINITIVE CONVERTED DOCK STYLE SHEET:
+        # Replicated precisely from your working top-bar color definition format!
         xdg.configFile."waybar/dock-style.css".text = ''
+          @define-color base00 #${config.lib.stylix.colors.base00};
+          @define-color base01 #${config.lib.stylix.colors.base01};
+          @define-color base02 #${config.lib.stylix.colors.base02};
+          @define-color base03 #${config.lib.stylix.colors.base03};
+          @define-color base04 #${config.lib.stylix.colors.base04};
+          @define-color base05 #${config.lib.stylix.colors.base05};
+          @define-color base0D #${config.lib.stylix.colors.base0D};
+
+          @define-color transparent-base alpha(@base00, 0);
+
           * {
               font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               border: none;
@@ -57,41 +66,41 @@ _: {
           }
 
           window#waybar {
+              background-color: @transparent-base;
               background: transparent !important;
-              background-color: transparent !important;
           }
 
-          /* 📱 CHASSIS: Translucent floating island dock pill [INDEX: 1.4.1] */
+          /* 📱 CHASSIS: Perfectly styled floating island dock pill modules */
           .modules-left,
           .modules-center,
           .modules-right {
-              /* 👑 FIXED SYNTAX: rgba(#hex, alpha) is perfectly parsed by Waybar's engine! [INDEX: 1.4.1] */
-              background-color: rgba(#${config.lib.stylix.colors.base01}, 0.85) !important;
-              border: 1px solid #${config.lib.stylix.colors.base03} !important;
-              border-radius: 16px !important;
-              padding: 4px 12px !important;
-              margin: 0px 4px !important;
-              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+              /* 👑 Uses your exact working macro alpha loop matching format! [INDEX: 1.4.1] */
+              background-color: alpha(@base01, 0.85); 
+              border: 1px solid @base03;
+              border-radius: 16px;
+              padding: 4px 12px;
+              margin: 0px 4px;
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
           }
 
           button {
-              color: #${config.lib.stylix.colors.base05} !important;
-              font-size: 18px !important;
-              padding: 4px 8px !important;
-              margin: 0px 4px !important;
-              border-radius: 8px !important;
-              transition: all 0.1s ease-in-out !important;
+              color: @base05;
+              font-size: 18px;
+              padding: 4px 8px;
+              margin: 0px 4px;
+              border-radius: 8px;
+              transition: all 0.1s ease-in-out;
           }
 
           button:hover {
-              /* 👑 FIXED HOVER SYNTAX: Perfect 60% translucency mask with zero macro dependencies! [INDEX: 1.4.1] */
-              background-color: rgba(#${config.lib.stylix.colors.base02}, 0.60) !important;
-              color: #${config.lib.stylix.colors.base0D} !important;
-              transform: scale(1.15) translateY(-2px) !important;
+              /* 👑 Uses the identical 0.60 alpha macro overlay format! [INDEX: 1.4.1] */
+              background-color: alpha(@base02, 0.60);
+              color: @base0D;
+              transform: scale(1.15) translateY(-2px);
           }
 
           button.active {
-              border-bottom: 2px solid #${config.lib.stylix.colors.base0D} !important;
+              border-bottom: 2px solid @base0D;
           }
         '';
       })
