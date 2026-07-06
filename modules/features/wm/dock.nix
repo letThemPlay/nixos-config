@@ -1,5 +1,5 @@
 _: {
-  flake.nixosModules.desktop-dock = _: {
+  flake.nixosModules.dock = _: {
     home-manager.sharedModules = [
       ({ config, ... }: {
         xdg.configFile."waybar/dock.json".text = builtins.toJSON {
@@ -65,7 +65,6 @@ _: {
               background-color: transparent !important;
           }
 
-          /* 📱 CHASSIS: Perfectly styled, translucent floating island dock pill! [INDEX: 1.4.1] */
           .modules-left,
           .modules-center,
           .modules-right {
