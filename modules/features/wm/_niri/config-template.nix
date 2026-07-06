@@ -40,6 +40,8 @@
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
 
+  spawn-at-startup "uwsm" "app" "--" "nwg-dock-hyprland" "-d" "-r"
+
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
 
   binds {
