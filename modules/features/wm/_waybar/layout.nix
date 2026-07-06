@@ -1,88 +1,30 @@
-{ pkgs }:
-{
+_: {
   layer = "top";
   position = "top";
-  height = 32;
-  spacing = 4;
   margin = "5 7 -5 7";
-
-  fixed-center = true;
-
   modules-left = [
-    "niri/workspaces"
-    "niri/window"
-    "mpris"
+    "clock"
+    "hyprland/workspaces"
   ];
-  modules-center = [ "clock" ];
+
+  modules-center = [ ];
   modules-right = [
+    "tray"
     "network"
-    "cpu"
+    "bluetooth"
     "memory"
+    "cpu"
     "wireplumber"
     "battery"
-    "tray"
   ];
-
-  "niri/workspaces" = {
-    format = "{name}";
-    all-outputs = true;
-  };
-
-  "niri/window" = {
-    format = "{}";
-    max-length = 20;
-    separate-outputs = true;
-
-    expand = false;
-  };
-
-  "mpris" = {
-    format = "{player_icon}  {title}";
-    format-paused = "{status_icon}  <i>{title}</i>";
-    max-length = 35;
-    player-icons = {
-      default = "🎵";
-      firefox = "";
-    };
-    status-icons = {
-      paused = "⏸";
-    };
-  };
-
-  clock = {
-    tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
-    format-alt = "{:%Y-%m-%d}";
-  };
-
-  cpu = {
-    format = "  {usage}%";
-    tooltip = false;
-  };
-  memory = {
-    format = "  {}%";
-  };
-
-  wireplumber = {
-    format = "{icon}  {volume}%";
-    format-muted = "    Muted";
-    on-click = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
-    format-icons = [
-      "  "
-      "  "
-      "  "
-    ];
-    max-volume = 100;
-    scroll-step = 5;
-  };
 
   battery = {
     states = {
       warning = 30;
       critical = 15;
     };
-    format = "{icon}  {capacity}%";
-    format-charging = "  {capacity}%";
-    format-plugged = "  {capacity}%";
+    format = "{icon}   {capacity}%";
+    format-alt = "{icon}   {time}";
     format-icons = [
       ""
       ""
@@ -92,9 +34,69 @@
     ];
   };
 
+  clock = {
+    interval = 1;
+    format = "{:%H:%M %d %b}";
+    tooltip = false;
+  };
+
+  "custom/weather" = {
+    exec = "sleep 5s; curl wttr.in/?format='%t+(%f)'";
+    interval = 600;
+    tooltip = false;
+  };
+
+  tray = {
+    icon-space = 18;
+    spacing = 10;
+  };
+
   network = {
-    format-wifi = "  {essid}";
-    format-ethernet = "${builtins.fromJSON "\"\\uf0200\""}  {ipaddr}/{cidr}";
-    format-disconnected = "⚠  Disconnected";
+    interval = 1;
+    format-wifi = "    {bandwidthDownBits} on {ipaddr} ( {signalStrength}%    )";
+    format-ethernet = "    {bandwidthDownBits} on {ipaddr} ( 󰈀  )";
+    format-disconnected = "Disconnected";
+    tooltip = false;
+    on-click = "nm-connection-editor";
+  };
+
+  bluetooth = {
+    interval = 1;
+    format = "  {status}";
+    format-connected = "  {device_alias}";
+    format-connected-battery = "  {device_alias} {device_battery_percentage}%";
+    tooltip-format = "controller = {controller_alias}\t{controller_address}\n\n{num_connections} devices connected";
+    tooltip-format-connected = "controller = {controller_alias}\t{controller_address}\n\n{num_connections} devices connected\n\n{device_enumerate}";
+    tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
+    tooltip-format-enumerate-connected-battery = "{device_alias}\t{device_address}\t{device_battery_percentage}%";
+    on-click = "bluetoothctl power on";
+    on-click-right = "bluetoothctl power off";
+    on-scroll-up = "bluetoothctl discoverable on";
+    on-scroll-down = "bluetoothctl discoverable off";
+  };
+
+  memory = {
+    interval = 5;
+    format = "  {used}GiB";
+    states = {
+      warning = 70;
+      critical = 90;
+    };
+
+    tooltip = false;
+  };
+
+  cpu = {
+    interval = 2;
+    format = "  {usage}%";
+    states = {
+      warning = 70;
+      critical = 90;
+    };
+  };
+
+  wireplumber = {
+    format = "󰕾 {volume}%";
+    format-muted = "󰖁";
   };
 }
