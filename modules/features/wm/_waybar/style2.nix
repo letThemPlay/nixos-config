@@ -1,6 +1,13 @@
 ''
   @define-color transparent-base alpha(@base00, 0.85);
 
+  * {
+      border: none;
+      border-radius: 0;
+      min-height: 0;
+      margin: 3px 3px 3px 3px;
+      padding: 0;
+  }
   .modules-left,
   .modules-center,
   .modules-right {
