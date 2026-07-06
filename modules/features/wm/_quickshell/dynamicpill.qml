@@ -12,43 +12,19 @@ Rectangle {
     radius: 30
     implicitHeight: 42
 
-    // --- LIVE UPDATING MPRIS SELECTION LOGIC ---
+    // --- REFACTORED REACTIVE MPRIS EVALUATION ---
+    
+    // Check if the underlying ObjectModel has elements natively
+    property bool hasPlayers: Mpris.players && Mpris.players.count > 0
 
-    // 1. Create a dynamic alias or pointer that shifts instantly whenever the player model updates
-    property var activePlayer: Mpris.players.count > 0 ? getBestPlayer() : null
-
-    // 2. This boolean tracks the simplified state directly, forcing QML to redraw instantly
+    // Bind purely declaratively. QML will auto-reevaluate this bound chain 
+    // whenever the root layout updates or the player states morph.
+    property var activePlayer: hasPlayers ? Mpris.players.get(0) : null
+    
+    // Explicitly verify the enum state natively provided by Quickshell
     property bool isPlaying: activePlayer !== null && activePlayer.playbackState === MprisPlaybackState.Playing
 
-    // Helper function executed reactively by QML whenever Mpris.players model shifts
-    function getBestPlayer() {
-        // First pass: look for anything genuinely emitting sound
-        for (var i = 0; i < Mpris.players.count; i++) {
-            var p = Mpris.players.get(i);
-            if (p && p.busName && p.busName.indexOf("playerctld") === -1) {
-                if (p.playbackState === MprisPlaybackState.Playing) {
-                    return p;
-                }
-            }
-        }
-        // Second pass fallback: take the first active node (e.g. paused tab)
-        var fallback = Mpris.players.get(0);
-        if (fallback && fallback.busName && fallback.busName.indexOf("playerctld") === -1) {
-            return fallback;
-        }
-        return null;
-    }
-
-    // Force QML to re-evaluate the active player when players join/leave DBus
-    Connections {
-        target: Mpris.players
-        function onCountChanged() { 
-            pillRoot.activePlayer = pillRoot.getBestPlayer();
-        }
-    }
-
-
-    // Dynamic Sizing
+    // Dynamic Sizing bound to the reactive isPlaying flag
     implicitWidth: isPlaying ? mediaLayout.implicitWidth + 32 : dateLayout.implicitWidth + 32
     Behavior on implicitWidth {
         NumberAnimation { duration: 300; easing.type: Easing.InOutQuint }
@@ -86,6 +62,7 @@ Rectangle {
         visible: opacity > 0
         Behavior on opacity { NumberAnimation { duration: 200 } }
 
+        // Green audio pulsing icon anchor 
         Rectangle {
             width: 8; height: 8; radius: 4
             color: "#a6e3a1" 
@@ -94,8 +71,8 @@ Rectangle {
         ColumnLayout {
             spacing: 2
             Text {
-                // Safeguard against missing metadata or uninitialized players
-                text: (pillRoot.activePlayer && pillRoot.activePlayer.trackTitle) ? pillRoot.activePlayer.trackTitle : "Unknown Track"
+                // Binding directly to the object property establishes a reactive state hook
+                text: (pillRoot.activePlayer && pillRoot.activePlayer.trackTitle) ? pillRoot.activePlayer.trackTitle : "Loading Media..."
                 color: "#cdd6f4"
                 font.bold: true
                 font.pixelSize: 13
