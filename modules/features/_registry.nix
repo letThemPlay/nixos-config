@@ -24,6 +24,7 @@
         inputs.self.nixosModules.stylix
         inputs.self.nixosModules.secrets
         inputs.self.nixosModules.zsh
+        inputs.self.nixosModules.shell-utilities
       ];
 
       laptop = [
