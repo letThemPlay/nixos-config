@@ -10,7 +10,6 @@
   }
   window#waybar {
     background-color: @transparent-base;
-    border-bottom: 2px solid @base01;
     color: @base05;
     transition-property: background-color;
     transition-duration: .5s;
@@ -20,7 +19,7 @@
   .modules-left,
   .modules-center,
   .modules-right {
-      background-color: @transparent-base;
+      background-color: @base01;
       opacity: 0.75;
       border-radius: 10px;
       color: #CDD6F4;
