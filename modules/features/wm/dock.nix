@@ -72,7 +72,6 @@ _: {
           .modules-center,
           .modules-right {
               background-color: alpha(@base01, 0.85); 
-              #border: 1px solid @base03;
               border-radius: 16px;
               padding: 4px 12px;
               margin: 0px 4px;
