@@ -1,7 +1,7 @@
 ''
   @define-color transparent-base alpha(@base00, 0.85);
 
-  #waybar {
+  window#waybar {
       background-color: transparent !important;
   }
 
