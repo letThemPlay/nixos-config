@@ -1,9 +1,10 @@
+# modules/features/dev/cachix.nix
 _: {
   flake.nixosModules.cachix-caches = { pkgs, ... }: {
     environment.systemPackages = [ pkgs.cachix ];
 
     nix.settings = {
-      substitutors = [
+      substituters = [
         "https://nixos.org"
         "https://cachix.org"
       ];

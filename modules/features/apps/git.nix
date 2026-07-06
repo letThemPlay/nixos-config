@@ -18,8 +18,12 @@ _: {
             {
               programs.git = {
                 enable = true;
-                userName = userProfile.fullName or "";
-                userEmail = userProfile.email or "";
+                settings = {
+                  user = {
+                    name = userProfile.fullName or "";
+                    email = userProfile.email or "";
+                  };
+                };
               };
 
               programs.zsh.shellAliases = {
