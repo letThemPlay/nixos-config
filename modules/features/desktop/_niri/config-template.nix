@@ -52,7 +52,7 @@
     }
     
     // Ensures the window framing is flat and doesn't get double borders
-    focus-ring { off; }
+    focus-ring { on; }
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
