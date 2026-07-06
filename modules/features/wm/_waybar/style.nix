@@ -31,7 +31,7 @@
   #network,
   #wireplumber
   #tray {
-      padding: 0 12px;
+      padding: 0.2rem 0.5rem;
       margin: 4px 2px;
       border-radius: 6px;
       background-color: @base01;
