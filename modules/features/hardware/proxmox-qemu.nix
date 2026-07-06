@@ -2,6 +2,12 @@ _: {
   flake.nixosModules.proxmox-qemu = _: {
     config = {
 
+      environment = {
+        variables = {
+          "WLR_RENDER_DRM_DEVICE" = "/dev/dri/renderD128";
+        };
+      };
+
       services = {
         qemuGuest.enable = true;
         spice-vdagentd.enable = true;

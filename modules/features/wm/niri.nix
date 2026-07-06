@@ -22,9 +22,6 @@
             pkgs.swaybg
             pkgs.uwsm
           ];
-          variables = {
-            "WLR_RENDER_DRM_DEVICE" = "/dev/dri/renderD128";
-          };
         };
 
         security.pam.services.login.enableGnomeKeyring = true;

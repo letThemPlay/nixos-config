@@ -14,6 +14,9 @@
 
   extraModules = [
     inputs.nixos-hardware.nixosModules.framework-13-7040-amd
-    "${inputs.self}/modules/hosts/_hosts/_settings/theseus.nix"
+    (inputs.self + "/modules/hosts/_hosts/_settings/theseus.nix")
   ];
+
+  tpmUnlock = true;
+  secureBoot = true;
 }
