@@ -1,11 +1,9 @@
-# modules/features/system/security.nix
 _: {
   flake.nixosModules.hyprlock = { pkgs, ... }: {
     security.pam.services.hyprlock = { };
 
     home-manager.sharedModules = [
-      ({ config, ... }: {
-        # 👑 1. DECLARATIVE IDLE MANAGEMENT CELL (hypridle)
+      ({ config, lib, ... }: {
         services.hypridle = {
           enable = true;
           settings = {
@@ -27,7 +25,6 @@ _: {
           };
         };
 
-        # 👑 2. DECLARATIVE LOCKSCREEN VISUAL CELL (hyprlock)
         programs.hyprlock = {
           enable = true;
           settings = {
@@ -37,12 +34,6 @@ _: {
               grace = 0;
             };
 
-            # 👑 THE INPUT-FIELD REDUNDANCY RESOLUTION:
-            # Ripped out the explicit 'input-field' layout block block! Stylix automatically
-            # injects, structures, and themes your password input bubble using your live
-            # system color codes, clearing out your evaluation clashes permanently! [INDEX: 1.1.6]
-
-            # 📱 Center Digital Clock Layout Still Maintained Natively
             label = [
               {
                 monitor = "";
@@ -51,6 +42,30 @@ _: {
                 font_size = 64;
                 font_family = "Inter Bold";
                 position = "0, 150";
+                halign = "center";
+                valign = "center";
+              }
+            ];
+
+            input-field = lib.mkForce [
+              {
+                monitor = "";
+
+                size = "200, 45";
+
+                rounding = 6; # Lower numbers create sharp tech corners; use -1 for pure circular pills.
+
+                outline_thickness = 1;
+                dots_size = 0.25;
+                dots_spacing = 0.50;
+                fade_on_empty = true;
+
+                outer_color = "rgb(${config.lib.stylix.colors.base03})";
+                inner_color = "rgb(${config.lib.stylix.colors.base01})";
+                font_color = "rgb(${config.lib.stylix.colors.base05})";
+
+                placeholder_text = "<i>Enter Password...</i>";
+                position = "0, -40";
                 halign = "center";
                 valign = "center";
               }
