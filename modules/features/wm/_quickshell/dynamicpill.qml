@@ -6,26 +6,38 @@ import Quickshell.Services.Mpris
 Rectangle {
     id: pillRoot
     
-    // Smooth pill aesthetics
-    color: "#11111b" // Catppuccin Mocha Crust / Deep Black
+    color: "#11111b" 
     border.color: "#313244"
     border.width: 1
     radius: 30
-    height: 42
+    implicitHeight: 42
 
-    // Internal paddings
-    layer.enabled: true
+    // --- REFACTORED MPRIS SELECTION LOGIC ---
+    
+    // 1. Locate the best available active player safely from the model array.
+    // This avoids querying property paths on empty or uninitialized objects.
+    property var activePlayer: {
+        for (var i = 0; i < Mpris.players.count; i++) {
+            var p = Mpris.players.get(i);
+            // Skip playerctld if it's currently hollow, or grab any running player
+            if (p && p.busName !== "org.mpris.MediaPlayer2.playerctld" && p.playbackState === MprisPlaybackState.Playing) {
+                return p;
+            }
+        }
+        // Fallback: If nothing is actively playing, try to grab the first available media source
+        return Mpris.players.count > 0 ? Mpris.players.get(0) : null;
+    }
 
-    // Track state: check if an active player is actively playing audio
-    property bool isPlaying: Mpris.players.length > 0 && Mpris.players[0].playbackState === MprisPlayer.Playing
+    // 2. Check explicitly if a valid player exists and is currently Playing
+    property bool isPlaying: activePlayer !== null && activePlayer.playbackState === MprisPlaybackState.Playing
 
-    // Dynamic Island Sizing Transitions
-    width: isPlaying ? mediaLayout.implicitWidth + 32 : dateLayout.implicitWidth + 32
-    Behavior on width {
+    // Dynamic Sizing
+    implicitWidth: isPlaying ? mediaLayout.implicitWidth + 32 : dateLayout.implicitWidth + 32
+    Behavior on implicitWidth {
         NumberAnimation { duration: 300; easing.type: Easing.InOutQuint }
     }
 
-    // Timer to drive the local clock engine
+    // Local System Clock Engine
     Timer {
         interval: 1000; running: true; repeat: true
         onTriggered: {
@@ -35,40 +47,28 @@ Rectangle {
         }
     }
 
-    // VIEW A: Simple Date & Time layout (Default static view)
+    // VIEW A: Static Clock layout
     RowLayout {
         id: dateLayout
         anchors.centerIn: parent
         opacity: !pillRoot.isPlaying ? 1.0 : 0.0
         spacing: 12
         visible: opacity > 0
-
         Behavior on opacity { NumberAnimation { duration: 200 } }
 
-        Text {
-            id: timeText
-            color: "#cdd6f4"
-            font.bold: true
-            font.pixelSize: 14
-        }
-        Text {
-            id: dateText
-            color: "#a6adc8"
-            font.pixelSize: 12
-        }
+        Text { id: timeText; color: "#cdd6f4"; font.bold: true; font.pixelSize: 14 }
+        Text { id: dateText; color: "#a6adc8"; font.pixelSize: 12 }
     }
 
-    // VIEW B: Active Media Tracker Layout (Expands over clock when playing)
+    // VIEW B: Media Layout (Renders smoothly when isPlaying resolves true)
     RowLayout {
         id: mediaLayout
         anchors.centerIn: parent
         opacity: pillRoot.isPlaying ? 1.0 : 0.0
         spacing: 16
         visible: opacity > 0
-
         Behavior on opacity { NumberAnimation { duration: 200 } }
 
-        // Green audio pulsing icon anchor 
         Rectangle {
             width: 8; height: 8; radius: 4
             color: "#a6e3a1" 
@@ -77,7 +77,8 @@ Rectangle {
         ColumnLayout {
             spacing: 2
             Text {
-                text: Mpris.players.length > 0 ? Mpris.players[0].trackTitle : ""
+                // Safeguard against missing metadata or uninitialized players
+                text: (pillRoot.activePlayer && pillRoot.activePlayer.trackTitle) ? pillRoot.activePlayer.trackTitle : "Unknown Track"
                 color: "#cdd6f4"
                 font.bold: true
                 font.pixelSize: 13
@@ -85,7 +86,7 @@ Rectangle {
                 elide: Text.ElideRight
             }
             Text {
-                text: Mpris.players.length > 0 ? Mpris.players[0].trackArtist : ""
+                text: (pillRoot.activePlayer && pillRoot.activePlayer.trackArtist) ? pillRoot.activePlayer.trackArtist : "Unknown Artist"
                 color: "#bac2de"
                 font.pixelSize: 11
                 Layout.maximumWidth: 200
@@ -94,4 +95,3 @@ Rectangle {
         }
     }
 }
-
