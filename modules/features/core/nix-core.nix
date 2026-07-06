@@ -1,4 +1,4 @@
-{ inputs, ... }: {
+{ inputs, findFilesWithExt, ... }: {
   flake.nixosModules.nix-core =
     {
       lib,
@@ -6,11 +6,9 @@
       ...
     }:
     let
-      fsLib = import "${inputs.self}/modules/_lib/filesystem.nix" { inherit lib; };
+      schemaFiles = findFilesWithExt "nix" "${inputs.self}/modules/_schemas";
 
-      schemaFiles = fsLib.findFilesWithExt "nix" "${inputs.self}/modules/_schemas";
-
-      themeFiles = fsLib.findFilesWithExt "nix" "${inputs.self}/modules/_themes";
+      themeFiles = findFilesWithExt "nix" "${inputs.self}/modules/_themes";
     in
     {
       imports = schemaFiles;

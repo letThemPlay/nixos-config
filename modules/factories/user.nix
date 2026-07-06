@@ -15,26 +15,20 @@
       options.users.profiles.${username}.enable = lib.mkEnableOption "${username}'s user profile";
 
       config = lib.mkIf config.users.profiles.${username}.enable {
-        users.users.${username} =
-          let
-            shellMap = {
-              inherit (pkgs) bash zsh;
-            };
-          in
-          {
-            isNormalUser = true;
-            description = fullName;
-            extraGroups = lib.mkMerge [
-              extraGroups
-              (lib.optionals admin [ "wheel" ])
-              [
-                "video"
-                "audio"
-              ]
-            ];
+        users.users.${username} = {
+          isNormalUser = true;
+          description = fullName;
 
-            shell = shellMap.${defaultShell} or pkgs.bash;
-          };
+          # Native list concatenation cleanly replaces lib.mkMerge here
+          extraGroups = [
+            "video"
+            "audio"
+          ]
+          ++ extraGroups
+          ++ lib.optionals admin [ "wheel" ];
+
+          shell = pkgs.${defaultShell} or pkgs.bash;
+        };
 
         ltp.users.registry.${username} = {
           inherit
@@ -46,8 +40,8 @@
             ;
         };
 
-        home-manager.users.${username} = _: {
-          home.stateVersion = "26.05";
+        home-manager.users.${username} = {
+          home.stateVersion = config.system.stateVersion or "26.05";
 
           home.packages = map (p: pkgs.${p}) extraPackages;
         };

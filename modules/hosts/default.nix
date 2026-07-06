@@ -1,11 +1,14 @@
-{ inputs, ... }: {
+{
+  inputs,
+  findFilesWithExt,
+  ...
+}:
+{
   flake =
     { lib, ... }:
     let
-      fsLib = import "${inputs.self}/modules/_lib/filesystem.nix" { inherit lib; };
-
       hostsDir = "${inputs.self}/modules/hosts/_hosts";
-      hostFiles = fsLib.findFilesWithExt "nix" hostsDir;
+      hostFiles = findFilesWithExt "nix" hostsDir;
     in
     {
       nixosConfigurations = lib.listToAttrs (
