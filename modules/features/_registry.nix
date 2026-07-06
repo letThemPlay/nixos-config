@@ -45,7 +45,6 @@
         inputs.self.nixosModules.fuzzel
         inputs.self.nixosModules.mako
         inputs.self.nixosModules.greetd
-        inputs.self.nixosModules.quickshell
         inputs.self.nixosModules.hyprlock
       ];
 
