@@ -42,11 +42,11 @@
       ui = [
         inputs.self.nixosModules.niri
         inputs.self.nixosModules.waybar
-        inputs.self.nixosModules.dock
         inputs.self.nixosModules.fuzzel
         inputs.self.nixosModules.mako
         inputs.self.nixosModules.greetd
         inputs.self.nixosModules.hyprlock
+        inputs.self.nixosModules.clipboard-manager
       ];
 
       core-apps = [
