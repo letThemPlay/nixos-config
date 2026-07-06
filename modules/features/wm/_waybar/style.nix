@@ -2,6 +2,14 @@
   /* Define an alpha-blended custom color token safely */
   @define-color transparent-base alpha(@base00, 0.85);
 
+  * {
+      border: none;
+      border-radius: 0;
+      min-height: 0;
+      margin: 3px 3px 3px 3px;
+      padding: 0;
+  }
+
   /* Global bar background - Base16 Dark Neutral */
   window#waybar {
     background-color: @transparent-base;
@@ -65,9 +73,6 @@
   /* Critical state highlighting triggers - Base16 Red */
   #battery.critical:not(.charging) {
       color: @base08;
-      
-      /* 👑 THE GTK FIX: Condensed all animation parameters into a single line shorthand rule.
-         Using 'infinite' here satisfies iteration counts without breaking property rules! */
       animation: blink 0.5s linear infinite alternate;
   }
 
