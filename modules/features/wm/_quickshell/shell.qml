@@ -12,8 +12,8 @@ ShellRoot {
         
         // Let Quickshell infer the window boundaries from the pill inside
         // Do NOT use standard anchors.horizontalCenter here
-        width: pillContainer.implicitWidth
-        height: pillContainer.implicitHeight
+        implicitWidth: pillContainer.implicitWidth
+        implicitHeight: pillContainer.implicitHeight
 
         // Prevents the window manager from forcing margins or shrinking spaces
         exclusionMode: ExclusionMode.None 
