@@ -8,19 +8,20 @@ _: {
           height = 48;
           margin-bottom = 8;
 
-          modules-left = [
-            "custom/launcher-term"
-            "custom/launcher-browser"
-            "custom/launcher-files"
-          ];
           modules-center = [ "wlr/taskbar" ];
-          modules-right = [ "custom/control-center-toggle" ];
 
           "wlr/taskbar" = {
             format = "{icon}";
-            icon-size = 28;
+            icon-theme = "Papirus";
+            icon-size = 32;
+            on-click = "minimize-raise";
+            active-first = false;
+            sort-by-app-id = true;
+            app_ids-mapping = {
+              alacritty = "alacritty";
+              firefox = "firefox";
+            };
             tooltip-format = "{title}";
-            on-click = "activate";
             on-click-middle = "close";
           };
 
