@@ -66,8 +66,8 @@
       "Mod+Shift+Up"   { move-window-up; }
       "Mod+Shift+Down" { move-window-down; }
 
-      "Mod+V"     { consume-window-into-column; }
-      "Mod+H"     { expel-window-from-column; }
+      "Mod+Shift+V"     { consume-window-into-column; }
+      "Mod+Shift+H"     { expel-window-from-column; }
       "Mod+C"     { center-column; }
       "Mod+Space" { switch-preset-column-width; }
 
