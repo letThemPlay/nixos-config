@@ -12,14 +12,17 @@ Rectangle {
     radius: 30
     implicitHeight: 42
 
-    // --- REFACTORED MPRIS SELECTION LOGIC ---
-    
-    // 1. Locate the best available active player safely from the model array.
-    // This avoids querying property paths on empty or uninitialized objects.
-    property var activePlayer: {
-        if (Mpris.players.count === 0) return null;
-        
-        // 1. Prioritize a genuinely playing native media engine (Spotify, Firefox, etc)
+    // --- LIVE UPDATING MPRIS SELECTION LOGIC ---
+
+    // 1. Create a dynamic alias or pointer that shifts instantly whenever the player model updates
+    property var activePlayer: Mpris.players.count > 0 ? getBestPlayer() : null
+
+    // 2. This boolean tracks the simplified state directly, forcing QML to redraw instantly
+    property bool isPlaying: activePlayer !== null && activePlayer.playbackState === MprisPlaybackState.Playing
+
+    // Helper function executed reactively by QML whenever Mpris.players model shifts
+    function getBestPlayer() {
+        // First pass: look for anything genuinely emitting sound
         for (var i = 0; i < Mpris.players.count; i++) {
             var p = Mpris.players.get(i);
             if (p && p.busName && p.busName.indexOf("playerctld") === -1) {
@@ -28,19 +31,22 @@ Rectangle {
                 }
             }
         }
-        
-        // 2. Fallback: Grab the first native non-proxy player if paused
-        for (var j = 0; j < Mpris.players.count; j++) {
-            var fallbackPlayer = Mpris.players.get(j);
-            if (fallbackPlayer && fallbackPlayer.busName && fallbackPlayer.busName.indexOf("playerctld") === -1) {
-                return fallbackPlayer;
-            }
+        // Second pass fallback: take the first active node (e.g. paused tab)
+        var fallback = Mpris.players.get(0);
+        if (fallback && fallback.busName && fallback.busName.indexOf("playerctld") === -1) {
+            return fallback;
         }
         return null;
     }
 
-    // 2. Check explicitly if a valid player exists and is currently Playing
-    property bool isPlaying: activePlayer !== null && activePlayer.playbackState === MprisPlaybackState.Playing
+    // Force QML to re-evaluate the active player when players join/leave DBus
+    Connections {
+        target: Mpris.players
+        function onCountChanged() { 
+            pillRoot.activePlayer = pillRoot.getBestPlayer();
+        }
+    }
+
 
     // Dynamic Sizing
     implicitWidth: isPlaying ? mediaLayout.implicitWidth + 32 : dateLayout.implicitWidth + 32
