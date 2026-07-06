@@ -1,5 +1,5 @@
 ''
-  @define-color transparent-base alpha(@base00, 0.85);
+  @define-color transparent-base alpha(@base00, 0);
 
   * {
       border: none;
