@@ -1,5 +1,5 @@
 _: {
-  flake.nixosModules.desktop-dock = { pkgs, ... }: {
+  flake.nixosModules.dock = { pkgs, ... }: {
     home-manager.sharedModules = [
       ({ config, ... }: {
         home.packages = [ pkgs.nwg-dock ];
