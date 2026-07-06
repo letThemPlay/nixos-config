@@ -47,56 +47,59 @@ _: {
 
         # 👑 THE DEFINITIVE CONVERTED DOCK STYLE SHEET:
         xdg.configFile."waybar/dock-style.css".text = ''
-          @define-color base00 #${config.lib.stylix.colors.base00};
-          @define-color base01 #${config.lib.stylix.colors.base01};
-          @define-color base02 #${config.lib.stylix.colors.base02};
-          @define-color base03 #${config.lib.stylix.colors.base03};
-          @define-color base04 #${config.lib.stylix.colors.base04};
-          @define-color base05 #${config.lib.stylix.colors.base05};
-          @define-color base0D #${config.lib.stylix.colors.base0D};
+            @define-color base00 #${config.lib.stylix.colors.base00};
+            @define-color base01 #${config.lib.stylix.colors.base01};
+            @define-color base02 #${config.lib.stylix.colors.base02};
+            @define-color base03 #${config.lib.stylix.colors.base03};
+            @define-color base04 #${config.lib.stylix.colors.base04};
+            @define-color base05 #${config.lib.stylix.colors.base05};
+            @define-color base0D #${config.lib.stylix.colors.base0D};
 
-          @define-color transparent-base alpha(@base00, 0);
+            @define-color transparent-base alpha(@base00, 0);
 
-          * {
-              font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
-              border: none;
-              border-radius: 0;
+            #custom-startmenu {
+            font-size: 24px;
+            background-position: 6px center;
+            background-repeat: no-repeat;
+            background-size: 38px;
+            border-style: hidden;
+            padding:6px 20px 4px 20px;
+            border-radius:1rem;
+            background-image: url('niri-icon2.svg');
+            background-color: @accent;
+            margin:0 0 0 4px;
+            border-bottom: 2px solid transparent;
           }
 
-          window#waybar {
-              background-color: @transparent-base;
-              background: transparent;
+          #custom-startmenu:hover {
+            background-image: url('niri-icon0.svg');
           }
 
-          .modules-left,
-          .modules-center,
-          .modules-right {
-              background-color: alpha(@base01, 0.85); 
-              border-radius: 16px;
-              padding: 4px 12px;
-              margin: 0px 4px;
-              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+          #taskbar {
+            margin:0;
           }
 
-          button {
-              color: @base05;
-              font-size: 18px;
-              padding: 4px 8px;
-              margin: 0px 4px;
-              border-radius: 8px;
-              transition: all 0.1s ease-in-out;
+          #taskbar button {
+            font-size: 24px;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: 32px;
+            border-style: hidden;
+            padding:6px 8px 4px 8px;
+            margin:0 0 0 12px;
+            background-color: @theme_base_color;
+            border-radius: 1rem;
+            border-bottom: 2px solid transparent;
           }
 
-          button:hover {
-              background-color: alpha(@base02, 0.60);
-              color: @base0D;
-              padding: 2px 10px 6px 10px;
-              margin: 1px 2px 5px 2px;
+          #taskbar button.active {
+            border-bottom: 2px solid @accent;
           }
 
-          button.active {
-              border-bottom: 2px solid @base0D;
+          #taskbar button:hover {
+            border-bottom: 2px solid @accent;
           }
+
         '';
       })
     ];
