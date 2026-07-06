@@ -46,10 +46,6 @@
   // Layer rules handle bars and panels in Wayland
   layer-rule {
       match namespace="waybar"
-      
-      // Crucial: Tells Niri not to allocate screen gaps for the bar. 
-      // This allows open windows to slide gracefully behind or up to your floating pill.
-      block-out-from "none"
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
