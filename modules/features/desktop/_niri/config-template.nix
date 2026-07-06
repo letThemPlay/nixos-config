@@ -48,7 +48,7 @@
         // Injects a premium, dark translucent shadow fill color (RGBA format)
         color "rgba(0, 0, 0, 0.65)";
         // Offsets the shadow layout slightly downward (X, Y) to simulate light elevation
-        offset x=0 y=6;
+        offset x=10 y=10;
     }
     
     // Ensures the window framing is flat and doesn't get double borders
