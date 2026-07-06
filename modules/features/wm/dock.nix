@@ -46,19 +46,13 @@ _: {
           };
         };
 
-        # 👑 THE ERROR-FREE HEX-ALPHA CSS SHEET:
         xdg.configFile."waybar/dock-style.css".text = ''
-          /* 👑 THE TRUE TRANSPARENCY FIX:
-             GTK-3 allows background transparency via an 8-character Hex layout (#RRGGBBAA)!
-             - We append 'D9' to Base01 to force a solid 85% opacity layer mask.
-             - We append '99' to Base02 to force a clean 60% hover layer mask.
-             This bypasses commas, functions, and evaluation locks permanently! [INDEX: 1.4.1] */
-          @define-color base01 #${config.lib.stylix.colors.base01}D9; 
-          @define-color base02 #${config.lib.stylix.colors.base02}99; 
+          @define-color base01 #${config.lib.stylix.colors.base01}D9 ;
+          @define-color base02 #${config.lib.stylix.colors.base02}99 ;
 
-          @define-color base03 #${config.lib.stylix.colors.base03};
-          @define-color base05 #${config.lib.stylix.colors.base05};
-          @define-color base0D #${config.lib.stylix.colors.base0D};
+          @define-color base03 #${config.lib.stylix.colors.base03} ;
+          @define-color base05 #${config.lib.stylix.colors.base05} ;
+          @define-color base0D #${config.lib.stylix.colors.base0D} ;
 
           * {
               font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
