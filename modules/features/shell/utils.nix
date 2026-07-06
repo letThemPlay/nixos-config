@@ -23,8 +23,6 @@ _: {
           };
 
           zsh.shellAliases = {
-            l = "eza -lh --git";
-            la = "eza -lah --git";
             lt = "eza --tree --level=2";
           };
         };
