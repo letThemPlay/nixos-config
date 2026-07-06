@@ -17,15 +17,26 @@ Rectangle {
     // 1. Locate the best available active player safely from the model array.
     // This avoids querying property paths on empty or uninitialized objects.
     property var activePlayer: {
+        if (Mpris.players.count === 0) return null;
+        
+        // 1. Prioritize a genuinely playing native media engine (Spotify, Firefox, etc)
         for (var i = 0; i < Mpris.players.count; i++) {
             var p = Mpris.players.get(i);
-            // Skip playerctld if it's currently hollow, or grab any running player
-            if (p && p.busName !== "org.mpris.MediaPlayer2.playerctld" && p.playbackState === MprisPlaybackState.Playing) {
-                return p;
+            if (p && p.busName && p.busName.indexOf("playerctld") === -1) {
+                if (p.playbackState === MprisPlaybackState.Playing) {
+                    return p;
+                }
             }
         }
-        // Fallback: If nothing is actively playing, try to grab the first available media source
-        return Mpris.players.count > 0 ? Mpris.players.get(0) : null;
+        
+        // 2. Fallback: Grab the first native non-proxy player if paused
+        for (var j = 0; j < Mpris.players.count; j++) {
+            var fallbackPlayer = Mpris.players.get(j);
+            if (fallbackPlayer && fallbackPlayer.busName && fallbackPlayer.busName.indexOf("playerctld") === -1) {
+                return fallbackPlayer;
+            }
+        }
+        return null;
     }
 
     // 2. Check explicitly if a valid player exists and is currently Playing
