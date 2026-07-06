@@ -49,7 +49,7 @@
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
       "Mod+L" { spawn "loginctl" "lock-session"; }
       "Mod+V" { spawn "sh" "-c" "~/.local/bin/cliphist-picker"; }
-      "Print" { spawn "uwsm" "app" "--" "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+      "Ctrl+Shift+S" { spawn "uwsm" "app" "--" "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
 
       "Mod+Shift+C" { spawn "uwsm" "app" "--" "wl-color-picker"; }
 
