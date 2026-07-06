@@ -6,7 +6,7 @@
       border-radius: 0;
       min-height: 0;
       margin: 3px 3px 3px 3px;
-      padding: 0;
+      padding: 5px;
   }
   window#waybar {
     background-color: @transparent-base;
