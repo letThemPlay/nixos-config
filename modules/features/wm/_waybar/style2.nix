@@ -1,7 +1,7 @@
 ''
   @define-color transparent-base alpha(@base00, 0.85);
 
-  * {
+  window#waybar {
       border: none;
       border-radius: 0;
       min-height: 0;
