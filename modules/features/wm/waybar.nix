@@ -20,7 +20,7 @@ _: {
                 mainBar = import ./_waybar/layout.nix { inherit pkgs; };
               };
 
-              style = import ./_waybar/style2.nix;
+              style = import ./_waybar/style.nix;
             };
           })
         ];
