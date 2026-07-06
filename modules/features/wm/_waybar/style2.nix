@@ -1,12 +1,17 @@
 ''
   @define-color transparent-base alpha(@base00, 0.85);
 
-  * {
-      border: none;
-      border-radius: 0;
-      min-height: 0;
-      margin: 3px 3px 3px 3px;
-      padding: 0;
+  window#waybar {
+    background-color: transparent;
+    color: u/fg;
+    border-radius: 8px;
+  }
+
+  #waybar > box {
+    margin: 4px 8px 0 8px;
+    padding: 2px;
+    background-color: u/bg;
+    border-radius: 8px;
   }
 
   .modules-left,
