@@ -20,7 +20,7 @@
   .modules-center,
   .modules-right {
       background-color: @base01;
-      opacity: 0.75;
+      opacity: 0.85;
       border-radius: 10px;
       color: #CDD6F4;
       font-family: 'Noto sans';
@@ -39,6 +39,7 @@
   #cpu,
   #memory,
   #network,
+  #mpris
   #wireplumber,
   #tray,
   #battery,
@@ -99,6 +100,21 @@
 
   #bluetooth.discoverable {
       text-decoration: underline;
+  }
+
+  #battery.warning {
+      color: @base09;
+  }
+
+  #battery.critical:not(.charging) {
+      color: @base08;
+      animation: blink 0.5s linear infinite alternate;
+  }
+  #mpris {
+    color: @base0D;
+  }
+  #mpris.paused {
+      color: @base04;
   }
 
 ''

@@ -65,6 +65,7 @@ _: {
     format = "  {status}";
     format-connected = "  {device_alias}";
     format-connected-battery = "  {device_alias} {device_battery_percentage}%";
+    format-no-controller = "";
     tooltip-format = "controller = {controller_alias}\t{controller_address}\n\n{num_connections} devices connected";
     tooltip-format-connected = "controller = {controller_alias}\t{controller_address}\n\n{num_connections} devices connected\n\n{device_enumerate}";
     tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
