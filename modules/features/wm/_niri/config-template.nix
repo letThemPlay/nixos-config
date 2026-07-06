@@ -39,7 +39,7 @@
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
-  spawn-at-startup "uwsm" "app" "--" "nwg-dock" "-d"
+  spawn-at-startup "uwsm" "app" "--" "waybar" "-c" "~/.config/waybar/dock.json" "-s" "~/.config/waybar/dock-style.css"
 
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
 
