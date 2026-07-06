@@ -46,18 +46,21 @@ _: {
           };
         };
 
+        # 👑 THE DEFINITIVE RE-ENGINEERED CSS SHEET:
         xdg.configFile."waybar/dock-style.css".text = ''
-          @define-color base01 #${config.lib.stylix.colors.base01}D9 ;
-          @define-color base02 #${config.lib.stylix.colors.base02}99 ;
-
-          @define-color base03 #${config.lib.stylix.colors.base03} ;
-          @define-color base05 #${config.lib.stylix.colors.base05} ;
-          @define-color base0D #${config.lib.stylix.colors.base0D} ;
-
+          /* 👑 FIXED SYNTAX: Using standard CSS custom properties inside the wildcard block.
+             This bypasses the fragile GTK macro engine entirely, removing all semicolon errors! [INDEX: 1.4.1] */
           * {
               font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               border: none;
               border-radius: 0;
+              
+              /* System variable mappings mapped natively through your Stylix tokens [INDEX: 1.1.6, 1.4.1] */
+              --base01: #${config.lib.stylix.colors.base01}D9;
+              --base02: #${config.lib.stylix.colors.base02}99;
+              --base03: #${config.lib.stylix.colors.base03};
+              --base05: #${config.lib.stylix.colors.base05};
+              --base0D: #${config.lib.stylix.colors.base0D};
           }
 
           window#waybar {
@@ -65,12 +68,12 @@ _: {
               background-color: transparent !important;
           }
 
-          /* 📱 CHASSIS: Translucent floating island dock pill [INDEX: 1.4.1] */
+          /* 📱 CHASSIS: Premium translucent floating island dock pill [INDEX: 1.4.1] */
           .modules-left,
           .modules-center,
           .modules-right {
-              background-color: @base01 !important; /* 👑 Clean hex-alpha execution pass! [INDEX: 1.4.1] */
-              border: 1px solid @base03 !important;
+              background-color: var(--base01) !important; /* 👑 Clean, native runtime variable query! [INDEX: 1.4.1] */
+              border: 1px solid var(--base03) !important;
               border-radius: 16px !important;
               padding: 4px 12px !important;
               margin: 0px 4px !important;
@@ -78,22 +81,22 @@ _: {
           }
 
           button {
-              color: @base05 !important;
+              color: var(--base05) !important;
               font-size: 18px !important;
               padding: 4px 8px !important;
               margin: 0px 4px !important;
               border-radius: 8px !important;
-              transition: all 0.15s ease-in-out !important;
+              transition: all 0.1s ease-in-out !important;
           }
 
           button:hover {
-              background-color: @base02 !important;
-              color: @base0D !important;
+              background-color: var(--base02) !important;
+              color: var(--base0D) !important;
               transform: scale(1.15) translateY(-2px) !important;
           }
 
           button.active {
-              border-bottom: 2px solid @base0D !important;
+              border-bottom: 2px solid var(--base0D) !important;
           }
         '';
       })
