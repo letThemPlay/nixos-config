@@ -25,6 +25,7 @@
       color: #CDD6F4;
       font-family: 'Noto sans';
       font-size: 12px;
+      padding: 2px;
   }
 
   #workspaces button {
