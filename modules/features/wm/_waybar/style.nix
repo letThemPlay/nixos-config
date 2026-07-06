@@ -8,6 +8,7 @@
       min-height: 0;
       margin: 3px 3px 3px 3px;
       padding: 0;
+      background: transparent;
   }
 
   /* Global bar background - Base16 Dark Neutral */
