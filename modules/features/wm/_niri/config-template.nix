@@ -38,16 +38,6 @@
       opacity 0.85
   }
 
-  window-rule {
-    geometry-corner-radius 12
-    clip-to-geometry true
-  }
-
-  // Layer rules handle bars and panels in Wayland
-  layer-rule {
-      match namespace="waybar"
-  }
-
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
 
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
