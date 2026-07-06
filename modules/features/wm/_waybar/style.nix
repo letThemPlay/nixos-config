@@ -1,6 +1,7 @@
 ''
-  /* Define an alpha-blended custom color token safely */
-  @define-color transparent-base alpha(@base00, 0.85);
+  #waybar {
+      background: transparent;
+  }
 
   * {
       border: none;
@@ -8,79 +9,90 @@
       min-height: 0;
       margin: 3px 3px 3px 3px;
       padding: 0;
-      background: transparent;
   }
 
-  /* Global bar background - Base16 Dark Neutral */
-  window#waybar {
-    border-bottom: 2px solid @base01;
-    color: @base05;
-    transition-property: background-color;
-    transition-duration: .5s;
-
-    font-family: "JetBrains Mono", "Symbols Nerd Font Mono", sans-serif;
-  }
-
-
-  /* Universal module configuration container spacing padding */
-  #workspaces,
-  #window,
-  #mpris,
-  #clock,
-  #battery,
-  #cpu,
-  #memory,
-  #network,
-  #wireplumber
-  #tray {
-      padding: 0 12px;
-      margin: 4px 2px;
-      border-radius: 6px;
-      background-color: @base01;
-  }
-
-  #mpris {
-    color: @base0D;
-  }
-  #mpris.paused {
-      color: @base04;
+  .modules-left,
+  .modules-center,
+  .modules-right {
+      /* background-color: #1E1E2E; */
+      background-color: #2C2C2C;
+      opacity: 0.75;
+      border-radius: 10px;
+      color: #CDD6F4;
+      font-family: 'Noto sans';
+      font-size: 12px;
   }
 
   #workspaces button {
-      padding: 0 6px;
-      color: @base04;
-      background: transparent;
-      border-bottom: 2px solid transparent;
+      border-radius: 8px;
+      color: #ebdbb2;
+      padding: 0px 3px;
   }
 
-  /* Niri workspace selector styling */
-  #workspaces button.focused {
-      color: @base07;
-      background-color: @base02;
-      border-bottom: 2px solid @base0D;
+  #clock,
+  #custom-weather,
+  #cpu,
+  #memory,
+  #network,
+  #wireplumber,
+  #tray,
+  #battery,
+  #bluetooth {
+      padding: 0.2rem 0.5rem;
   }
 
-  #workspaces button.urgent {
-      color: @base08;
-      background-color: alpha(@base08, 0.2);
+  #cpu.warning {
+      color: #d79921;
   }
 
-  /* Warning state highlighting triggers - Base16 Amber/Orange */
-  #battery.warning {
-      color: @base09;
+  #cpu.critical {
+      color: #cc241d;
   }
 
-  /* Critical state highlighting triggers - Base16 Red */
-  #battery.critical:not(.charging) {
-      color: @base08;
-      animation: blink 0.5s linear infinite alternate;
+  #memory.warning {
+      color: #d79921;
   }
 
-  /* Standard blinking frames container mapping rules */
-  @keyframes blink {
-      to {
-          background-color: @base08;
-          color: @base00;
-      }
+  #memory.critical {
+      color: #cc241d;
+  }
+
+  #network.disconnected {
+      color: #d79921;
+  }
+
+  #wireplumber.muted {
+      color: #d79921;
+  }
+
+  #workspaces button {
+      border-radius: 8px;
+      color: #ebdbb2;
+      padding: 0px 3px;
+  }
+
+  #workspaces button.active {
+      color: #282828;
+      /* background-color: #458588; */
+      background-color: #5677FC;
+  }
+
+  #workspaces button.persistent,
+  #workspaces button.special {
+      font-weight: bold;
+      font-style: italic;
+  }
+
+  #bluetooth.disabled,
+  #bluetooth.off {
+      color: #d79921
+  }
+
+  #bluetooth.connected {
+      color: #689d6a
+  }
+
+  #bluetooth.discoverable {
+      text-decoration: underline;
   }
 ''
