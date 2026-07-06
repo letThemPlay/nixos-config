@@ -19,7 +19,7 @@ _: {
               };
               border = {
                 radius = 8;
-                width = 2;
+                width = 0;
               };
             };
           };
