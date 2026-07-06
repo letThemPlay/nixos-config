@@ -18,7 +18,7 @@ _: {
             {
               programs.git = {
                 enable = true;
-                userName = userProfile.fullName or "Kelvin";
+                userName = userProfile.fullName or "";
                 userEmail = userProfile.email or "";
               };
 
