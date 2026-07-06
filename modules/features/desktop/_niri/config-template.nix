@@ -37,17 +37,26 @@
       match is-active=false
       opacity 0.85
   }
-
   window-rule {
-      match app-id="^swaync$"
-      match app-id="^swaynotificationcenter$"
-      
-      opacity 0.0
-      
-      focus-ring { off; }
+    match app-id="^fuzzel$"
+    
+    // 📱 COMPOSITOR-SIDE SHADOW ELEVATION:
+    shadow {
+        on;
+        // Set a thick pixel spread radius to create a soft, modern floating overlay look
+        softness 16;
+        // Injects a premium, dark translucent shadow fill color (RGBA format)
+        color "rgba(0, 0, 0, 0.65)";
+        // Offsets the shadow layout slightly downward (X, Y) to simulate light elevation
+        offset x=10 y=10;
+    }
+    
+    // Ensures the window framing is flat and doesn't get double borders
+    focus-ring { on; }
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
+  spawn-at-startup "uwsm" "app" "--" "waybar" "-c" "~/.config/waybar/dock.json" "-s" "~/.config/waybar/dock-style.css"
 
   spawn-at-startup "swaybg" "--output" "*" "-m" "fill" "-i" "${profileThemeImage}" "--color" "#1a1b26"
 
@@ -55,8 +64,11 @@
       "Mod+Return" { spawn "alacritty"; }
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
+      "Mod+L" { spawn "loginctl" "lock-session"; }
+      "Mod+V" { spawn "sh" "-c" "~/.local/bin/cliphist-picker"; }
+      "Ctrl+Shift+S" { spawn "uwsm" "app" "--" "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
 
-      "Mod+I" { spawn "sh" "-c" "pkill quickshell || uwsm app -- quickshell"; }
+      "Mod+Shift+C" { spawn "uwsm" "app" "--" "wl-color-picker"; }
 
       "Mod+Escape"       { spawn "uwsm" "app" "--" "swaync-client" "-d"; }
       "Mod+Shift+Escape" { spawn "uwsm" "app" "--" "swaync-client" "-C"; }
@@ -74,8 +86,8 @@
       "Mod+Shift+Up"   { move-window-up; }
       "Mod+Shift+Down" { move-window-down; }
 
-      "Mod+V"     { consume-window-into-column; }
-      "Mod+H"     { expel-window-from-column; }
+      "Mod+Shift+V"     { consume-window-into-column; }
+      "Mod+Shift+H"     { expel-window-from-column; }
       "Mod+C"     { center-column; }
       "Mod+Space" { switch-preset-column-width; }
 
@@ -86,10 +98,10 @@
       "XF86AudioLowerVolume" allow-inhibiting=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
       "XF86AudioMute"        allow-inhibiting=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-mute"   "@DEFAULT_AUDIO_SINK@" "toggle"; }
 
-      "XF86AudioPlay"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
-      "XF86AudioNext"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
-      "XF86AudioPrev"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
-
+      "XF86AudioPlay"  { spawn "uwsm" "app" "--" "playerctl" "play-pause"; }
+      "XF86AudioNext"  { spawn "uwsm" "app" "--" "playerctl" "next"; }
+      "XF86AudioPrev"  { spawn "uwsm" "app" "--" "playerctl" "previous"; }
+      "XF86AudioStop"  { spawn "uwsm" "app" "--" "playerctl" "stop"; }
       "Mod+Shift+E" { quit; }
   }
 ''

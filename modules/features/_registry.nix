@@ -9,13 +9,12 @@
 
   config = {
     modules.features.registry = {
-      # Individual features wrapped in a list to match the type
       tailscale = [ inputs.self.nixosModules.tailscale ];
       gpg = [ inputs.self.nixosModules.gpg ];
       nextdns = [ inputs.self.nixosModules.nextdns ];
 
-      # Feature Groups as clean lists of modules
       base = [
+        inputs.self.nixosModules.cachix-caches
         inputs.self.nixosModules.boot
         inputs.self.nixosModules.nix-core
         inputs.self.nixosModules.network
@@ -24,6 +23,7 @@
         inputs.self.nixosModules.stylix
         inputs.self.nixosModules.secrets
         inputs.self.nixosModules.zsh
+        inputs.self.nixosModules.shell-utilities
       ];
 
       laptop = [
@@ -39,12 +39,15 @@
         inputs.self.nixosModules.audio
       ];
 
-      ui = [
+      desktop = [
         inputs.self.nixosModules.niri
         inputs.self.nixosModules.waybar
         inputs.self.nixosModules.fuzzel
         inputs.self.nixosModules.mako
         inputs.self.nixosModules.greetd
+        inputs.self.nixosModules.hyprlock
+        inputs.self.nixosModules.clipboard-manager
+        inputs.self.nixosModules.desktop-utilities
       ];
 
       core-apps = [

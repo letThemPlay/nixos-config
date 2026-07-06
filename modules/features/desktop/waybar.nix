@@ -8,6 +8,7 @@ _: {
       config = {
         home-manager.sharedModules = [
           (_: {
+            imports = [ ./_waybar/style.nix ];
             programs.waybar = {
               enable = true;
 
@@ -19,8 +20,6 @@ _: {
               settings = {
                 mainBar = import ./_waybar/layout.nix { inherit pkgs; };
               };
-
-              style = import ./_waybar/style.nix;
             };
           })
         ];
