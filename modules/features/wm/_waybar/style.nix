@@ -12,8 +12,6 @@
 
   /* Global bar background - Base16 Dark Neutral */
   window#waybar {
-    background: transparent;
-    #background-color: @transparent-base;
     border-bottom: 2px solid @base01;
     color: @base05;
     transition-property: background-color;
