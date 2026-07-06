@@ -1,10 +1,6 @@
 ''
   @define-color transparent-base alpha(@base00, 0.85);
 
-  window#waybar {
-      background-color: transparent !important;
-  }
-
   * {
       border: none;
       border-radius: 0;
