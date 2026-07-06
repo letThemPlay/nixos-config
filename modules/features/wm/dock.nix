@@ -46,21 +46,14 @@ _: {
           };
         };
 
-        # 👑 THE DEFINITIVE RE-ENGINEERED CSS SHEET:
+        # 👑 THE DEFINITIVE FLAT-VALUE CSS SHEET:
+        # We strip out all macros and variables completely!
+        # Nix string interpolation drops the raw hex values directly onto the selectors [INDEX: 1.1.6, 1.4.1].
         xdg.configFile."waybar/dock-style.css".text = ''
-          /* 👑 FIXED SYNTAX: Using standard CSS custom properties inside the wildcard block.
-             This bypasses the fragile GTK macro engine entirely, removing all semicolon errors! [INDEX: 1.4.1] */
           * {
               font-family: "Symbols Nerd Font Mono", "Font Awesome 6 Free", "Inter", sans-serif;
               border: none;
               border-radius: 0;
-              
-              /* System variable mappings mapped natively through your Stylix tokens [INDEX: 1.1.6, 1.4.1] */
-              --base01: #${config.lib.stylix.colors.base01}D9;
-              --base02: #${config.lib.stylix.colors.base02}99;
-              --base03: #${config.lib.stylix.colors.base03};
-              --base05: #${config.lib.stylix.colors.base05};
-              --base0D: #${config.lib.stylix.colors.base0D};
           }
 
           window#waybar {
@@ -68,12 +61,13 @@ _: {
               background-color: transparent !important;
           }
 
-          /* 📱 CHASSIS: Premium translucent floating island dock pill [INDEX: 1.4.1] */
+          /* 📱 CHASSIS: Translucent floating island dock pill [INDEX: 1.4.1] */
           .modules-left,
           .modules-center,
           .modules-right {
-              background-color: var(--base01) !important; /* 👑 Clean, native runtime variable query! [INDEX: 1.4.1] */
-              border: 1px solid var(--base03) !important;
+              /* 👑 INLINED ALIGNMENT: 8-digit hex transparency injected flat into the selector! [INDEX: 1.1.6, 1.4.1] */
+              background-color: #${config.lib.stylix.colors.base01}D9 !important;
+              border: 1px solid #${config.lib.stylix.colors.base03} !important;
               border-radius: 16px !important;
               padding: 4px 12px !important;
               margin: 0px 4px !important;
@@ -81,7 +75,7 @@ _: {
           }
 
           button {
-              color: var(--base05) !important;
+              color: #${config.lib.stylix.colors.base05} !important;
               font-size: 18px !important;
               padding: 4px 8px !important;
               margin: 0px 4px !important;
@@ -90,13 +84,13 @@ _: {
           }
 
           button:hover {
-              background-color: var(--base02) !important;
-              color: var(--base0D) !important;
+              background-color: #${config.lib.stylix.colors.base02}99 !important;
+              color: #${config.lib.stylix.colors.base0D} !important;
               transform: scale(1.15) translateY(-2px) !important;
           }
 
           button.active {
-              border-bottom: 2px solid var(--base0D) !important;
+              border-bottom: 2px solid #${config.lib.stylix.colors.base0D} !important;
           }
         '';
       })
