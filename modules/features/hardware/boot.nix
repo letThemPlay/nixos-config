@@ -8,12 +8,6 @@
     }:
     let
       cfg = config.ltp.boot;
-
-      inherit (lib)
-        mkIf
-        mkEnableOption
-        mkForce
-        ;
     in
     {
       imports = [
@@ -21,46 +15,31 @@
       ];
 
       options.ltp.boot = {
-        enable = mkEnableOption "Default BootOption" // {
-          default = true;
-        };
-        secureBoot = {
-          enable = mkEnableOption "Secure Boot with Lanzaboote" // {
-            default = false;
-          };
-        };
-        tpmUnlock = {
-          enable = mkEnableOption "TPM2 automated unlock" // {
-            default = false;
-          };
-        };
+        enable = lib.mkEnableOption "Default BootOption" |> (opt: opt // { default = true; });
+
+        secureBoot.enable =
+          lib.mkEnableOption "Secure Boot with Lanzaboote" |> (opt: opt // { default = false; });
+
+        tpmUnlock.enable = lib.mkEnableOption "TPM2 automated unlock" |> (opt: opt // { default = false; });
       };
 
-      config = mkIf cfg.enable {
-
-        environment.systemPackages = lib.mkMerge [
-          (mkIf cfg.tpmUnlock.enable [ pkgs.tpm2-tss ])
-          (mkIf cfg.secureBoot.enable [ pkgs.sbctl ])
-        ];
+      config = lib.mkIf cfg.enable {
+        environment.systemPackages =
+          lib.optionals cfg.tpmUnlock.enable [ pkgs.tpm2-tss ]
+          ++ lib.optionals cfg.secureBoot.enable [ pkgs.sbctl ];
 
         boot = {
           initrd.systemd.enable = true;
 
-          loader =
-            if cfg.secureBoot.enable then
-              {
-                systemd-boot.enable = mkForce false;
-              }
-            else
-              {
-                systemd-boot = {
-                  enable = true;
-                  configurationLimit = 5;
-                };
-                efi.canTouchEfiVariables = true;
-              };
+          loader = {
+            systemd-boot = {
+              enable = if cfg.secureBoot.enable then lib.mkForce false else true;
+              configurationLimit = 5;
+            };
+            efi.canTouchEfiVariables = !cfg.secureBoot.enable;
+          };
 
-          lanzaboote = mkIf cfg.secureBoot.enable {
+          lanzaboote = lib.mkIf cfg.secureBoot.enable {
             enable = true;
             pkiBundle = "/var/lib/sbctl";
             configurationLimit = 5;

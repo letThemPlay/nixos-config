@@ -13,6 +13,6 @@
   users = [ "kelvin" ];
 
   extraModules = [
-    "${inputs.self}/modules/hosts/_hosts/_settings/vm-test.nix"
+    (inputs.self + "/modules/hosts/_hosts/_settings/vm-test.nix")
   ];
 }

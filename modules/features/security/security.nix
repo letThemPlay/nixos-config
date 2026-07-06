@@ -1,6 +1,5 @@
 _: {
   flake.nixosModules.security = _: {
-
     config = {
       security = {
         sudo.enable = false;

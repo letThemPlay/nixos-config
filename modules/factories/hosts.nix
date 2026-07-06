@@ -12,6 +12,8 @@
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
+      secureBoot ? false,
+      tpmUnlock ? false,
       ...
     }:
     let
@@ -25,6 +27,10 @@
         |> map (featureName: registryData.config.modules.features.registry.${featureName} or [ ])
         |> lib.flatten;
 
+      hardwarePath = inputs.self + "/modules/hosts/_hosts/_hardware/${hostName}.nix";
+
+      resolvedHardware = if builtins.pathExists hardwarePath then import hardwarePath else { };
+
     in
     inputs.nixpkgs.lib.nixosSystem {
       system = architecture;
@@ -36,10 +42,18 @@
       ]
       ++ resolvedFeatures
       ++ [
+        resolvedHardware
+
         ({ pkgs, ... }: {
           system.stateVersion = stateVersion;
           networking.hostName = hostName;
           nixpkgs.hostPlatform = lib.mkDefault architecture;
+
+          ltp.boot = {
+            enable = true;
+            secureBoot.enable = secureBoot;
+            tpmUnlock.enable = tpmUnlock;
+          };
 
           ltp.hosts.registry.${hostName} = {
             inherit
@@ -49,6 +63,8 @@
               features
               users
               extraModules
+              secureBoot
+              tpmUnlock
               ;
           };
 
@@ -58,7 +74,6 @@
 
           environment.systemPackages = [ pkgs.curl ];
         })
-        (import (inputs.self + "/modules/hosts/_hosts/_hardware/${hostName}.nix"))
       ]
       ++ extraModules;
     };
