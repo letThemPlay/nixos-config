@@ -39,12 +39,17 @@
   }
 
   window-rule {
-      match app-id="^swaync$"
-      match app-id="^swaynotificationcenter$"
+    geometry-corner-radius 12
+    clip-to-geometry true
+  }
+
+  // Layer rules handle bars and panels in Wayland
+  layer-rule {
+      match namespace="waybar"
       
-      opacity 0.0
-      
-      focus-ring { off; }
+      // Crucial: Tells Niri not to allocate screen gaps for the bar. 
+      // This allows open windows to slide gracefully behind or up to your floating pill.
+      block-out-from "none"
   }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
