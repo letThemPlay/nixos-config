@@ -12,6 +12,7 @@
       tailscale = [ inputs.self.nixosModules.tailscale ];
       gpg = [ inputs.self.nixosModules.gpg ];
       nextdns = [ inputs.self.nixosModules.nextdns ];
+      nvidia = [ inputs.self.nixosModules.nvidia-graphics ];
 
       base = [
         inputs.self.nixosModules.cachix-caches
