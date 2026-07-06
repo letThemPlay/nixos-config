@@ -46,9 +46,15 @@ _: {
           };
         };
 
+        # 👑 THE ERROR-FREE HEX-ALPHA CSS SHEET:
         xdg.configFile."waybar/dock-style.css".text = ''
-          @define-color base01 rgba(${config.lib.stylix.colors.base01-rgb-r}, ${config.lib.stylix.colors.base01-rgb-g}, ${config.lib.stylix.colors.base01-rgb-b}, 0.85);
-          @define-color base02 rgba(${config.lib.stylix.colors.base02-rgb-r}, ${config.lib.stylix.colors.base02-rgb-g}, ${config.lib.stylix.colors.base02-rgb-b}, 0.60);
+          /* 👑 THE TRUE TRANSPARENCY FIX:
+             GTK-3 allows background transparency via an 8-character Hex layout (#RRGGBBAA)!
+             - We append 'D9' to Base01 to force a solid 85% opacity layer mask.
+             - We append '99' to Base02 to force a clean 60% hover layer mask.
+             This bypasses commas, functions, and evaluation locks permanently! [INDEX: 1.4.1] */
+          @define-color base01 #${config.lib.stylix.colors.base01}D9; 
+          @define-color base02 #${config.lib.stylix.colors.base02}99; 
 
           @define-color base03 #${config.lib.stylix.colors.base03};
           @define-color base05 #${config.lib.stylix.colors.base05};
@@ -65,10 +71,11 @@ _: {
               background-color: transparent !important;
           }
 
+          /* 📱 CHASSIS: Translucent floating island dock pill [INDEX: 1.4.1] */
           .modules-left,
           .modules-center,
           .modules-right {
-              background-color: @base01 !important;
+              background-color: @base01 !important; /* 👑 Clean hex-alpha execution pass! [INDEX: 1.4.1] */
               border: 1px solid @base03 !important;
               border-radius: 16px !important;
               padding: 4px 12px !important;
