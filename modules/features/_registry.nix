@@ -3,7 +3,7 @@
     registry = lib.mkOption {
       type = lib.types.attrsOf (lib.types.listOf lib.types.deferredModule);
       default = { };
-      description = "Central cumulative feature registry map holding merged modules.";
+      description = "Central feature registry map holding merged modules.";
     };
   };
 
@@ -13,6 +13,7 @@
       gpg = [ inputs.self.nixosModules.gpg ];
       nextdns = [ inputs.self.nixosModules.nextdns ];
       nvidia = [ inputs.self.nixosModules.nvidia-graphics ];
+      gaming = [ inputs.self.nixosModules.steam-gaming ];
 
       base = [
         inputs.self.nixosModules.cachix-caches
