@@ -1,7 +1,13 @@
 ''
   /* Define an alpha-blended custom color token safely */
   @define-color transparent-base alpha(@base00, 0);
-
+  * {
+      border: none;
+      border-radius: 0;
+      min-height: 0;
+      margin: 3px 3px 3px 3px;
+      padding: 0;
+  }
   /* Global bar background - Base16 Dark Neutral */
   window#waybar {
     background-color: @transparent-base;
