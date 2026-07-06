@@ -37,6 +37,23 @@
       match is-active=false
       opacity 0.85
   }
+  window-rule {
+    match app-id="^fuzzel$"
+    
+    // 📱 COMPOSITOR-SIDE SHADOW ELEVATION:
+    shadow {
+        on;
+        // Set a thick pixel spread radius to create a soft, modern floating overlay look
+        softness 16;
+        // Injects a premium, dark translucent shadow fill color (RGBA format)
+        color "rgba(0, 0, 0, 0.65)";
+        // Offsets the shadow layout slightly downward (X, Y) to simulate light elevation
+        offset x=0 y=6;
+    }
+    
+    // Ensures the window framing is flat and doesn't get double borders
+    focus-ring { off; }
+  }
 
   spawn-at-startup "uwsm" "finalize" "NIRI_SOCKET"
   spawn-at-startup "uwsm" "app" "--" "waybar" "-c" "~/.config/waybar/dock.json" "-s" "~/.config/waybar/dock-style.css"
