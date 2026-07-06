@@ -12,19 +12,18 @@ Rectangle {
     radius: 30
     implicitHeight: 42
 
-    // --- REFACTORED REACTIVE MPRIS EVALUATION ---
+    // --- BULLETPROOF MPRIS BINDINGS ---
     
-    // Check if the underlying ObjectModel has elements natively
-    property bool hasPlayers: Mpris.players && Mpris.players.count > 0
-
-    // Bind purely declaratively. QML will auto-reevaluate this bound chain 
-    // whenever the root layout updates or the player states morph.
-    property var activePlayer: hasPlayers ? Mpris.players.get(0) : null
+    // 1. Establish an explicit native dependency on the model structure count
+    property int playerCount: Mpris.players ? Mpris.players.count : 0
     
-    // Explicitly verify the enum state natively provided by Quickshell
-    property bool isPlaying: activePlayer !== null && activePlayer.playbackState === MprisPlaybackState.Playing
+    // 2. Safely resolve the active media player object reference
+    property var activePlayer: playerCount > 0 ? Mpris.players.get(0) : null
+    
+    // 3. Use the player's native, built-in 'isPlaying' boolean property
+    property bool isPlaying: activePlayer !== null ? activePlayer.isPlaying : false
 
-    // Dynamic Sizing bound to the reactive isPlaying flag
+    // Smooth pill transitions driven directly by the boolean
     implicitWidth: isPlaying ? mediaLayout.implicitWidth + 32 : dateLayout.implicitWidth + 32
     Behavior on implicitWidth {
         NumberAnimation { duration: 300; easing.type: Easing.InOutQuint }
@@ -40,7 +39,7 @@ Rectangle {
         }
     }
 
-    // VIEW A: Static Clock layout
+    // VIEW A: Static Clock Layout
     RowLayout {
         id: dateLayout
         anchors.centerIn: parent
@@ -53,7 +52,7 @@ Rectangle {
         Text { id: dateText; color: "#a6adc8"; font.pixelSize: 12 }
     }
 
-    // VIEW B: Media Layout (Renders smoothly when isPlaying resolves true)
+    // VIEW B: Dynamic Media Tracker Layout
     RowLayout {
         id: mediaLayout
         anchors.centerIn: parent
@@ -62,7 +61,7 @@ Rectangle {
         visible: opacity > 0
         Behavior on opacity { NumberAnimation { duration: 200 } }
 
-        // Green audio pulsing icon anchor 
+        // Audio Active Indicator Dot
         Rectangle {
             width: 8; height: 8; radius: 4
             color: "#a6e3a1" 
@@ -71,8 +70,8 @@ Rectangle {
         ColumnLayout {
             spacing: 2
             Text {
-                // Binding directly to the object property establishes a reactive state hook
-                text: (pillRoot.activePlayer && pillRoot.activePlayer.trackTitle) ? pillRoot.activePlayer.trackTitle : "Loading Media..."
+                // Read safe properties mapped on the MprisPlayer layout spec
+                text: (pillRoot.activePlayer && pillRoot.activePlayer.trackTitle) ? pillRoot.activePlayer.trackTitle : "Loading Track..."
                 color: "#cdd6f4"
                 font.bold: true
                 font.pixelSize: 13
