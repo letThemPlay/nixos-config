@@ -48,6 +48,7 @@
         inputs.self.nixosModules.greetd
         inputs.self.nixosModules.hyprlock
         inputs.self.nixosModules.clipboard-manager
+        inputs.self.nixosModules.desktop-utilities
       ];
 
       core-apps = [

@@ -49,6 +49,9 @@
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
       "Mod+L" { spawn "loginctl" "lock-session"; }
       "Mod+V" { spawn "sh" "-c" "~/.local/bin/cliphist-picker"; }
+      "Print" { spawn "uwsm" "app" "--" "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+
+      "Mod+Shift+C" { spawn "uwsm" "app" "--" "wl-color-picker"; }
 
       "Mod+Escape"       { spawn "uwsm" "app" "--" "swaync-client" "-d"; }
       "Mod+Shift+Escape" { spawn "uwsm" "app" "--" "swaync-client" "-C"; }
@@ -78,10 +81,10 @@
       "XF86AudioLowerVolume" allow-inhibiting=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
       "XF86AudioMute"        allow-inhibiting=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-mute"   "@DEFAULT_AUDIO_SINK@" "toggle"; }
 
-      "XF86AudioPlay"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
-      "XF86AudioNext"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
-      "XF86AudioPrev"        allow-inhibiting=true { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
-
+      "XF86AudioPlay"  { spawn "uwsm" "app" "--" "playerctl" "play-pause"; }
+      "XF86AudioNext"  { spawn "uwsm" "app" "--" "playerctl" "next"; }
+      "XF86AudioPrev"  { spawn "uwsm" "app" "--" "playerctl" "previous"; }
+      "XF86AudioStop"  { spawn "uwsm" "app" "--" "playerctl" "stop"; }
       "Mod+Shift+E" { quit; }
   }
 ''
