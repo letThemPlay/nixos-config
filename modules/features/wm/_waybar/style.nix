@@ -6,7 +6,7 @@
       border-radius: 0;
       min-height: 0;
       margin: 3px 3px 3px 3px;
-      padding: 5px;
+      padding: 0;
   }
   window#waybar {
     background-color: @transparent-base;
@@ -25,7 +25,7 @@
       color: #CDD6F4;
       font-family: 'Noto sans';
       font-size: 12px;
-      padding: 2px;
+      padding: 5px;
   }
 
   #workspaces button {
