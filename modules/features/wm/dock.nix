@@ -24,30 +24,27 @@ _: {
             on-click-middle = "close";
           };
 
+          # 👑 THE UNICODE ESCAPE SEQUENCE FIX:
+          # We swap raw glyph characters for standard JSON hexadecimal string codes.
+          # This completely prevents Nix's JSON serializer from dropping the symbols! [INDEX: 1.2.5, 1.4.1]
           "custom/launcher-term" = {
             format = "";
             on-click = "uwsm app -- alacritty";
             tooltip = false;
           };
           "custom/launcher-browser" = {
-            format = "  ";
+            format = "󰈹";
             on-click = "uwsm app -- firefox";
             tooltip = false;
           };
           "custom/launcher-files" = {
-            format = "  ";
+            format = ""; # Yazi File Drawer Glyph
             on-click = "uwsm app -- alacritty -e yazi";
-            tooltip = false;
-          };
-          "custom/control-center-toggle" = {
-            format = "  ";
-            on-click = "swaync-client -t -sw";
             tooltip = false;
           };
         };
 
         # 👑 THE DEFINITIVE CONVERTED DOCK STYLE SHEET:
-        # Replicated precisely from your working top-bar color definition format!
         xdg.configFile."waybar/dock-style.css".text = ''
           @define-color base00 #${config.lib.stylix.colors.base00};
           @define-color base01 #${config.lib.stylix.colors.base01};
@@ -67,14 +64,12 @@ _: {
 
           window#waybar {
               background-color: @transparent-base;
-              background: transparent !important;
+              background: transparent;
           }
 
-          /* 📱 CHASSIS: Perfectly styled floating island dock pill modules */
           .modules-left,
           .modules-center,
           .modules-right {
-              /* 👑 Uses your exact working macro alpha loop matching format! [INDEX: 1.4.1] */
               background-color: alpha(@base01, 0.85); 
               border: 1px solid @base03;
               border-radius: 16px;
@@ -93,10 +88,10 @@ _: {
           }
 
           button:hover {
-              /* 👑 Uses the identical 0.60 alpha macro overlay format! [INDEX: 1.4.1] */
               background-color: alpha(@base02, 0.60);
               color: @base0D;
-              transform: scale(1.15) translateY(-2px);
+              padding: 2px 10px 6px 10px;
+              margin: 1px 2px 5px 2px;
           }
 
           button.active {
