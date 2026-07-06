@@ -46,6 +46,7 @@
       "Mod+Return" { spawn "alacritty"; }
       "Mod+Q" { close-window; }
       "Mod+D" { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
+      "Mod+L" { spawn "loginctl" "lock-session"; }
 
       "Mod+I" { spawn "sh" "-c" "pkill quickshell || uwsm app -- quickshell"; }
 
