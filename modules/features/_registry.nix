@@ -12,6 +12,7 @@
       tailscale = [ inputs.self.nixosModules.tailscale ];
       gpg = [ inputs.self.nixosModules.gpg ];
       nextdns = [ inputs.self.nixosModules.nextdns ];
+      controld-dns = [ inputs.self.nixosModules.controld ];
       nvidia = [ inputs.self.nixosModules.nvidia-graphics ];
       gaming = [ inputs.self.nixosModules.steam-gaming ];
 
