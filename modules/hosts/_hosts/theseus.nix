@@ -6,7 +6,7 @@
   features = [
     "base"
     "laptop"
-    "ui"
+    "desktop"
     "core-apps"
   ];
 

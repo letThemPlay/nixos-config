@@ -6,7 +6,7 @@
   features = [
     "base"
     "vm"
-    "ui"
+    "desktop"
     "core-apps"
   ];
 
