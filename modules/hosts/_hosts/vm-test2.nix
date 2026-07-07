@@ -6,7 +6,7 @@
   features = [
     "base"
     "vm"
-    "desktop"
+    "window-management"
     "core-apps"
     "impermanence"
   ];
