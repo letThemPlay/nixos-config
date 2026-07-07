@@ -6,7 +6,7 @@
   features = [
     "base"
     "laptop"
-    "desktop"
+    "window-management"
     "core-apps"
   ];
 
@@ -17,6 +17,10 @@
     (inputs.self + "/modules/hosts/_hosts/_settings/theseus.nix")
   ];
 
-  tpmUnlock = true;
-  secureBoot = true;
+  featureConfig = {
+    boot = {
+      tpmUnlock = true;
+      secureBoot = true;
+    };
+  };
 }

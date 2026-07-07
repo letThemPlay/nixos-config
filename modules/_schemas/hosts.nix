@@ -1,5 +1,5 @@
 { lib, ... }: {
-  options.ltp.hosts.registry = lib.mkOption {
+  options.registry.hosts = lib.mkOption {
     description = "The central structural metadata model tracker for all machine host configurations.";
     default = { };
     type = lib.types.attrsOf (
@@ -29,6 +29,10 @@
           extraModules = lib.mkOption {
             type = lib.types.listOf lib.types.deferredModule;
             default = [ ];
+          };
+          featureConfig = lib.mkOption {
+            type = lib.types.attrsOf lib.types.unspecified;
+            default = { };
           };
         };
       }

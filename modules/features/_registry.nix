@@ -15,6 +15,7 @@
       controld-dns = [ inputs.self.nixosModules.controld ];
       nvidia = [ inputs.self.nixosModules.nvidia-graphics ];
       gaming = [ inputs.self.nixosModules.steam-gaming ];
+      impermanence = [ inputs.self.nixosModules.state-persistence ];
 
       base = [
         inputs.self.nixosModules.cachix-caches
@@ -42,7 +43,7 @@
         inputs.self.nixosModules.audio
       ];
 
-      desktop = [
+      window-management = [
         inputs.self.nixosModules.niri
         inputs.self.nixosModules.waybar
         inputs.self.nixosModules.fuzzel

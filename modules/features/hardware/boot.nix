@@ -7,39 +7,33 @@
       ...
     }:
     let
-      cfg = config.ltp.boot;
+      hostName = config.networking.hostName;
+      cfg = config.registry.hosts.${hostName}.boot or { };
+
+      secureBoot = cfg.secureBoot.enabled or false;
+      tpmUnlock = cfg.tpmUnlock.enabled or false;
     in
     {
       imports = [
         inputs.lanzaboote.nixosModules.lanzaboote
       ];
 
-      options.ltp.boot = {
-        enable = lib.mkEnableOption "Default BootOption" |> (opt: opt // { default = true; });
-
-        secureBoot.enable =
-          lib.mkEnableOption "Secure Boot with Lanzaboote" |> (opt: opt // { default = false; });
-
-        tpmUnlock.enable = lib.mkEnableOption "TPM2 automated unlock" |> (opt: opt // { default = false; });
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         environment.systemPackages =
-          lib.optionals cfg.tpmUnlock.enable [ pkgs.tpm2-tss ]
-          ++ lib.optionals cfg.secureBoot.enable [ pkgs.sbctl ];
+          lib.optionals tpmUnlock [ pkgs.tpm2-tss ] ++ lib.optionals secureBoot [ pkgs.sbctl ];
 
         boot = {
           initrd.systemd.enable = true;
 
           loader = {
             systemd-boot = {
-              enable = if cfg.secureBoot.enable then lib.mkForce false else true;
+              enable = if secureBoot then lib.mkForce false else true;
               configurationLimit = 5;
             };
-            efi.canTouchEfiVariables = !cfg.secureBoot.enable;
+            efi.canTouchEfiVariables = !secureBoot;
           };
 
-          lanzaboote = lib.mkIf cfg.secureBoot.enable {
+          lanzaboote = lib.mkIf secureBoot {
             enable = true;
             pkiBundle = "/var/lib/sbctl";
             configurationLimit = 5;

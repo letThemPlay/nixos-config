@@ -12,8 +12,7 @@
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
-      secureBoot ? false,
-      tpmUnlock ? false,
+      featureConfig ? { },
       ...
     }:
     let
@@ -43,19 +42,14 @@
       ++ resolvedFeatures
       ++ [
         resolvedHardware
-
         ({ pkgs, ... }: {
           system.stateVersion = stateVersion;
           networking.hostName = hostName;
+          networking.hostId = "deadbeef";
+
           nixpkgs.hostPlatform = lib.mkDefault architecture;
 
-          ltp.boot = {
-            enable = true;
-            secureBoot.enable = secureBoot;
-            tpmUnlock.enable = tpmUnlock;
-          };
-
-          ltp.hosts.registry.${hostName} = {
+          registry.hosts.${hostName} = {
             inherit
               hostName
               architecture
@@ -63,8 +57,7 @@
               features
               users
               extraModules
-              secureBoot
-              tpmUnlock
+              featureConfig
               ;
           };
 
