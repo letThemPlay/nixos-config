@@ -41,9 +41,12 @@
         };
 
         home-manager.users.${username} = {
-          home.stateVersion = config.system.stateVersion or "26.05";
+          home = {
+            inherit username;
+            stateVersion = config.system.stateVersion or "26.05";
 
-          home.packages = map (p: pkgs.${p}) extraPackages;
+            packages = map (p: pkgs.${p}) extraPackages;
+          };
         };
       };
     };
