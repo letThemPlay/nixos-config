@@ -5,8 +5,8 @@ _: {
 
     nix.settings = {
       substituters = [
-        "https://nixos.org"
-        "https://cachix.org"
+        "https://cache.nixos.org"
+        "https://nix-community.cachix.org"
       ];
 
       trusted-public-keys = [

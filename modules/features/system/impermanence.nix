@@ -32,7 +32,6 @@
         (_: {
           home.persistence."/persist" = {
             directories = [
-              "Downloads"
               "Music"
               "Pictures"
               "Documents"
