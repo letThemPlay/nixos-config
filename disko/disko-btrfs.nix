@@ -33,16 +33,7 @@
           ExecStart = [
             "${pkgs.coreutils}/bin/mkdir -p /mnt"
             "${pkgs.util-linux}/bin/mount -t btrfs -o subvol=/ /dev/disk/by-partlabel/disk-main-btrfs /mnt"
-
-            "/bin/sh -c 'if [ -e /mnt/@root ]; then \
-               ${pkgs.btrfs-progs}/bin/btrfs subvolume list -o /mnt/@root | \
-               ${pkgs.coreutils}/bin/cut -f 9- -d \" \" | \
-               while read -r subvol; do \
-                 ${pkgs.btrfs-progs}/bin/btrfs subvolume delete \"/mnt/$subvol\"; \
-               done; \
-               ${pkgs.btrfs-progs}/bin/btrfs subvolume delete /mnt/@root; \
-             fi'"
-
+            "/bin/sh -c 'if [ -e /mnt/@root ]; then ${pkgs.btrfs-progs}/bin/btrfs subvolume list -o /mnt/@root | ${pkgs.coreutils}/bin/cut -f 9- -d \" \" | while read -r subvol; do ${pkgs.btrfs-progs}/bin/btrfs subvolume delete \"/mnt/$subvol\"; done; ${pkgs.btrfs-progs}/bin/btrfs subvolume delete /mnt/@root; fi'"
             "${pkgs.btrfs-progs}/bin/btrfs subvolume snapshot /mnt/@blank /mnt/@root"
             "${pkgs.util-linux}/bin/umount /mnt"
           ];
