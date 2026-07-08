@@ -19,7 +19,6 @@
           isNormalUser = true;
           description = fullName;
 
-          # Native list concatenation cleanly replaces lib.mkMerge here
           extraGroups = [
             "video"
             "audio"
