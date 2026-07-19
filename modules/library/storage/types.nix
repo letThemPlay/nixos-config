@@ -1,0 +1,256 @@
+_: {
+  flake.library.storage.types =
+    { lib, ... }:
+    let
+      inherit (lib) mkOption types;
+    in
+    rec {
+      severity = types.enum [
+        "error"
+        "warning"
+        "info"
+      ];
+
+      backend = types.enum [
+        "btrfs"
+      ];
+
+      volume = types.submodule (
+        { name, ... }:
+        {
+          options = {
+
+            id = mkOption {
+              type = types.str;
+              default = name;
+              readOnly = true;
+
+              description = ''
+                Canonical identifier for this volume.
+
+                Assigned during normalization from the attribute name.
+                Consumers should treat this as immutable.
+              '';
+            };
+
+            role = mkOption {
+              type = types.str;
+              default = name;
+
+              description = ''
+                Semantic role of this filesystem object.
+
+                Renderers should identify important volumes by role
+                rather than by attribute name.
+              '';
+            };
+
+            category = mkOption {
+              type = types.enum [
+                "system"
+                "state"
+                "store"
+                "user"
+                "snapshot"
+                "template"
+                "runtime"
+              ];
+
+              default = "state";
+
+              description = ''
+                Classification of the data stored by this volume.
+              '';
+            };
+
+            backend = mkOption {
+              type = types.nullOr backend;
+              default = null;
+
+              description = ''
+                Optional backend override.
+
+                When null the backend is inherited from the storage
+                model during normalization.
+              '';
+            };
+
+            name = mkOption {
+              type = types.str;
+              default = "@${name}";
+
+              description = ''
+                Backend-specific identifier.
+
+                Examples include:
+
+                • Btrfs subvolumes
+                • ZFS datasets
+                • LVM logical volumes
+              '';
+            };
+
+            mountpoint = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+
+              description = ''
+                Filesystem mountpoint.
+
+                Null indicates this volume is not mounted directly.
+              '';
+            };
+
+            neededForBoot = mkOption {
+              type = types.bool;
+              default = false;
+
+              description = ''
+                Indicates this volume must be mounted during early boot.
+              '';
+            };
+
+            snapshot = mkOption {
+              type = types.bool;
+              default = false;
+
+              description = ''
+                Indicates this volume participates in snapshot creation.
+              '';
+            };
+
+            rollback = mkOption {
+              type = types.bool;
+              default = false;
+
+              description = ''
+                Indicates this volume participates in rollback.
+              '';
+            };
+
+          };
+        }
+      );
+
+      layout = types.submodule {
+        options = {
+
+          version = mkOption {
+            type = types.int;
+            default = 1;
+
+            description = ''
+              Layout schema version.
+            '';
+          };
+
+          description = mkOption {
+            type = types.lines;
+
+            description = ''
+              Human-readable description of this layout.
+            '';
+          };
+
+          requiredRoles = mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+
+            description = ''
+              Semantic roles that must exist within this layout.
+            '';
+          };
+
+          volumes = mkOption {
+            type = types.attrsOf volume;
+            default = { };
+
+            description = ''
+              Canonical volume definitions supplied by the layout.
+            '';
+          };
+
+        };
+      };
+
+      model = types.submodule {
+        options = {
+
+          version = mkOption {
+            type = types.int;
+
+            description = ''
+              Storage model schema version.
+            '';
+          };
+
+          layout = mkOption {
+            type = types.submodule {
+              options = {
+
+                name = mkOption {
+                  type = types.str;
+
+                  description = ''
+                    Name of the selected storage layout.
+                  '';
+                };
+
+                version = mkOption {
+                  type = types.int;
+
+                  description = ''
+                    Version of the selected layout.
+                  '';
+                };
+
+                description = mkOption {
+                  type = types.lines;
+
+                  description = ''
+                    Human-readable description of the selected layout.
+                  '';
+                };
+
+                requiredRoles = mkOption {
+                  type = types.listOf types.str;
+
+                  description = ''
+                    Roles required by this layout.
+                  '';
+                };
+
+              };
+            };
+
+            description = ''
+              Metadata describing the selected storage layout.
+            '';
+          };
+
+          backend = mkOption {
+            type = backend;
+
+            description = ''
+              Normalized storage backend.
+
+              Every volume inherits this backend unless overridden.
+            '';
+          };
+
+          volumes = mkOption {
+            type = types.attrsOf volume;
+
+            description = ''
+              Fully normalized storage model.
+
+              All inheritance has been resolved before the model reaches
+              query, validation or rendering.
+            '';
+          };
+
+        };
+      };
+
+    };
+}

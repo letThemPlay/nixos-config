@@ -1,6 +1,7 @@
 _: {
   flake.nixosModules.storage-api =
     {
+      config,
       lib,
       ...
     }:
@@ -11,49 +12,7 @@ _: {
         types
         ;
 
-      volumeType = types.submodule (
-        { name, ... }:
-        {
-          options = {
-            name = mkOption {
-              type = types.str;
-              default = "@${name}";
-              description = "Backend-specific volume name.";
-            };
-
-            mountpoint = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              example = "/";
-            };
-
-            mountOptions = mkOption {
-              type = types.listOf types.str;
-              default = [ ];
-            };
-
-            neededForBoot = mkOption {
-              type = types.bool;
-              default = false;
-            };
-
-            persistent = mkOption {
-              type = types.bool;
-              default = false;
-            };
-
-            rollback = mkOption {
-              type = types.bool;
-              default = false;
-            };
-
-            snapshot = mkOption {
-              type = types.bool;
-              default = false;
-            };
-          };
-        }
-      );
+      storage = config.flake.library.storage;
     in
     {
       options.ohmydarlings.storage = {
@@ -61,16 +20,25 @@ _: {
         enable = mkEnableOption "Oh My Darlings storage subsystem";
 
         backend = mkOption {
-          type = types.enum [
-            "disko"
-          ];
-
+          type = types.enum [ "disko" ];
           default = "disko";
+
+          description = "Storage renderer.";
+        };
+
+        layout = mkOption {
+          type = types.str;
+          default = "erase-my-darlings";
+
+          description = ''
+            Logical storage layout.
+          '';
         };
 
         disk = mkOption {
           type = types.str;
-          example = "/dev/disk/by-id/nvme-Samsung_990";
+
+          example = "/dev/disk/by-id/nvme-Samsung_990_PRO";
         };
 
         boot = {
@@ -112,10 +80,7 @@ _: {
         filesystem = {
 
           type = mkOption {
-            type = types.enum [
-              "btrfs"
-            ];
-
+            type = types.enum [ "btrfs" ];
             default = "btrfs";
           };
 
@@ -127,8 +92,16 @@ _: {
         };
 
         volumes = mkOption {
-          type = types.attrsOf volumeType;
+          type = types.attrsOf storage.types.volume;
+
           default = { };
+
+          description = ''
+            Canonical filesystem model.
+
+            Storage backends consume this model to produce
+            backend-specific configuration.
+          '';
         };
 
         persistence = {
@@ -142,7 +115,6 @@ _: {
             type = types.listOf types.str;
             default = [ ];
           };
-
         };
       };
     };
