@@ -27,6 +27,13 @@
           ++ lib.optionals admin [ "wheel" ];
 
           shell = pkgs.${defaultShell} or pkgs.bash;
+
+          # Set when /etc is ephemeral (see the ephemeral-identity feature).
+          hashedPasswordFile =
+            let
+              directory = config.ohmydarlings.identity.passwordDirectory or null;
+            in
+            lib.mkIf (directory != null) (lib.mkDefault "${directory}/${username}");
         };
 
         ltp.users.registry.${username} = {

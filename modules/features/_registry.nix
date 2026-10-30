@@ -30,6 +30,7 @@
 
         inputs.self.nixosModules.storage
         inputs.self.nixosModules.storage-api
+        inputs.self.nixosModules.ephemeral-identity
       ];
 
       laptop = [

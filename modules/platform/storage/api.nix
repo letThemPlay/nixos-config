@@ -145,23 +145,6 @@ in
 
         };
 
-        passwordDirectory = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-
-          example = "/persist/secrets/passwords";
-
-          description = ''
-            Directory holding one hashed password file per user profile,
-            named after the user (create with `mkpasswd -m yescrypt`).
-
-            Only used when the root volume is rolled back. Defaults to
-            secrets/passwords on the persist volume. It must live on a
-            volume mounted in initrd: userborn runs before agenix
-            decrypts secrets.
-          '';
-        };
-
         rollback = {
 
           keepSnapshots = mkOption {

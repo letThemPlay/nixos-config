@@ -15,10 +15,7 @@ in
     let
       inherit (lib)
         filter
-        filterAttrs
         listToAttrs
-        mapAttrs
-        mkDefault
         mkIf
         mkMerge
         nameValuePair
@@ -49,12 +46,6 @@ in
       persist = storage.query.stateVolume model;
 
       ephemeralRoot = storage.query.ephemeralRoot model;
-
-      passwordDirectory =
-        if cfg.passwordDirectory != null then
-          cfg.passwordDirectory
-        else
-          "${persist.mountpoint}/secrets/passwords";
 
       format = diagnostic: "ohmydarlings.storage [${diagnostic.code}]: ${diagnostic.message}";
 
@@ -124,20 +115,6 @@ in
             }
 
             preservation
-
-            #
-            # With an ephemeral /etc, password changes made at runtime are
-            # lost. Users are declarative and read their hash from the
-            # persist volume; mutableUsers = false also enables the NixOS
-            # assertion that a wheel user or root has a password.
-            #
-            (mkIf (ephemeralRoot && persist != null) {
-              users.mutableUsers = false;
-
-              users.users = mapAttrs (username: _: {
-                hashedPasswordFile = mkDefault "${passwordDirectory}/${username}";
-              }) (filterAttrs (_: profile: profile.enable) (config.users.profiles or { }));
-            })
 
           ]))
 

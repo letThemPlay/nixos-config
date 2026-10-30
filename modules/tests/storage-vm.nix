@@ -6,6 +6,8 @@ let
 
   storageModule = config.flake.nixosModules.storage;
 
+  identityModule = config.flake.nixosModules.ephemeral-identity;
+
   settings = {
     enable = true;
 
@@ -58,6 +60,7 @@ in
           imports = [
             storage-api
             storageModule
+            identityModule
           ];
 
           ohmydarlings.storage = settings // {

@@ -342,35 +342,20 @@ let
       };
     };
 
-    testEssentialsPreserved = {
+    # Identity and user policy live in the ephemeral-identity feature.
+    testPreservationRendersOnlyPreservation = {
+      expr = lib.attrNames (preservationOf { });
+      expected = [ "preservation" ];
+    };
+
+    testFeatureStateRendered = {
+      # Plain path entries are passed through as strings.
       expr =
-        let
-          at = (preservationOf { }).preservation.preserveAt."/persist";
-        in
-        {
-          machineId = lib.any (entry: entry.file or null == "/etc/machine-id") at.files;
-          userborn = lib.any (entry: entry.directory or null == "/var/lib/userborn") at.directories;
-        };
-      expected = {
-        machineId = true;
-        userborn = true;
-      };
-    };
-
-    testUserbornWithEphemeralRoot = {
-      expr = {
-        inherit ((preservationOf { }).services.userborn) condition;
-        inherit ((preservationOf { }).services.userborn.content) passwordFilesLocation;
-      };
-      expected = {
-        condition = true;
-        passwordFilesLocation = "/var/lib/userborn";
-      };
-    };
-
-    testNoEssentialsWithPersistentRoot = {
-      expr = (preservationOf noRootRollback).services.userborn.condition;
-      expected = false;
+        lib.elem "/var/lib/feature"
+          (preservationOf {
+            persistence.state.directories = [ "/var/lib/feature" ];
+          }).preservation.preserveAt."/persist".directories;
+      expected = true;
     };
 
     #
