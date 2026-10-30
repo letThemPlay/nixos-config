@@ -8,34 +8,77 @@
         filterAttrs
         mapAttrs'
         nameValuePair
+        optionalAttrs
         ;
 
       inherit (model.platform)
         boot
         encryption
         filesystem
+        swap
         ;
 
-      device = model.platform.disk;
+      #
+      # disko derives partition labels as "disk-<disk>-<partition>".
+      #
+      diskName = "main";
+      partitionName = "root";
 
-      volumes = filterAttrs (_: volume: volume.mountpoint != null) model.volumes;
+      #
+      # Block device holding the btrfs filesystem once unlocked.
+      # Consumed by the rollback transform.
+      #
+      rootDevice =
+        if encryption.enable then
+          "/dev/mapper/${encryption.label}"
+        else
+          "/dev/disk/by-partlabel/disk-${diskName}-${partitionName}";
 
+      defaultMountOptions = [
+        "compress=${filesystem.compression}"
+        "noatime"
+      ];
+
+      volumes = filterAttrs (_: volume: volume.backend == "btrfs") model.volumes;
+
+      #
+      # Every volume becomes a subvolume. Unmounted volumes such as the
+      # rollback template are created but not mounted.
+      #
       subvolumes = mapAttrs' (
         _: volume:
-        nameValuePair volume.name {
-          mountpoint = volume.mountpoint;
-        }
+        nameValuePair volume.name (
+          optionalAttrs (volume.mountpoint != null) {
+            inherit (volume) mountpoint;
+
+            mountOptions = defaultMountOptions ++ volume.mountOptions;
+          }
+        )
       ) volumes;
+
+      #
+      # Swapfiles must not be compressed, so the swap subvolume skips
+      # the default mount options. disko creates the file NOCOW and
+      # registers it in swapDevices.
+      #
+      swapSubvolume = optionalAttrs swap.enable {
+        "@swap" = {
+          mountpoint = "/.swapvol";
+
+          mountOptions = [ "noatime" ];
+
+          swap.swapfile.size = swap.size;
+        };
+      };
 
       btrfsFilesystem = {
         type = "btrfs";
 
-        subvolumes = subvolumes;
+        subvolumes = subvolumes // swapSubvolume;
 
         extraArgs = [
           "-f"
         ];
-
       };
 
       encryptedFilesystem =
@@ -51,38 +94,47 @@
 
             content = btrfsFilesystem;
           }
+          // optionalAttrs (encryption.passwordFile != null) {
+            inherit (encryption) passwordFile;
+          }
         else
           btrfsFilesystem;
 
     in
     {
-      type = "disk";
+      inherit rootDevice;
 
-      inherit device;
+      devices.disk.${diskName} = {
+        type = "disk";
 
-      content = {
-        type = "gpt";
+        device = model.platform.disk;
 
-        partitions = {
+        content = {
+          type = "gpt";
 
-          ESP = {
-            size = boot.efiSize;
+          partitions = {
 
-            type = "EF00";
+            ESP = {
+              size = boot.efiSize;
 
-            content = {
-              type = "filesystem";
-              format = "vfat";
-              mountpoint = "/boot";
+              type = "EF00";
+
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+
+                mountOptions = [ "umask=0077" ];
+              };
             };
+
+            ${partitionName} = {
+              size = "100%";
+
+              content = encryptedFilesystem;
+            };
+
           };
-
-          root = {
-            size = "100%";
-
-            content = encryptedFilesystem;
-          };
-
         };
       };
     };

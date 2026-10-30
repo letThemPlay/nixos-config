@@ -94,6 +94,18 @@ in
             default = true;
           };
 
+          passwordFile = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+
+            example = "/tmp/secret.key";
+
+            description = ''
+              File containing the LUKS passphrase, read only while
+              formatting. When null, disko prompts interactively.
+            '';
+          };
+
         };
 
         filesystem = {

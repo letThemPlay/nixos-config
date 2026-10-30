@@ -101,6 +101,15 @@
               '';
             };
 
+            mountOptions = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+
+              description = ''
+                Additional mount options appended to the backend defaults.
+              '';
+            };
+
             neededForBoot = mkOption {
               type = types.bool;
               default = false;
