@@ -21,17 +21,6 @@ in
 
         enable = mkEnableOption "Oh My Darlings storage subsystem";
 
-        renderer = mkOption {
-          type = types.enum [ "disko" ];
-          default = "disko";
-
-          description = ''
-            Tool that renders the storage model into host configuration.
-
-            The filesystem backend is selected by filesystem.type.
-          '';
-        };
-
         layout = mkOption {
           type = types.str;
           default = "erase-my-darlings";

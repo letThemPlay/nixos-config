@@ -16,6 +16,7 @@ in
       inherit (lib)
         filter
         listToAttrs
+        mapAttrsToList
         mkIf
         mkMerge
         nameValuePair
@@ -28,20 +29,34 @@ in
       validation = storage.validate.all model;
 
       #
-      # Selected statically: choosing by model.backend would make the
-      # shape of this module depend on config. Validation rejects other
-      # backends; additional ones need their own mkIf-guarded block.
+      # Every registered backend renders behind mkIf (model.backend ==
+      # name): attribute names stay fixed and the selection is lazy, so
+      # the module's shape does not depend on config. Adding a backend
+      # only means registering it in storage.backends.
       #
-      transform = storage.transform.btrfs;
+      # Transforms return plain data; conditions stay inside mkIf here.
+      #
+      renderBackend =
+        name: backend:
+        let
+          disko = backend.disko { inherit model; };
 
-      disko = transform.disko { inherit model; };
+          rollback = backend.rollback {
+            inherit model pkgs utils;
+            inherit (disko) rootDevice;
+          };
+        in
+        mkIf (model.backend == name) {
+          disko.devices = disko.devices;
 
-      rollback = transform.rollback {
-        inherit model pkgs utils;
-        inherit (disko) rootDevice;
-      };
+          boot.initrd.systemd = {
+            storePaths = mkIf rollback.active [ rollback.script ];
 
-      preservation = transform.preservation { inherit model; };
+            services.storage-rollback = mkIf rollback.active rollback.service;
+          };
+        };
+
+      preservation = storage.preservation { inherit model; };
 
       persist = storage.query.stateVolume model;
 
@@ -58,6 +73,16 @@ in
       imports = [
         inputs.disko.nixosModules.disko
         inputs.preservation.nixosModules.default
+
+        # Kept here rather than in storage-api: it needs NixOS assertions.
+        (lib.mkRemovedOptionModule
+          [
+            "ohmydarlings"
+            "storage"
+            "renderer"
+          ]
+          "disko is the only renderer; select the filesystem backend with ohmydarlings.storage.filesystem.type."
+        )
       ];
 
       config = mkMerge [
@@ -93,42 +118,33 @@ in
           # Rendering only runs on a valid model; invalid models stop at
           # the assertions above with a readable diagnostic.
           #
-          (mkIf validation.ok (mkMerge [
+          (mkIf validation.ok (
+            mkMerge (
+              [
+                {
+                  #
+                  # disko does not set neededForBoot; preservation and the
+                  # rollback need these volumes mounted in initrd.
+                  #
+                  fileSystems = listToAttrs (
+                    map (volume: nameValuePair volume.mountpoint { neededForBoot = true; }) (
+                      filter (volume: volume.mountpoint != null) (storage.query.neededForBoot model)
+                    )
+                  );
 
-            {
-              disko.devices = disko.devices;
+                  boot.initrd.systemd.enable = true;
 
-              #
-              # disko does not set neededForBoot; preservation and the
-              # rollback need these volumes mounted in initrd.
-              #
-              fileSystems = listToAttrs (
-                map (volume: nameValuePair volume.mountpoint { neededForBoot = true; }) (
-                  filter (volume: volume.mountpoint != null) (storage.query.neededForBoot model)
-                )
-              );
+                  preservation = {
+                    enable = preservation.preserveAt != { };
 
-              #
-              # Transforms return plain data; the attribute names are
-              # fixed here and conditions stay inside mkIf, because the
-              # module system needs the names before config is known.
-              #
-              boot.initrd.systemd = {
-                enable = true;
+                    inherit (preservation) preserveAt;
+                  };
+                }
+              ]
 
-                storePaths = mkIf rollback.active [ rollback.script ];
-
-                services.storage-rollback = mkIf rollback.active rollback.service;
-              };
-
-              preservation = {
-                enable = preservation.preserveAt != { };
-
-                inherit (preservation) preserveAt;
-              };
-            }
-
-          ]))
+              ++ mapAttrsToList renderBackend storage.backends
+            )
+          ))
 
         ]))
 

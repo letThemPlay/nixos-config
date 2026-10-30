@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.library.storageTransformBtrfsPreservation =
+  flake.library.storageTransformPreservation =
     let
       inherit (lib)
         filterAttrs

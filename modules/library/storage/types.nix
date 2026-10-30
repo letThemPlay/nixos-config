@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, lib, ... }:
 {
   flake.library.storageTypes =
     let
@@ -11,9 +11,8 @@
         "info"
       ];
 
-      backend = types.enum [
-        "btrfs"
-      ];
+      # Valid backends are the keys of the backend registry.
+      backend = types.enum (builtins.attrNames config.flake.library.storageBackends);
 
       #
       # Volume fields, declared once. `volume` is the full entity used by
@@ -402,14 +401,6 @@
 
             description = ''
               Metadata describing the selected storage layout.
-            '';
-          };
-
-          renderer = mkOption {
-            type = types.str;
-
-            description = ''
-              Tool that renders this model into host configuration.
             '';
           };
 

@@ -6,6 +6,7 @@
     normalize = config.flake.library.storageNormalize;
     query = config.flake.library.storageQuery;
     validate = config.flake.library.storageValidate;
-    transform = config.flake.library.storageTransform;
+    backends = config.flake.library.storageBackends;
+    preservation = config.flake.library.storageTransformPreservation;
   };
 }

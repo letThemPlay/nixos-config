@@ -141,28 +141,47 @@
           ) duplicates
         );
 
+      #
+      # The model backend and every per-volume backend override must be
+      # registered; renderers skip volumes of other backends.
+      #
       backend =
         model:
 
         let
-          supported = [
-            "btrfs"
-          ];
+          supported = builtins.attrNames config.flake.library.storageBackends;
+
+          supportedText = lib.concatStringsSep ", " supported;
+
+          # Volumes that inherit the model backend are covered above.
+          unsupportedVolumes = filter (
+            volume: volume.backend != model.backend && !builtins.elem volume.backend supported
+          ) (query.all model);
         in
 
         mkResult (
-          if builtins.elem model.backend supported then
-            [ ]
-          else
-            [
-              (mkDiagnostic {
-                severity = "error";
-                code = "storage.backend.unsupported";
-                target = model.backend;
-                path = [ "backend" ];
-                message = "Unsupported backend '${model.backend}'.";
-              })
-            ]
+          optional (!builtins.elem model.backend supported) (mkDiagnostic {
+            severity = "error";
+            code = "storage.backend.unsupported";
+            target = model.backend;
+            path = [ "backend" ];
+            message = "Unsupported backend '${model.backend}' (supported: ${supportedText}).";
+          })
+
+          ++ map (
+            volume:
+            mkDiagnostic {
+              severity = "error";
+              code = "storage.volume.backend.unsupported";
+              target = volume.id;
+              path = [
+                "volumes"
+                volume.id
+                "backend"
+              ];
+              message = "Volume '${volume.id}' uses unsupported backend '${volume.backend}' (supported: ${supportedText}).";
+            }
+          ) unsupportedVolumes
         );
 
       layout =

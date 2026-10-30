@@ -34,7 +34,7 @@
     #
     # cfg is the ohmydarlings.storage option set, or any attrset of the
     # same shape: layout, filesystem.type, volumes (partial overrides),
-    # persistence.{layoutDefaults,policy,state}, renderer, rollback and
+    # persistence.{layoutDefaults,policy,state}, rollback and
     # the platform settings. No module system is required.
     #
     cfg:
@@ -106,8 +106,6 @@
           requiredRoles
           ;
       };
-
-      inherit (cfg) renderer;
 
       inherit backend;
 

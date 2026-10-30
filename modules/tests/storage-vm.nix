@@ -37,7 +37,7 @@ in
           ];
         }).config.ohmydarlings.storage;
 
-      disko = storage.transform.btrfs.disko { model = storage.normalize cfg; };
+      disko = storage.backends.btrfs.disko { model = storage.normalize cfg; };
     in
     {
       #

@@ -29,7 +29,7 @@ let
 
   codes = settings: codesOf (modelOf settings);
 
-  diskoOf = settings: storage.transform.btrfs.disko { model = modelOf settings; };
+  diskoOf = settings: storage.backends.btrfs.disko { model = modelOf settings; };
 
   subvolumesOf =
     settings:
@@ -38,7 +38,7 @@ let
     in
     (root.content or root).subvolumes;
 
-  preservationOf = settings: storage.transform.btrfs.preservation { model = modelOf settings; };
+  preservationOf = settings: storage.preservation { model = modelOf settings; };
 
   #
   # escapeSystemdPath is the only utils function the rollback uses.
@@ -48,9 +48,9 @@ let
     let
       model = modelOf settings;
     in
-    storage.transform.btrfs.rollback {
+    storage.backends.btrfs.rollback {
       inherit model pkgs;
-      inherit ((storage.transform.btrfs.disko { inherit model; })) rootDevice;
+      inherit ((storage.backends.btrfs.disko { inherit model; })) rootDevice;
       utils = import "${pkgs.path}/nixos/lib/utils.nix" {
         inherit lib pkgs;
         config = { };
@@ -97,13 +97,34 @@ let
     };
 
     testBackendFromFilesystem = {
-      expr = {
-        inherit (modelOf { }) backend renderer;
-      };
-      expected = {
-        backend = "btrfs";
-        renderer = "disko";
-      };
+      expr = (modelOf { }).backend;
+      expected = "btrfs";
+    };
+
+    #
+    # backend registry
+    #
+
+    testBackendRegistry = {
+      expr = lib.mapAttrs (_: backend: lib.attrNames backend) storage.backends;
+      expected.btrfs = [
+        "disko"
+        "rollback"
+      ];
+    };
+
+    testUnsupportedBackend = {
+      expr =
+        let
+          model = modelOf { };
+        in
+        codesOf (model // { backend = "zfs"; });
+      expected = [ "storage.backend.unsupported" ];
+    };
+
+    testUnsupportedVolumeBackend = {
+      expr = codes { volumes.home.backend = "zfs"; };
+      expected = [ "storage.volume.backend.unsupported" ];
     };
 
     testDefaultPersistence = {
@@ -137,7 +158,6 @@ let
         let
           plain = storage.normalize {
             layout = "erase-my-darlings";
-            renderer = "disko";
             disk = "/dev/disk/by-id/test";
             filesystem = {
               type = "btrfs";
