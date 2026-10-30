@@ -66,6 +66,8 @@
 
       persistence = cfg.persistence.policy;
 
+      inherit (cfg) rollback;
+
       platform = {
         inherit (cfg)
           disk

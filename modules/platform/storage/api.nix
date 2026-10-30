@@ -108,6 +108,20 @@ in
 
         };
 
+        rollback = {
+
+          keepSnapshots = mkOption {
+            type = types.ints.unsigned;
+            default = 5;
+
+            description = ''
+              Number of pre-rollback snapshots kept per volume under the
+              snapshots volume. 0 disables archiving.
+            '';
+          };
+
+        };
+
         filesystem = {
 
           type = mkOption {

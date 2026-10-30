@@ -310,6 +310,22 @@
             '';
           };
 
+          rollback = mkOption {
+            type = types.submodule {
+              options.keepSnapshots = mkOption {
+                type = types.ints.unsigned;
+
+                description = ''
+                  Pre-rollback snapshots kept per volume.
+                '';
+              };
+            };
+
+            description = ''
+              Rollback behaviour for volumes marked rollback.
+            '';
+          };
+
           platform = mkOption {
             type = types.attrsOf types.anything;
 
