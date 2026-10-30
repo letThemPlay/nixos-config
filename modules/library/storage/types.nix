@@ -220,6 +220,14 @@
                   '';
                 };
 
+                known = mkOption {
+                  type = types.bool;
+
+                  description = ''
+                    Whether the selected layout exists in the layout library.
+                  '';
+                };
+
                 version = mkOption {
                   type = types.int;
 
@@ -249,6 +257,14 @@
 
             description = ''
               Metadata describing the selected storage layout.
+            '';
+          };
+
+          renderer = mkOption {
+            type = types.str;
+
+            description = ''
+              Tool that renders this model into host configuration.
             '';
           };
 
@@ -282,6 +298,15 @@
 
               Each attribute name must refer to a volume defined in
               the storage model.
+            '';
+          };
+
+          platform = mkOption {
+            type = types.attrsOf types.anything;
+
+            description = ''
+              Device-level settings consumed by renderers:
+              disk, boot, swap, encryption and filesystem.
             '';
           };
 

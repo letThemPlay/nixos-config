@@ -4,24 +4,45 @@ let
 in
 {
   flake.nixosModules.storage-api =
-    { lib, ... }:
+    {
+      config,
+      lib,
+      ...
+    }:
     let
       inherit (lib)
+        mapAttrs
+        mkDefault
         mkEnableOption
+        mkIf
         mkOption
         types
         ;
+
+      cfg = config.ohmydarlings.storage;
+
+      #
+      # Layout volumes are injected as mkDefault definitions so hosts
+      # override individual fields instead of whole volumes.
+      #
+      # An unknown layout contributes no volumes; validation reports it.
+      #
+      layoutVolumes = storage.layouts.${cfg.layout}.volumes or { };
     in
     {
       options.ohmydarlings.storage = {
 
         enable = mkEnableOption "Oh My Darlings storage subsystem";
 
-        backend = mkOption {
+        renderer = mkOption {
           type = types.enum [ "disko" ];
           default = "disko";
 
-          description = "Storage renderer.";
+          description = ''
+            Tool that renders the storage model into host configuration.
+
+            The filesystem backend is selected by filesystem.type.
+          '';
         };
 
         layout = mkOption {
@@ -78,7 +99,7 @@ in
         filesystem = {
 
           type = mkOption {
-            type = types.enum [ "btrfs" ];
+            type = storage.types.backend;
             default = "btrfs";
           };
 
@@ -97,38 +118,18 @@ in
           description = ''
             Canonical filesystem model.
 
+            Defaults to the volumes of the selected layout. Individual
+            fields may be overridden per host.
+
             Storage backends consume this model to produce
             backend-specific configuration.
           '';
         };
+
         persistence = {
 
           policy = mkOption {
-            type = types.attrsOf (
-              types.submodule {
-                options = {
-
-                  directories = mkOption {
-                    type = types.listOf types.str;
-                    default = [ ];
-
-                    description = ''
-                      Directories to preserve on this storage volume.
-                    '';
-                  };
-
-                  files = mkOption {
-                    type = types.listOf types.str;
-                    default = [ ];
-
-                    description = ''
-                      Files to preserve on this storage volume.
-                    '';
-                  };
-
-                };
-              }
-            );
+            type = types.attrsOf storage.types.persistence;
 
             default = { };
 
@@ -141,6 +142,10 @@ in
           };
 
         };
+      };
+
+      config = mkIf cfg.enable {
+        ohmydarlings.storage.volumes = mapAttrs (_: mapAttrs (_: mkDefault)) layoutVolumes;
       };
     };
 }

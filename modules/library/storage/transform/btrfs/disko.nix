@@ -1,7 +1,7 @@
 { lib, ... }:
 {
   flake.library.storageTransformBtrfsDisko =
-    input:
+    { model }:
 
     let
       inherit (lib)
@@ -10,13 +10,13 @@
         nameValuePair
         ;
 
-      inherit (input)
-        model
-        device
+      inherit (model.platform)
         boot
         encryption
         filesystem
         ;
+
+      device = model.platform.disk;
 
       volumes = filterAttrs (_: volume: volume.mountpoint != null) model.volumes;
 

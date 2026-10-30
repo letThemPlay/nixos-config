@@ -4,7 +4,6 @@
     let
       inherit (lib)
         mapAttrs
-        recursiveUpdate
         ;
 
       inherit (config.flake.library)
@@ -12,12 +11,25 @@
         ;
     in
 
+    #
+    # cfg is the evaluated ohmydarlings.storage option set.
+    #
+    # Layout volumes have already been merged into cfg.volumes by the
+    # module system, so normalization only resolves inheritance and
+    # gathers platform settings.
+    #
     cfg:
 
     let
-      layout = storageLayouts.${cfg.layout};
+      known = builtins.hasAttr cfg.layout storageLayouts;
 
-      mergedVolumes = recursiveUpdate layout.volumes cfg.volumes;
+      layout = storageLayouts.${cfg.layout} or {
+        version = 1;
+        description = "";
+        requiredRoles = [ ];
+      };
+
+      backend = cfg.filesystem.type;
 
       normalizedVolumes = mapAttrs (
         id: volume:
@@ -25,16 +37,20 @@
         // {
           inherit id;
 
-          backend = if volume.backend == null then cfg.backend else volume.backend;
+          backend = if volume.backend == null then backend else volume.backend;
         }
-      ) mergedVolumes;
+      ) cfg.volumes;
 
     in
     {
-      version = layout.version or 1;
+      version = 1;
 
       layout = {
         name = cfg.layout;
+
+        inherit known;
+
+        version = layout.version or 1;
 
         inherit (layout)
           description
@@ -42,10 +58,22 @@
           ;
       };
 
-      backend = cfg.backend;
+      inherit (cfg) renderer;
+
+      inherit backend;
 
       volumes = normalizedVolumes;
 
-      persistence = cfg.persistence;
+      persistence = cfg.persistence.policy;
+
+      platform = {
+        inherit (cfg)
+          disk
+          boot
+          swap
+          encryption
+          filesystem
+          ;
+      };
     };
 }
