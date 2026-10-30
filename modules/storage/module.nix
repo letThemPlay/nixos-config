@@ -121,7 +121,7 @@ in
 
             users.users = mapAttrs (username: _: {
               hashedPasswordFile = mkDefault "${passwordDirectory}/${username}";
-            }) (filterAttrs (_: profile: profile.enable) config.users.profiles);
+            }) (filterAttrs (_: profile: profile.enable) (config.users.profiles or { }));
           })
 
         ]))

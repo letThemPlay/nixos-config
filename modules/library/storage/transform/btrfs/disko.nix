@@ -89,7 +89,7 @@
             name = encryption.label;
 
             settings = {
-              allowDiscards = encryption.allowDiscards;
+              inherit (encryption) allowDiscards;
             };
 
             content = btrfsFilesystem;

@@ -24,7 +24,7 @@
       # Primitive Queries
       #
 
-      all = model: volumes model;
+      all = volumes;
 
       ids = model: attrNames model.volumes;
 

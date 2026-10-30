@@ -23,11 +23,12 @@
     let
       known = builtins.hasAttr cfg.layout storageLayouts;
 
-      layout = storageLayouts.${cfg.layout} or {
-        version = 1;
-        description = "";
-        requiredRoles = [ ];
-      };
+      layout =
+        storageLayouts.${cfg.layout} or {
+          version = 1;
+          description = "";
+          requiredRoles = [ ];
+        };
 
       backend = cfg.filesystem.type;
 
