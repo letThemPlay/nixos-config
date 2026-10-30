@@ -1,5 +1,5 @@
 _: {
-  flake.library.storage.layouts = {
+  flake.library.storageLayouts = {
 
     erase-my-darlings = {
 

@@ -1,5 +1,5 @@
 _: {
-  flake.library.storage.query =
+  flake.library.storageQuery =
     { lib, ... }:
 
     let
@@ -7,9 +7,7 @@ _: {
         attrByPath
         attrNames
         attrValues
-        filter
         hasAttr
-        map
         ;
 
       #

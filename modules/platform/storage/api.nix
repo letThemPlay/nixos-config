@@ -103,18 +103,45 @@ _: {
             backend-specific configuration.
           '';
         };
-
         persistence = {
 
-          directories = mkOption {
-            type = types.listOf types.str;
-            default = [ ];
+          policy = mkOption {
+            type = types.attrsOf (
+              types.submodule {
+                options = {
+
+                  directories = mkOption {
+                    type = types.listOf types.str;
+                    default = [ ];
+
+                    description = ''
+                      Directories to preserve on this storage volume.
+                    '';
+                  };
+
+                  files = mkOption {
+                    type = types.listOf types.str;
+                    default = [ ];
+
+                    description = ''
+                      Files to preserve on this storage volume.
+                    '';
+                  };
+
+                };
+              }
+            );
+
+            default = { };
+
+            description = ''
+              Persistence policy grouped by storage volume identifier.
+
+              Each attribute name must refer to a volume defined in
+              storage.volumes.
+            '';
           };
 
-          files = mkOption {
-            type = types.listOf types.str;
-            default = [ ];
-          };
         };
       };
     };

@@ -1,5 +1,5 @@
 _: {
-  flake.library.storage.normalize =
+  flake.library.storageNormalize =
     {
       config,
       lib,
@@ -12,15 +12,15 @@ _: {
         recursiveUpdate
         ;
 
-      inherit (config.flake.library.storage)
-        layouts
+      inherit (config.flake.library)
+        storageLayouts
         ;
     in
 
     cfg:
 
     let
-      layout = layouts.${cfg.layout};
+      layout = storageLayouts.${cfg.layout};
 
       mergedVolumes = recursiveUpdate layout.volumes cfg.volumes;
 
@@ -50,5 +50,7 @@ _: {
       backend = cfg.backend;
 
       volumes = normalizedVolumes;
+
+      persistence = cfg.persistence;
     };
 }

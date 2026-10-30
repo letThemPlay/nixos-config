@@ -1,6 +1,6 @@
-_: {
-  flake.library.storage.types =
-    { lib, ... }:
+{ lib, ... }:
+{
+  flake.library.storageTypes =
     let
       inherit (lib) mkOption types;
     in
@@ -64,13 +64,13 @@ _: {
             };
 
             backend = mkOption {
-              type = types.nullOr backend;
+              type = types.nullOr types.str;
               default = null;
 
               description = ''
                 Optional backend override.
 
-                When null the backend is inherited from the storage
+                When null, the backend is inherited from the storage
                 model during normalization.
               '';
             };
@@ -131,6 +131,30 @@ _: {
           };
         }
       );
+
+      persistence = types.submodule {
+        options = {
+
+          directories = mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+
+            description = ''
+              Directories to preserve on this storage volume.
+            '';
+          };
+
+          files = mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+
+            description = ''
+              Files to preserve on this storage volume.
+            '';
+          };
+
+        };
+      };
 
       layout = types.submodule {
         options = {
@@ -229,7 +253,7 @@ _: {
           };
 
           backend = mkOption {
-            type = backend;
+            type = types.str;
 
             description = ''
               Normalized storage backend.
@@ -249,8 +273,21 @@ _: {
             '';
           };
 
+          persistence = mkOption {
+            type = types.attrsOf persistence;
+            default = { };
+
+            description = ''
+              Persistence policy grouped by storage volume identifier.
+
+              Each attribute name must refer to a volume defined in
+              the storage model.
+            '';
+          };
+
         };
       };
 
     };
+
 }

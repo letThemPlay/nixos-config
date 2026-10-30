@@ -1,5 +1,5 @@
 _: {
-  flake.library.storage.validate =
+  flake.library.storageValidate =
     {
       config,
       lib,
@@ -171,6 +171,53 @@ _: {
             ]
         );
 
+      persistence =
+        model:
+
+        let
+          persistenceVolumeIds = builtins.attrNames model.persistence;
+
+          volumeIds = builtins.attrNames model.volumes;
+
+          unknownPersistenceVolumes = subtractLists persistenceVolumeIds volumeIds;
+
+          unmountedPersistenceVolumes = filter (
+            volume: volume.mountpoint == null && builtins.hasAttr volume.id model.persistence
+          ) (builtins.attrValues model.volumes);
+        in
+
+        mkResult (
+          (map (
+            volumeId:
+            mkDiagnostic {
+              severity = "error";
+              code = "storage.persistence.volume.unknown";
+              target = volumeId;
+              path = [
+                "persistence"
+                volumeId
+              ];
+              message = "Persistence policy references unknown volume '${volumeId}'.";
+            }
+          ) unknownPersistenceVolumes)
+
+          ++
+
+            (map (
+              volume:
+              mkDiagnostic {
+                severity = "error";
+                code = "storage.persistence.volume.unmounted";
+                target = volume.id;
+                path = [
+                  "persistence"
+                  volume.id
+                ];
+                message = "Persistence policy references volume '${volume.id}', which has no mountpoint.";
+              }
+            ) unmountedPersistenceVolumes)
+        );
+
       all =
         model:
 
@@ -180,10 +227,12 @@ _: {
             (uniqueRoles model)
             (uniqueMountpoints model)
             (backend model)
+            (persistence model)
           ];
         in
 
         mkResult (concatLists (map (v: v.diagnostics) validations));
 
     };
+
 }

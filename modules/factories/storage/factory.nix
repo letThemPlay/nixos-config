@@ -1,5 +1,5 @@
 _: {
-  flake.library.storage =
+  flake.factory.storage =
     {
       config,
       ...

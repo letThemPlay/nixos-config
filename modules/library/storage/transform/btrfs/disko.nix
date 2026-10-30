@@ -1,5 +1,5 @@
 _: {
-  flake.library.storage.transform.btrfs.disko =
+  flake.library.storageTransformBtrfsDisko =
     {
       lib,
       ...
@@ -17,7 +17,9 @@ _: {
       inherit (input)
         model
         device
+        boot
         encryption
+        filesystem
         ;
 
       volumes = filterAttrs (_: volume: volume.mountpoint != null) model.volumes;
@@ -29,10 +31,15 @@ _: {
         }
       ) volumes;
 
-      filesystem = {
+      btrfsFilesystem = {
         type = "btrfs";
 
         subvolumes = subvolumes;
+
+        extraArgs = [
+          "-f"
+        ];
+
       };
 
       encryptedFilesystem =
@@ -46,13 +53,12 @@ _: {
               allowDiscards = encryption.allowDiscards;
             };
 
-            content = filesystem;
+            content = btrfsFilesystem;
           }
         else
-          filesystem;
+          btrfsFilesystem;
 
     in
-
     {
       type = "disk";
 
@@ -62,8 +68,9 @@ _: {
         type = "gpt";
 
         partitions = {
+
           ESP = {
-            size = "1G";
+            size = boot.efiSize;
 
             type = "EF00";
 
@@ -79,6 +86,7 @@ _: {
 
             content = encryptedFilesystem;
           };
+
         };
       };
     };

@@ -28,6 +28,9 @@
         inputs.self.nixosModules.secrets
         inputs.self.nixosModules.zsh
         inputs.self.nixosModules.shell-utilities
+
+        inputs.self.nixosModules.storage
+        inputs.self.nixosModules.storage-api
       ];
 
       laptop = [
