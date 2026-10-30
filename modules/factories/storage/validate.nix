@@ -1,16 +1,7 @@
-_: {
+{ lib, ... }:
+{
   flake.library.storageValidate =
-    {
-      config,
-      lib,
-      ...
-    }:
-
     let
-      inherit (config.flake.library.storage)
-        types
-        ;
-
       inherit (lib)
         concatLists
         filter

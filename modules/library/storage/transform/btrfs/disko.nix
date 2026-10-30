@@ -1,10 +1,6 @@
-_: {
+{ lib, ... }:
+{
   flake.library.storageTransformBtrfsDisko =
-    {
-      lib,
-      ...
-    }:
-
     input:
 
     let

@@ -1,10 +1,6 @@
-_: {
+{ lib, ... }:
+{
   flake.library.storageTransformBtrfsPreservation =
-    {
-      lib,
-      ...
-    }:
-
     { model }:
 
     let

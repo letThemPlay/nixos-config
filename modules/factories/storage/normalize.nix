@@ -1,11 +1,6 @@
-_: {
+{ config, lib, ... }:
+{
   flake.library.storageNormalize =
-    {
-      config,
-      lib,
-      ...
-    }:
-
     let
       inherit (lib)
         mapAttrs

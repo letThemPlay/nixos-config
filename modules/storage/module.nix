@@ -1,4 +1,8 @@
-{ inputs, ... }: {
+{ config, ... }:
+let
+  storage = config.flake.factory.storage;
+in
+{
   flake.nixosModules.storage =
     {
       config,
@@ -8,8 +12,6 @@
 
     let
       cfg = config.ohmydarlings.storage;
-
-      storage = inputs.self.factory.storage;
 
       model = storage.normalize cfg;
 

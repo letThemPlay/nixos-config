@@ -1,7 +1,6 @@
-_: {
+{ lib, ... }:
+{
   flake.library.storageQuery =
-    { lib, ... }:
-
     let
       inherit (lib)
         attrByPath

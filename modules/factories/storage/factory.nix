@@ -1,10 +1,6 @@
-_: {
+{ config, ... }:
+{
   flake.factory.storage =
-    {
-      config,
-      ...
-    }:
-
     let
       inherit (config.flake.library.storage)
         layouts

@@ -1,18 +1,16 @@
-_: {
+{ config, ... }:
+let
+  storage = config.flake.library.storage;
+in
+{
   flake.nixosModules.storage-api =
-    {
-      config,
-      lib,
-      ...
-    }:
+    { lib, ... }:
     let
       inherit (lib)
         mkEnableOption
         mkOption
         types
         ;
-
-      storage = config.flake.library.storage;
     in
     {
       options.ohmydarlings.storage = {
