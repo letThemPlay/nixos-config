@@ -267,6 +267,16 @@
             '';
           };
 
+          stateRole = mkOption {
+            type = types.str;
+            default = "persist";
+
+            description = ''
+              Role of the volume that receives feature-declared
+              persistence.state entries.
+            '';
+          };
+
           volumes = mkOption {
             type = types.attrsOf volume;
             default = { };
@@ -343,6 +353,14 @@
                   '';
                 };
 
+                stateRole = mkOption {
+                  type = types.str;
+
+                  description = ''
+                    Role of the volume that receives persistence.state.
+                  '';
+                };
+
               };
             };
 
@@ -389,6 +407,16 @@
 
               Each attribute name must refer to a volume defined in
               the storage model.
+            '';
+          };
+
+          unassignedState = mkOption {
+            type = types.nullOr persistence;
+            default = null;
+
+            description = ''
+              Feature-declared persistence.state entries when no volume
+              has the layout's stateRole. Reported by validation.
             '';
           };
 

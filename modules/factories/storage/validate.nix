@@ -273,6 +273,25 @@
           })
         );
 
+      #
+      # Feature-declared state needs a volume with the layout's stateRole.
+      #
+      state =
+        model:
+
+        mkResult (
+          optional (model.unassignedState != null) (mkDiagnostic {
+            severity = "error";
+            code = "storage.persistence.state.unassigned";
+            target = model.layout.stateRole;
+            path = [
+              "persistence"
+              "state"
+            ];
+            message = "persistence.state has entries but no volume has role '${model.layout.stateRole}'.";
+          })
+        );
+
       all =
         model:
 
@@ -286,6 +305,7 @@
             (persistence model)
             (rollback model)
             (disk model)
+            (state model)
           ];
         in
 

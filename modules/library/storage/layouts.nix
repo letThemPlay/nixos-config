@@ -19,6 +19,12 @@ _: {
         "snapshots"
       ];
 
+      #
+      # Role of the volume that receives ohmydarlings.storage.persistence.state,
+      # the entries features declare without knowing this layout's volumes.
+      #
+      stateRole = "persist";
+
       volumes = {
 
         root = {
@@ -116,6 +122,10 @@ _: {
       #
       # System state that must survive the root rollback.
       #
+      # Generic operating system state only. Features declare their own
+      # state through ohmydarlings.storage.persistence.state, so this
+      # layout does not need to know which services a host runs.
+      #
       # /home is its own persistent volume and needs no entries.
       # machine-id and user database plumbing is added by the
       # preservation transform.
@@ -126,9 +136,6 @@ _: {
 
           directories = [
             "/var/log"
-            "/var/lib/bluetooth"
-            "/var/lib/NetworkManager"
-            "/etc/secureboot"
             "/var/lib/systemd/coredump"
             "/var/lib/systemd/rfkill"
             "/var/lib/systemd/timers"
@@ -139,33 +146,14 @@ _: {
             }
           ];
 
-          files =
-            #
-            # Host keys are symlinked in initrd so agenix can decrypt
-            # secrets during activation.
-            #
-            map
-              (file: {
-                inherit file;
-                how = "symlink";
-                inInitrd = true;
-                configureParent = true;
-              })
-              [
-                "/etc/ssh/ssh_host_ed25519_key"
-                "/etc/ssh/ssh_host_ed25519_key.pub"
-                "/etc/ssh/ssh_host_rsa_key"
-                "/etc/ssh/ssh_host_rsa_key.pub"
-              ]
-
-            ++ [
-              {
-                file = "/var/lib/systemd/random-seed";
-                how = "symlink";
-                inInitrd = true;
-                configureParent = true;
-              }
-            ];
+          files = [
+            {
+              file = "/var/lib/systemd/random-seed";
+              how = "symlink";
+              inInitrd = true;
+              configureParent = true;
+            }
+          ];
 
         };
 

@@ -52,6 +52,11 @@
             };
           };
         };
+
+        # Known networks and their passphrases.
+        ohmydarlings.storage.persistence.state.directories = lib.mkIf config.ohmydarlings.storage.enable [
+          "/var/lib/iwd"
+        ];
       };
     };
 }

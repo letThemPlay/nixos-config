@@ -60,7 +60,29 @@ in
             storageModule
           ];
 
-          ohmydarlings.storage = settings;
+          ohmydarlings.storage = settings // {
+            #
+            # Stand-ins for what features declare: a state directory and
+            # the SSH host key (the secrets feature is not part of this
+            # minimal system).
+            #
+            persistence.state = {
+              directories = [ "/var/lib/feature-state" ];
+
+              files =
+                map
+                  (file: {
+                    inherit file;
+                    how = "symlink";
+                    inInitrd = true;
+                    configureParent = true;
+                  })
+                  [
+                    "/etc/ssh/ssh_host_ed25519_key"
+                    "/etc/ssh/ssh_host_ed25519_key.pub"
+                  ];
+            };
+          };
 
           services.openssh.enable = true;
 
@@ -107,6 +129,7 @@ in
               machine.succeed("test -L /etc/ssh/ssh_host_ed25519_key")
               machine.succeed("findmnt /var/log")
               machine.succeed("findmnt /var/lib/userborn")
+              machine.succeed("findmnt /var/lib/feature-state")
 
           with subtest("userborn reads the password hash from /persist"):
               machine.succeed("grep -qF 'alice:${passwordHash}:' /etc/shadow")
@@ -118,7 +141,7 @@ in
           host_key = machine.succeed("cat /etc/ssh/ssh_host_ed25519_key.pub").strip()
           assert len(machine_id) == 32, f"machine-id not committed: {machine_id!r}"
 
-          machine.succeed("touch /etc/ephemeral-marker /persist/persist-marker /home/home-marker /var/log/log-marker")
+          machine.succeed("touch /etc/ephemeral-marker /persist/persist-marker /home/home-marker /var/log/log-marker /var/lib/feature-state/marker")
           machine.succeed("sync")
 
           machine = reboot(machine, "second_boot")
@@ -133,6 +156,7 @@ in
               machine.succeed("test -e /persist/persist-marker")
               machine.succeed("test -e /home/home-marker")
               machine.succeed("test -e /var/log/log-marker")
+              machine.succeed("test -e /var/lib/feature-state/marker")
 
           with subtest("identity is stable"):
               assert machine.succeed("cat /etc/machine-id").strip() == machine_id

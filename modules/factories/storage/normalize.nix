@@ -3,12 +3,24 @@
   flake.library.storageNormalize =
     let
       inherit (lib)
+        attrValues
+        concatMap
+        filter
         mapAttrs
+        optionalAttrs
+        zipAttrsWith
         ;
 
       inherit (config.flake.library)
         storageLayouts
         ;
+
+      mergePolicies = zipAttrsWith (
+        _: policies: {
+          directories = concatMap (policy: policy.directories) policies;
+          files = concatMap (policy: policy.files) policies;
+        }
+      );
     in
 
     #
@@ -30,6 +42,8 @@
           requiredRoles = [ ];
         };
 
+      stateRole = layout.stateRole or "persist";
+
       backend = cfg.filesystem.type;
 
       normalizedVolumes = mapAttrs (
@@ -42,6 +56,18 @@
         }
       ) cfg.volumes;
 
+      #
+      # Feature-declared state goes to the volume with the layout's
+      # stateRole; without one it is kept aside for validation.
+      #
+      stateVolumes = filter (volume: volume.role == stateRole) (attrValues normalizedVolumes);
+
+      inherit (cfg.persistence) state;
+
+      hasState = state.directories != [ ] || state.files != [ ];
+
+      stateTarget = if stateVolumes == [ ] then null else (builtins.head stateVolumes).id;
+
     in
     {
       version = 1;
@@ -49,7 +75,7 @@
       layout = {
         name = cfg.layout;
 
-        inherit known;
+        inherit known stateRole;
 
         version = layout.version or 1;
 
@@ -65,7 +91,12 @@
 
       volumes = normalizedVolumes;
 
-      persistence = cfg.persistence.policy;
+      persistence = mergePolicies [
+        cfg.persistence.policy
+        (optionalAttrs (hasState && stateTarget != null) { ${stateTarget} = state; })
+      ];
+
+      unassignedState = if hasState && stateTarget == null then state else null;
 
       inherit (cfg) rollback;
 

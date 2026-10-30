@@ -12,6 +12,8 @@
 
       secureBoot = cfg.secureBoot.enabled or false;
       tpmUnlock = cfg.tpmUnlock.enabled or false;
+
+      pkiBundle = "/var/lib/sbctl";
     in
     {
       imports = [
@@ -35,10 +37,20 @@
 
           lanzaboote = lib.mkIf secureBoot {
             enable = true;
-            pkiBundle = "/var/lib/sbctl";
+            inherit pkiBundle;
             configurationLimit = 5;
           };
         };
+
+        #
+        # Secure Boot keys; losing them leaves the machine unable to sign
+        # new generations. Uses this module's own values: reading
+        # config.boot.lanzaboote here would loop through the storage
+        # module, which consumes persistence.state.
+        #
+        ohmydarlings.storage.persistence.state.directories = lib.mkIf (
+          config.ohmydarlings.storage.enable && secureBoot
+        ) [ pkiBundle ];
       };
     };
 }

@@ -130,6 +130,43 @@ let
       expected = false;
     };
 
+    testStateRoutedToStateVolume = {
+      expr =
+        let
+          model = modelOf {
+            persistence.state = {
+              directories = [ "/var/lib/feature" ];
+              files = [ "/etc/feature.conf" ];
+            };
+          };
+        in
+        {
+          directory = lib.elem "/var/lib/feature" model.persistence.persist.directories;
+          file = lib.elem "/etc/feature.conf" model.persistence.persist.files;
+          keepsLayoutDefaults = lib.elem "/var/log" model.persistence.persist.directories;
+          inherit (model) unassignedState;
+        };
+      expected = {
+        directory = true;
+        file = true;
+        keepsLayoutDefaults = true;
+        unassignedState = null;
+      };
+    };
+
+    testEmptyStateLeavesModelUnchanged = {
+      expr = (modelOf { }).unassignedState;
+      expected = null;
+    };
+
+    testStateWithoutStateVolumeIsReported = {
+      expr = lib.elem "storage.persistence.state.unassigned" (codes {
+        volumes.persist.role = "other";
+        persistence.state.directories = [ "/var/lib/feature" ];
+      });
+      expected = true;
+    };
+
     #
     # validate
     #

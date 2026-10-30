@@ -190,6 +190,25 @@ in
             '';
           };
 
+          state = mkOption {
+            type = storage.types.persistence;
+
+            default = { };
+
+            example = {
+              directories = [ "/var/lib/bluetooth" ];
+            };
+
+            description = ''
+              State a feature needs to survive reboots, without naming a
+              volume. Merged into the volume whose role is the layout's
+              stateRole ("persist" for erase-my-darlings).
+
+              Features should set this only when storage is enabled:
+              `lib.mkIf config.ohmydarlings.storage.enable { ... }`.
+            '';
+          };
+
         };
       };
 
