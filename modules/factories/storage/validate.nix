@@ -8,9 +8,10 @@
         flatten
         groupBy
         map
+        hasPrefix
         mapAttrsToList
+        optional
         subtractLists
-        unique
         ;
 
       duplicateStrings =
@@ -162,51 +163,114 @@
             ]
         );
 
+      layout =
+        model:
+
+        mkResult (
+          optional (!model.layout.known) (mkDiagnostic {
+            severity = "error";
+            code = "storage.layout.unknown";
+            target = model.layout.name;
+            path = [ "layout" ];
+            message = "Unknown storage layout '${model.layout.name}'.";
+          })
+        );
+
+      #
+      # Each persistence target must be a mounted, boot-critical volume
+      # that survives reboots.
+      #
       persistence =
         model:
 
         let
-          persistenceVolumeIds = builtins.attrNames model.persistence;
+          check =
+            volumeId: _:
 
-          volumeIds = builtins.attrNames model.volumes;
+            let
+              volume = model.volumes.${volumeId} or null;
 
-          unknownPersistenceVolumes = subtractLists persistenceVolumeIds volumeIds;
+              diagnostic =
+                code: message:
+                mkDiagnostic {
+                  severity = "error";
+                  inherit code message;
+                  target = volumeId;
+                  path = [
+                    "persistence"
+                    volumeId
+                  ];
+                };
+            in
 
-          unmountedPersistenceVolumes = filter (
-            volume: volume.mountpoint == null && builtins.hasAttr volume.id model.persistence
-          ) (builtins.attrValues model.volumes);
+            if volume == null then
+              [
+                (diagnostic "storage.persistence.volume.unknown" "Persistence policy references unknown volume '${volumeId}'.")
+              ]
+            else
+              optional (volume.mountpoint == null) (
+                diagnostic "storage.persistence.volume.unmounted" "Persistence policy references volume '${volumeId}', which has no mountpoint."
+              )
+
+              ++ optional volume.rollback (
+                diagnostic "storage.persistence.volume.rollback" "Persistence policy references volume '${volumeId}', which is erased on every boot."
+              )
+
+              ++ optional (volume.mountpoint != null && !volume.neededForBoot) (
+                diagnostic "storage.persistence.volume.lateMount" "Persistence policy references volume '${volumeId}', which is not neededForBoot."
+              );
+        in
+
+        mkResult (concatLists (mapAttrsToList check model.persistence));
+
+      #
+      # Rollback recreates volumes from a template snapshot.
+      #
+      rollback =
+        model:
+
+        let
+          rollbackVolumes = filter (v: v.rollback) (builtins.attrValues model.volumes);
+
+          templates = filter (v: v.category == "template") (builtins.attrValues model.volumes);
         in
 
         mkResult (
-          (map (
-            volumeId:
-            mkDiagnostic {
-              severity = "error";
-              code = "storage.persistence.volume.unknown";
-              target = volumeId;
-              path = [
-                "persistence"
-                volumeId
-              ];
-              message = "Persistence policy references unknown volume '${volumeId}'.";
-            }
-          ) unknownPersistenceVolumes)
+          optional (rollbackVolumes != [ ] && templates == [ ]) (mkDiagnostic {
+            severity = "error";
+            code = "storage.rollback.template.missing";
+            target = model.layout.name;
+            path = [ "volumes" ];
+            message = "Volumes marked for rollback require a volume with category 'template'.";
+          })
 
-          ++
+          ++ optional (builtins.length templates > 1) (mkDiagnostic {
+            severity = "error";
+            code = "storage.rollback.template.ambiguous";
+            target = model.layout.name;
+            path = [ "volumes" ];
+            message = "Only one volume with category 'template' may be defined.";
+          })
+        );
 
-            (map (
-              volume:
-              mkDiagnostic {
-                severity = "error";
-                code = "storage.persistence.volume.unmounted";
-                target = volume.id;
-                path = [
-                  "persistence"
-                  volume.id
-                ];
-                message = "Persistence policy references volume '${volume.id}', which has no mountpoint.";
-              }
-            ) unmountedPersistenceVolumes)
+      disk =
+        model:
+
+        let
+          device = model.platform.disk;
+        in
+
+        mkResult (
+          optional (!hasPrefix "/dev/disk/by-" device) (mkDiagnostic {
+            severity = "warning";
+            code = "storage.disk.unstable";
+            target = device;
+            path = [
+              "platform"
+              "disk"
+            ];
+            message = "Disk '${device}' is not a stable /dev/disk/by-* path.";
+          })
         );
 
       all =
@@ -214,11 +278,14 @@
 
         let
           validations = [
+            (layout model)
             (requiredRoles model)
             (uniqueRoles model)
             (uniqueMountpoints model)
             (backend model)
             (persistence model)
+            (rollback model)
+            (disk model)
           ];
         in
 

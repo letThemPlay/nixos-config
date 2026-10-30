@@ -23,13 +23,19 @@ in
 
       errors = map (diagnostic: {
         assertion = false;
-        message = diagnostic.message;
+        message = "ohmydarlings.storage [${diagnostic.code}]: ${diagnostic.message}";
       }) validation.errors;
+
+      warnings = map (
+        diagnostic: "ohmydarlings.storage [${diagnostic.code}]: ${diagnostic.message}"
+      ) validation.warnings;
     in
     {
       config = lib.mkIf cfg.enable {
 
         assertions = errors;
+
+        inherit warnings;
 
         #        preservation = preservation;
       };
