@@ -1,6 +1,6 @@
 { config, inputs, ... }:
 let
-  storage = config.flake.factory.storage;
+  storage = config.flake.library.storage;
 in
 {
   flake.nixosModules.storage =

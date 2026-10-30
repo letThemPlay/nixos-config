@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  storage = config.flake.factory.storage;
+  storage = config.flake.library.storage;
 
   inherit (config.flake.nixosModules) storage-api;
 
@@ -60,6 +60,29 @@ let
   noRootRollback = {
     volumes.root.rollback = false;
   };
+
+  # Settings covering the optional parts of the model.
+  contractCases = [
+    { }
+    noRootRollback
+    {
+      swap.enable = true;
+      encryption.enable = true;
+      volumes.data.mountpoint = "/data";
+      persistence.policy.persist.files = [ "/etc/extra" ];
+      persistence.state.directories = [
+        {
+          directory = "/var/lib/feature";
+          mode = "0700";
+        }
+      ];
+    }
+    {
+      # unassignedState populated
+      volumes.persist.role = "other";
+      persistence.state.directories = [ "/var/lib/feature" ];
+    }
+  ];
 
   tests = pkgs: {
 
@@ -215,6 +238,41 @@ let
         category = "state";
         mountpoint = "/data";
       };
+    };
+
+    # The documented model type is the contract between normalize and
+    # its consumers: every normalized model must type-check against it.
+    testModelContract = {
+      expr = map (
+        settings:
+        let
+          checked =
+            (lib.evalModules {
+              modules = [
+                { options.model = lib.mkOption { type = storage.types.model; }; }
+                { model = modelOf settings; }
+              ];
+            }).config.model;
+        in
+        builtins.deepSeq checked true
+      ) contractCases;
+      expected = map (_: true) contractCases;
+    };
+
+    testUnsupportedLayoutVersion = {
+      expr =
+        let
+          model = modelOf { };
+        in
+        codesOf (
+          model
+          // {
+            layout = model.layout // {
+              version = 2;
+            };
+          }
+        );
+      expected = [ "storage.layout.version.unsupported" ];
     };
 
     testLayoutDefaultsCanBeDisabled = {
