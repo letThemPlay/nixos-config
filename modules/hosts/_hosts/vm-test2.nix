@@ -8,14 +8,12 @@
     "vm"
     "window-management"
     "core-apps"
-    "impermanence"
   ];
 
   users = [ "kelvin" ];
 
   extraModules = [
-    inputs.disko.nixosModules.disko
-    (inputs.self + "/disko/disko-btrfs.nix")
     (inputs.self + "/modules/hosts/_hosts/_settings/vm-test.nix")
+    (inputs.self + "/modules/hosts/_hosts/_settings/vm-test2.nix")
   ];
 }

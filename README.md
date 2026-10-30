@@ -34,20 +34,26 @@ Move this file into your workspace tree under your common hardware paths:
 Use code with caution.modules/hosts/_common/hardware-.nix
 ---
 
-## 💾 Step 2: Provision Storage Layout Pools via Disko
+## 💾 Step 2: Configure Storage
 
-If your machine utilizes your existing stateless Btrfs layout, you do not need to create a new storage blueprint file. 
+Storage is rendered by the `ohmydarlings.storage` subsystem (part of the `base` feature). The default `erase-my-darlings` layout creates the disko partitions, Btrfs subvolumes, the initrd rollback of `/` and the preservation rules for system state. `/home` is a persistent subvolume.
 
-Verify your target storage drive layout path string using `lsblk` (e.g., `/dev/nvme0n1`). If it differs, create a new layout module entry under `modules/system/` (e.g., `disko-btrfs-secondary.nix`) wrapping it inside your standard **`config` block input**:
+Find a stable path for the target drive with `ls -l /dev/disk/by-id` and put the host's storage settings in `modules/hosts/_hosts/_settings/<new-host>.nix`:
 
 ```nix
-{ pkgs, ... }: {
-  config = {
-    disko.enableConfig = true;
-    boot.initrd.systemd.enable = true;
-    boot.initrd.systemd.services.rollback.after = [ "dev-disk-by\\x2dpartlabel-disk\\x2dmain2\\x2dbtrfs.device" ];
-    
-    disko.devices.disk.main.device = "/dev/nvme1n1";
+_: {
+  ohmydarlings.storage = {
+    enable = true;
+
+    disk = "/dev/disk/by-id/nvme-Samsung_990_PRO_...";
+
+    # Optional
+    encryption.enable = true;
+    swap.enable = true;
+    swap.size = "16G";
+
+    # Extra state to keep across reboots
+    persistence.policy.persist.directories = [ "/var/lib/tailscale" ];
   };
 }
 ```
@@ -59,7 +65,7 @@ Verify your target storage drive layout path string using `lsblk` (e.g., `/dev/n
 Create your clean, declarative host datasheet profile sheet under **`modules/hosts/_hosts/<new-host>.nix`**. Your file contains **zero hardcoded path blocks** or relative directory walks:
 
 ```nix
-_: {
+{ inputs, ... }: {
   hostName = "laptop-x1";
   architecture = "x86_64-linux";
   stateVersion = "26.05";
@@ -67,12 +73,15 @@ _: {
   features = [
     "base"
     "laptop"
-    "windows-manager"
+    "window-management"
     "core-apps"
-    "impermanence"
   ];
 
   users = [ "kelvin" ];
+
+  extraModules = [
+    (inputs.self + "/modules/hosts/_hosts/_settings/laptop-x1.nix")
+  ];
 }
 ```
 
@@ -104,7 +113,15 @@ From your **NixOS Live Installer terminal window** on the target computer machin
 nix run github:nix-community/disko/latest -- --mode disko --flake "github:Kelvin/my-dendritic-flake#laptop-x1"
 ```
 
-Once Disko confirms your storage datasets are structured and cleanly mounted under `/mnt`, trigger your core stateless system compilation install pass:
+Once Disko confirms your storage datasets are structured and cleanly mounted under `/mnt`, create a password hash for every user. `/etc` is wiped on every boot, so passwords are declarative and read from the persist volume (agenix cannot be used here: it decrypts after userborn creates the users):
+
+```zsh
+mkdir -p /mnt/persist/secrets/passwords
+mkpasswd -m yescrypt > /mnt/persist/secrets/passwords/kelvin
+chmod 0400 /mnt/persist/secrets/passwords/kelvin
+```
+
+Then trigger your core stateless system compilation install pass:
 
 ```zsh
 # 🚀 2. INSTALL DEPLOYMENT RUN:
