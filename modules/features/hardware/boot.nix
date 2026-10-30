@@ -8,10 +8,11 @@
     }:
     let
       hostName = config.networking.hostName;
-      cfg = config.registry.hosts.${hostName}.boot or { };
+      # Host datasheets set `featureConfig.boot = { secureBoot = true; ... }`.
+      cfg = config.registry.hosts.${hostName}.featureConfig.boot or { };
 
-      secureBoot = cfg.secureBoot.enabled or false;
-      tpmUnlock = cfg.tpmUnlock.enabled or false;
+      secureBoot = cfg.secureBoot or false;
+      tpmUnlock = cfg.tpmUnlock or false;
 
       pkiBundle = "/var/lib/sbctl";
     in
