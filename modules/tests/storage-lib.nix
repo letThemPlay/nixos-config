@@ -328,24 +328,34 @@ let
     #
 
     testPreserveAtKeyedByMountpoint = {
-      expr = lib.attrNames (preservationOf { }).preservation.preserveAt;
+      expr = lib.attrNames (preservationOf { }).preserveAt;
       expected = [ "/persist" ];
     };
 
     testUnsetSettingsStripped = {
       expr =
         lib.findFirst (entry: entry.directory or null == "/var/lib/nixos") null
-          (preservationOf { }).preservation.preserveAt."/persist".directories;
+          (preservationOf { }).preserveAt."/persist".directories;
       expected = {
         directory = "/var/lib/nixos";
         inInitrd = true;
       };
     };
 
-    # Identity and user policy live in the ephemeral-identity feature.
-    testPreservationRendersOnlyPreservation = {
+    # Plain data only; identity and user policy live in the
+    # ephemeral-identity feature.
+    testPreservationIsPlainData = {
       expr = lib.attrNames (preservationOf { });
-      expected = [ "preservation" ];
+      expected = [ "preserveAt" ];
+    };
+
+    testRollbackIsPlainData = {
+      expr = lib.attrNames (rollbackOf pkgs { });
+      expected = [
+        "active"
+        "script"
+        "service"
+      ];
     };
 
     testFeatureStateRendered = {
@@ -354,7 +364,7 @@ let
         lib.elem "/var/lib/feature"
           (preservationOf {
             persistence.state.directories = [ "/var/lib/feature" ];
-          }).preservation.preserveAt."/persist".directories;
+          }).preserveAt."/persist".directories;
       expected = true;
     };
 
@@ -364,7 +374,7 @@ let
 
     testRollbackOrdering = {
       expr = {
-        inherit ((rollbackOf pkgs { }).services.storage-rollback.content) requires after before;
+        inherit ((rollbackOf pkgs { }).service) requires after before;
       };
       expected = {
         requires = [ "dev-disk-by\\x2dpartlabel-disk\\x2dmain\\x2droot.device" ];
@@ -377,12 +387,12 @@ let
     };
 
     testRollbackEncryptedDevice = {
-      expr = (rollbackOf pkgs { encryption.enable = true; }).services.storage-rollback.content.requires;
+      expr = (rollbackOf pkgs { encryption.enable = true; }).service.requires;
       expected = [ "dev-mapper-cryptroot.device" ];
     };
 
     testRollbackInactiveWithoutRollbackVolumes = {
-      expr = (rollbackOf pkgs noRootRollback).services.storage-rollback.condition;
+      expr = (rollbackOf pkgs noRootRollback).active;
       expected = false;
     };
 

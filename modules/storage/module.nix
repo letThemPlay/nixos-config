@@ -108,13 +108,25 @@ in
                 )
               );
 
-              boot.initrd.systemd = mkMerge [
-                rollback
-                { enable = true; }
-              ];
-            }
+              #
+              # Transforms return plain data; the attribute names are
+              # fixed here and conditions stay inside mkIf, because the
+              # module system needs the names before config is known.
+              #
+              boot.initrd.systemd = {
+                enable = true;
 
-            preservation
+                storePaths = mkIf rollback.active [ rollback.script ];
+
+                services.storage-rollback = mkIf rollback.active rollback.service;
+              };
+
+              preservation = {
+                enable = preservation.preserveAt != { };
+
+                inherit (preservation) preserveAt;
+              };
+            }
 
           ]))
 

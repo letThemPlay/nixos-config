@@ -4,7 +4,6 @@
     let
       inherit (lib)
         concatMapStrings
-        mkIf
         optionalString
         ;
 
@@ -12,8 +11,8 @@
     in
 
     #
-    # Produces boot.initrd.systemd configuration that recreates every
-    # rollback volume from the template volume before /sysroot mounts.
+    # Describes an initrd service that recreates every rollback volume
+    # from the template volume before /sysroot mounts.
     #
     # rootDevice is the btrfs block device from the disko transform.
     #
@@ -105,20 +104,19 @@
         '';
       };
 
-      active = volumes != [ ];
-
     in
 
     #
-    # Keys are fixed and conditions sit inside mkIf: the module system
-    # must know the attribute names before the model can be evaluated.
+    # Plain data: whether a rollback is needed, the script and the
+    # initrd unit. The storage module decides how to apply it.
+    # service and script are only meaningful when active is true.
     #
     {
-      enable = mkIf active true;
+      active = volumes != [ ];
 
-      storePaths = mkIf active [ script ];
+      inherit script;
 
-      services.storage-rollback = mkIf active {
+      service = {
         description = "Reset ephemeral btrfs subvolumes from ${template.name}";
 
         wantedBy = [ "initrd.target" ];

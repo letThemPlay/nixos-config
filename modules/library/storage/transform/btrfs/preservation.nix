@@ -17,14 +17,15 @@
     in
 
     #
-    # Produces NixOS configuration for nix-community/preservation.
+    # Produces the nix-community/preservation preserveAt set as plain
+    # data; the storage module applies it.
     #
     # model.persistence already contains layout, host and
     # feature-declared entries, grouped by volume.
     #
     { model }:
 
-    let
+    {
       preserveAt = mapAttrs' (
         volumeId: policy:
 
@@ -37,13 +38,5 @@
           files = map clean policy.files;
         }
       ) model.persistence;
-
-    in
-    {
-      preservation = {
-        enable = preserveAt != { };
-
-        inherit preserveAt;
-      };
     };
 }
