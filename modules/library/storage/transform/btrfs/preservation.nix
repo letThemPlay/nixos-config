@@ -3,7 +3,6 @@
   flake.library.storageTransformBtrfsPreservation =
     let
       inherit (lib)
-        any
         concatMap
         filterAttrs
         isString
@@ -38,15 +37,13 @@
     { model }:
 
     let
-      persist = query.byRole model "persist";
+      persist = query.stateVolume model;
 
       #
       # With an ephemeral root, /etc is recreated on every boot, so the
       # machine identity and user database must be preserved explicitly.
       #
-      ephemeralRoot = any (volume: volume.mountpoint == "/") (query.rollback model);
-
-      essentials = ephemeralRoot && persist != null;
+      essentials = query.ephemeralRoot model && persist != null;
 
       essentialPolicy = optionalAttrs essentials {
         ${persist.id} = {

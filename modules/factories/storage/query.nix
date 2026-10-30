@@ -83,5 +83,35 @@
           ]
         );
 
+      #
+      # Derived Facts
+      #
+      # Single source for layout-independent facts. These read only
+      # model.volumes and model.layout, never model.persistence, so
+      # modules may use them in conditions on persistence.state.
+      #
+
+      # The volume that receives feature-declared state, or null.
+      stateVolume = model: byRole model model.layout.stateRole;
+
+      # The rollback template volume, or null.
+      template =
+        model:
+        let
+          matches = byCategory model "template";
+        in
+        if matches == [ ] then null else builtins.head matches;
+
+      # The volume holding pre-rollback archives, or null.
+      snapshotVolume =
+        model:
+        let
+          matches = byCategory model "snapshot";
+        in
+        if matches == [ ] then null else builtins.head matches;
+
+      # True when / is recreated on every boot.
+      ephemeralRoot = model: builtins.any (volume: volume.mountpoint == "/") (rollback model);
+
     };
 }

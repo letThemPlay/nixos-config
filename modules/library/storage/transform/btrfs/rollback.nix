@@ -27,11 +27,9 @@
     let
       volumes = query.rollback model;
 
-      template = builtins.head (query.byCategory model "template");
+      template = query.template model;
 
-      snapshotVolumes = query.byCategory model "snapshot";
-
-      snapshotRoot = if snapshotVolumes == [ ] then null else builtins.head snapshotVolumes;
+      snapshotRoot = query.snapshotVolume model;
 
       inherit (model.rollback) keepSnapshots;
 

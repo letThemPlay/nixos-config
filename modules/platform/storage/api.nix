@@ -114,6 +114,37 @@ in
 
         };
 
+        #
+        # Read-only facts derived from the model, published for other
+        # features. They depend only on volumes, never on persistence,
+        # so features may use them in conditions on persistence.state.
+        #
+        facts = {
+
+          ephemeralRoot = mkOption {
+            type = types.bool;
+            readOnly = true;
+
+            description = ''
+              Whether / is recreated on every boot. Set by the storage
+              module; false when storage is disabled.
+            '';
+          };
+
+          statePath = mkOption {
+            type = types.nullOr types.str;
+            readOnly = true;
+
+            example = "/persist";
+
+            description = ''
+              Mountpoint of the volume that receives persistence.state,
+              or null when there is none or storage is disabled.
+            '';
+          };
+
+        };
+
         passwordDirectory = mkOption {
           type = types.nullOr types.str;
           default = null;

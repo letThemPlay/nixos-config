@@ -1,7 +1,9 @@
-{ lib, ... }:
+{ config, lib, ... }:
 {
   flake.library.storageValidate =
     let
+      query = config.flake.library.storageQuery;
+
       inherit (lib)
         concatLists
         filter
@@ -230,9 +232,9 @@
         model:
 
         let
-          rollbackVolumes = filter (v: v.rollback) (builtins.attrValues model.volumes);
+          rollbackVolumes = query.rollback model;
 
-          templates = filter (v: v.category == "template") (builtins.attrValues model.volumes);
+          templates = query.byCategory model "template";
         in
 
         mkResult (

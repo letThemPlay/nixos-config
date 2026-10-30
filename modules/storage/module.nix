@@ -14,7 +14,6 @@ in
 
     let
       inherit (lib)
-        any
         filter
         filterAttrs
         listToAttrs
@@ -47,9 +46,9 @@ in
 
       preservation = transform.preservation { inherit model; };
 
-      persist = storage.query.byRole model "persist";
+      persist = storage.query.stateVolume model;
 
-      ephemeralRoot = any (volume: volume.mountpoint == "/") (storage.query.rollback model);
+      ephemeralRoot = storage.query.ephemeralRoot model;
 
       passwordDirectory =
         if cfg.passwordDirectory != null then
@@ -70,62 +69,80 @@ in
         inputs.preservation.nixosModules.default
       ];
 
-      config = mkIf cfg.enable (mkMerge [
+      config = mkMerge [
 
+        #
+        # The read-only facts get exactly one definition on every host.
+        # They read only volumes and never sit behind the validation.ok
+        # guard: validation reads persistence.state, which features may
+        # define conditionally on these facts.
+        #
         {
-          #
-          # A host that still defines its own fileSystems."/" (e.g. from
-          # nixos-generate-config) fails with the module system's
-          # conflicting-definition error, which names both files.
-          #
-          assertions = errors;
+          ohmydarlings.storage.facts = {
+            ephemeralRoot = cfg.enable && ephemeralRoot;
 
-          warnings = map format validation.warnings;
+            statePath = if cfg.enable && persist != null then persist.mountpoint else null;
+          };
         }
 
-        #
-        # Rendering only runs on a valid model; invalid models stop at
-        # the assertions above with a readable diagnostic.
-        #
-        (mkIf validation.ok (mkMerge [
+        (mkIf cfg.enable (mkMerge [
 
           {
-            disko.devices = disko.devices;
-
             #
-            # disko does not set neededForBoot; preservation and the
-            # rollback need these volumes mounted in initrd.
+            # A host that still defines its own fileSystems."/" (e.g. from
+            # nixos-generate-config) fails with the module system's
+            # conflicting-definition error, which names both files.
             #
-            fileSystems = listToAttrs (
-              map (volume: nameValuePair volume.mountpoint { neededForBoot = true; }) (
-                filter (volume: volume.mountpoint != null) (storage.query.neededForBoot model)
-              )
-            );
+            assertions = errors;
 
-            boot.initrd.systemd = mkMerge [
-              rollback
-              { enable = true; }
-            ];
+            warnings = map format validation.warnings;
           }
 
-          preservation
-
           #
-          # With an ephemeral /etc, password changes made at runtime are
-          # lost. Users are declarative and read their hash from the
-          # persist volume; mutableUsers = false also enables the NixOS
-          # assertion that a wheel user or root has a password.
+          # Rendering only runs on a valid model; invalid models stop at
+          # the assertions above with a readable diagnostic.
           #
-          (mkIf (ephemeralRoot && persist != null) {
-            users.mutableUsers = false;
+          (mkIf validation.ok (mkMerge [
 
-            users.users = mapAttrs (username: _: {
-              hashedPasswordFile = mkDefault "${passwordDirectory}/${username}";
-            }) (filterAttrs (_: profile: profile.enable) (config.users.profiles or { }));
-          })
+            {
+              disko.devices = disko.devices;
+
+              #
+              # disko does not set neededForBoot; preservation and the
+              # rollback need these volumes mounted in initrd.
+              #
+              fileSystems = listToAttrs (
+                map (volume: nameValuePair volume.mountpoint { neededForBoot = true; }) (
+                  filter (volume: volume.mountpoint != null) (storage.query.neededForBoot model)
+                )
+              );
+
+              boot.initrd.systemd = mkMerge [
+                rollback
+                { enable = true; }
+              ];
+            }
+
+            preservation
+
+            #
+            # With an ephemeral /etc, password changes made at runtime are
+            # lost. Users are declarative and read their hash from the
+            # persist volume; mutableUsers = false also enables the NixOS
+            # assertion that a wheel user or root has a password.
+            #
+            (mkIf (ephemeralRoot && persist != null) {
+              users.mutableUsers = false;
+
+              users.users = mapAttrs (username: _: {
+                hashedPasswordFile = mkDefault "${passwordDirectory}/${username}";
+              }) (filterAttrs (_: profile: profile.enable) (config.users.profiles or { }));
+            })
+
+          ]))
 
         ]))
 
-      ]);
+      ];
     };
 }

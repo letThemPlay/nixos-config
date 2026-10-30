@@ -168,6 +168,41 @@ let
     };
 
     #
+    # query: derived facts
+    #
+
+    testDerivedFacts = {
+      expr =
+        let
+          model = modelOf { };
+        in
+        {
+          stateVolume = (storage.query.stateVolume model).id;
+          template = (storage.query.template model).id;
+          snapshotVolume = (storage.query.snapshotVolume model).id;
+          ephemeralRoot = storage.query.ephemeralRoot model;
+        };
+      expected = {
+        stateVolume = "persist";
+        template = "blank";
+        snapshotVolume = "snapshots";
+        ephemeralRoot = true;
+      };
+    };
+
+    testPersistentRootIsNotEphemeral = {
+      expr = storage.query.ephemeralRoot (modelOf noRootRollback);
+      expected = false;
+    };
+
+    testNoStateVolume = {
+      expr = storage.query.stateVolume (modelOf {
+        volumes.persist.role = "other";
+      });
+      expected = null;
+    };
+
+    #
     # validate
     #
 
