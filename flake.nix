@@ -50,6 +50,8 @@
     };
 
     impermanence.url = "github:nix-community/impermanence";
+
+    preservation.url = "github:nix-community/preservation";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);

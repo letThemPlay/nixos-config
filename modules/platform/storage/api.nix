@@ -28,6 +28,12 @@ in
       # An unknown layout contributes no volumes; validation reports it.
       #
       layoutVolumes = storage.layouts.${cfg.layout}.volumes or { };
+
+      #
+      # Layout persistence is merged at normal priority so host entries
+      # extend the defaults. Use mkForce on a list to replace it.
+      #
+      layoutPersistence = storage.layouts.${cfg.layout}.persistence or { };
     in
     {
       options.ohmydarlings.storage = {
@@ -172,6 +178,8 @@ in
 
       config = mkIf cfg.enable {
         ohmydarlings.storage.volumes = mapAttrs (_: mapAttrs (_: mkDefault)) layoutVolumes;
+
+        ohmydarlings.storage.persistence.policy = layoutPersistence;
       };
     };
 }

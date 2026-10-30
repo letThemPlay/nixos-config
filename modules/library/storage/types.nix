@@ -141,11 +141,84 @@
         }
       );
 
+      #
+      # A preserved path: either a plain absolute path or an attrset with
+      # renderer-specific settings. Typed settings default to null so
+      # renderers only receive what was set explicitly; unknown keys are
+      # passed through untouched.
+      #
+      persistenceEntry =
+        kind:
+        types.either types.str (
+          types.submodule {
+            freeformType = types.attrsOf types.anything;
+
+            options = {
+
+              ${kind} = mkOption {
+                type = types.str;
+
+                description = ''
+                  Absolute path to preserve.
+                '';
+              };
+
+              how = mkOption {
+                type = types.nullOr (
+                  types.enum [
+                    "bindmount"
+                    "symlink"
+                  ]
+                );
+                default = null;
+
+                description = ''
+                  Whether the path is bind-mounted or symlinked.
+                '';
+              };
+
+              inInitrd = mkOption {
+                type = types.nullOr types.bool;
+                default = null;
+
+                description = ''
+                  Prepare this path in initrd, before NixOS activation.
+                '';
+              };
+
+              configureParent = mkOption {
+                type = types.nullOr types.bool;
+                default = null;
+
+                description = ''
+                  Create the parent directory on the persistent volume.
+                '';
+              };
+
+              user = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+              };
+
+              group = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+              };
+
+              mode = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+              };
+
+            };
+          }
+        );
+
       persistence = types.submodule {
         options = {
 
           directories = mkOption {
-            type = types.listOf types.str;
+            type = types.listOf (persistenceEntry "directory");
             default = [ ];
 
             description = ''
@@ -154,7 +227,7 @@
           };
 
           files = mkOption {
-            type = types.listOf types.str;
+            type = types.listOf (persistenceEntry "file");
             default = [ ];
 
             description = ''
@@ -200,6 +273,15 @@
 
             description = ''
               Canonical volume definitions supplied by the layout.
+            '';
+          };
+
+          persistence = mkOption {
+            type = types.attrsOf persistence;
+            default = { };
+
+            description = ''
+              Default persistence policy, merged with host policy.
             '';
           };
 

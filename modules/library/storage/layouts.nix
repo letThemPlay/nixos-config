@@ -113,6 +113,64 @@ _: {
 
       };
 
+      #
+      # System state that must survive the root rollback.
+      #
+      # /home is its own persistent volume and needs no entries.
+      # machine-id and user database plumbing is added by the
+      # preservation transform.
+      #
+      persistence = {
+
+        persist = {
+
+          directories = [
+            "/var/log"
+            "/var/lib/bluetooth"
+            "/var/lib/NetworkManager"
+            "/etc/secureboot"
+            "/var/lib/systemd/coredump"
+            "/var/lib/systemd/rfkill"
+            "/var/lib/systemd/timers"
+
+            {
+              directory = "/var/lib/nixos";
+              inInitrd = true;
+            }
+          ];
+
+          files =
+            #
+            # Host keys are symlinked in initrd so agenix can decrypt
+            # secrets during activation.
+            #
+            map
+              (file: {
+                inherit file;
+                how = "symlink";
+                inInitrd = true;
+                configureParent = true;
+              })
+              [
+                "/etc/ssh/ssh_host_ed25519_key"
+                "/etc/ssh/ssh_host_ed25519_key.pub"
+                "/etc/ssh/ssh_host_rsa_key"
+                "/etc/ssh/ssh_host_rsa_key.pub"
+              ]
+
+            ++ [
+              {
+                file = "/var/lib/systemd/random-seed";
+                how = "symlink";
+                inInitrd = true;
+                configureParent = true;
+              }
+            ];
+
+        };
+
+      };
+
     };
 
   };
