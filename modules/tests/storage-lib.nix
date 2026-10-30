@@ -130,6 +130,100 @@ let
       expected = false;
     };
 
+    # normalize is a plain function: no module system needed, and it
+    # agrees with the result through the NixOS options.
+    testNormalizeWithoutModuleSystem = {
+      expr =
+        let
+          plain = storage.normalize {
+            layout = "erase-my-darlings";
+            renderer = "disko";
+            disk = "/dev/disk/by-id/test";
+            filesystem = {
+              type = "btrfs";
+              compression = "zstd";
+            };
+            boot.efiSize = "1G";
+            swap = {
+              enable = false;
+              size = "1G";
+            };
+            encryption = {
+              enable = false;
+              label = "cryptroot";
+              allowDiscards = true;
+              passwordFile = null;
+            };
+            rollback.keepSnapshots = 5;
+            volumes.home.mountpoint = "/data";
+            persistence = {
+              layoutDefaults = true;
+              policy = { };
+              state = {
+                directories = [ ];
+                files = [ ];
+              };
+            };
+          };
+
+          viaOptions = modelOf { volumes.home.mountpoint = "/data"; };
+        in
+        {
+          volumes = plain.volumes == viaOptions.volumes;
+          persistence = plain.persistence == viaOptions.persistence;
+          home = plain.volumes.home.mountpoint;
+        };
+      expected = {
+        volumes = true;
+        persistence = true;
+        home = "/data";
+      };
+    };
+
+    testOverrideAddsNewVolume = {
+      expr = {
+        inherit ((modelOf { volumes.data.mountpoint = "/data"; }).volumes.data)
+          role
+          name
+          category
+          mountpoint
+          ;
+      };
+      expected = {
+        role = "data";
+        name = "@data";
+        category = "state";
+        mountpoint = "/data";
+      };
+    };
+
+    testLayoutDefaultsCanBeDisabled = {
+      expr =
+        (modelOf {
+          persistence.layoutDefaults = false;
+          persistence.policy.persist.directories = [ "/var/lib/only" ];
+        }).persistence.persist.directories;
+      expected = [ "/var/lib/only" ];
+    };
+
+    # Layouts are plain data; check them against the entity type.
+    testLayoutsTypeCheck = {
+      expr = lib.mapAttrs (
+        _: layout:
+        let
+          evaluated =
+            (lib.evalModules {
+              modules = [
+                { options.layout = lib.mkOption { type = storage.types.layout; }; }
+                { inherit layout; }
+              ];
+            }).config.layout;
+        in
+        builtins.deepSeq evaluated true
+      ) storage.layouts;
+      expected = lib.mapAttrs (_: _: true) storage.layouts;
+    };
+
     testStateRoutedToStateVolume = {
       expr =
         let

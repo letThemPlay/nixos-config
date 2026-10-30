@@ -3,37 +3,18 @@ let
   storage = config.flake.library.storage;
 in
 {
+  #
+  # Options only. Merging the layout with host settings is a domain rule
+  # and happens in normalize.
+  #
   flake.nixosModules.storage-api =
-    {
-      config,
-      lib,
-      ...
-    }:
+    { lib, ... }:
     let
       inherit (lib)
-        mapAttrs
-        mkDefault
         mkEnableOption
-        mkIf
         mkOption
         types
         ;
-
-      cfg = config.ohmydarlings.storage;
-
-      #
-      # Layout volumes are injected as mkDefault definitions so hosts
-      # override individual fields instead of whole volumes.
-      #
-      # An unknown layout contributes no volumes; validation reports it.
-      #
-      layoutVolumes = storage.layouts.${cfg.layout}.volumes or { };
-
-      #
-      # Layout persistence is merged at normal priority so host entries
-      # extend the defaults. Use mkForce on a list to replace it.
-      #
-      layoutPersistence = storage.layouts.${cfg.layout}.persistence or { };
     in
     {
       options.ohmydarlings.storage = {
@@ -174,22 +155,33 @@ in
         };
 
         volumes = mkOption {
-          type = types.attrsOf storage.types.volume;
+          type = types.attrsOf storage.types.volumeOverride;
 
           default = { };
 
+          example = {
+            home.mountpoint = "/data";
+          };
+
           description = ''
-            Canonical filesystem model.
-
-            Defaults to the volumes of the selected layout. Individual
-            fields may be overridden per host.
-
-            Storage backends consume this model to produce
-            backend-specific configuration.
+            Per-host volume overrides, merged over the selected layout's
+            volumes. Only fields that are set replace the layout value;
+            an attribute that is not in the layout adds a new volume.
           '';
         };
 
         persistence = {
+
+          layoutDefaults = mkOption {
+            type = types.bool;
+            default = true;
+
+            description = ''
+              Whether the layout's default persistence policy is
+              included. Host policy and feature-declared state are
+              always added.
+            '';
+          };
 
           policy = mkOption {
             type = types.attrsOf storage.types.persistence;
@@ -197,10 +189,10 @@ in
             default = { };
 
             description = ''
-              Persistence policy grouped by storage volume identifier.
+              Host persistence policy grouped by storage volume
+              identifier, added to the layout's default policy.
 
-              Each attribute name must refer to a volume defined in
-              storage.volumes.
+              Each attribute name must refer to a volume of the model.
             '';
           };
 
@@ -224,12 +216,6 @@ in
           };
 
         };
-      };
-
-      config = mkIf cfg.enable {
-        ohmydarlings.storage.volumes = mapAttrs (_: mapAttrs (_: mkDefault)) layoutVolumes;
-
-        ohmydarlings.storage.persistence.policy = layoutPersistence;
       };
     };
 }

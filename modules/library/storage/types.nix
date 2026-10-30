@@ -2,7 +2,7 @@
 {
   flake.library.storageTypes =
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mapAttrs mkOption types;
     in
     rec {
       severity = types.enum [
@@ -14,6 +14,123 @@
       backend = types.enum [
         "btrfs"
       ];
+
+      #
+      # Volume fields, declared once. `volume` is the full entity used by
+      # layouts and the model; `volumeOverride` is the host-facing
+      # partial form where null means "not set". normalize merges
+      # volumeDefaults <- layout volume <- override.
+      #
+      volumeFields = {
+
+        role = {
+          type = types.str;
+
+          description = ''
+            Semantic role of this filesystem object.
+
+            Renderers should identify important volumes by role
+            rather than by attribute name.
+          '';
+        };
+
+        category = {
+          type = types.enum [
+            "system"
+            "state"
+            "store"
+            "user"
+            "snapshot"
+            "template"
+            "runtime"
+          ];
+
+          description = ''
+            Classification of the data stored by this volume.
+          '';
+        };
+
+        backend = {
+          type = types.nullOr types.str;
+
+          description = ''
+            Optional backend override.
+
+            When null, the backend is inherited from the storage
+            model during normalization.
+          '';
+        };
+
+        name = {
+          type = types.str;
+
+          description = ''
+            Backend-specific identifier.
+
+            Examples include:
+
+            • Btrfs subvolumes
+            • ZFS datasets
+            • LVM logical volumes
+          '';
+        };
+
+        mountpoint = {
+          type = types.nullOr types.str;
+
+          description = ''
+            Filesystem mountpoint.
+
+            Null indicates this volume is not mounted directly.
+          '';
+        };
+
+        mountOptions = {
+          type = types.listOf types.str;
+
+          description = ''
+            Additional mount options appended to the backend defaults.
+          '';
+        };
+
+        neededForBoot = {
+          type = types.bool;
+
+          description = ''
+            Indicates this volume must be mounted during early boot.
+          '';
+        };
+
+        snapshot = {
+          type = types.bool;
+
+          description = ''
+            Indicates this volume participates in snapshot creation.
+          '';
+        };
+
+        rollback = {
+          type = types.bool;
+
+          description = ''
+            Indicates this volume participates in rollback.
+          '';
+        };
+
+      };
+
+      # Defaults for a volume with the given identifier.
+      volumeDefaults = id: {
+        role = id;
+        category = "state";
+        backend = null;
+        name = "@${id}";
+        mountpoint = null;
+        mountOptions = [ ];
+        neededForBoot = false;
+        snapshot = false;
+        rollback = false;
+      };
 
       volume = types.submodule (
         { name, ... }:
@@ -33,113 +150,32 @@
               '';
             };
 
-            role = mkOption {
-              type = types.str;
-              default = name;
-
-              description = ''
-                Semantic role of this filesystem object.
-
-                Renderers should identify important volumes by role
-                rather than by attribute name.
-              '';
-            };
-
-            category = mkOption {
-              type = types.enum [
-                "system"
-                "state"
-                "store"
-                "user"
-                "snapshot"
-                "template"
-                "runtime"
-              ];
-
-              default = "state";
-
-              description = ''
-                Classification of the data stored by this volume.
-              '';
-            };
-
-            backend = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-
-              description = ''
-                Optional backend override.
-
-                When null, the backend is inherited from the storage
-                model during normalization.
-              '';
-            };
-
-            name = mkOption {
-              type = types.str;
-              default = "@${name}";
-
-              description = ''
-                Backend-specific identifier.
-
-                Examples include:
-
-                • Btrfs subvolumes
-                • ZFS datasets
-                • LVM logical volumes
-              '';
-            };
-
-            mountpoint = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-
-              description = ''
-                Filesystem mountpoint.
-
-                Null indicates this volume is not mounted directly.
-              '';
-            };
-
-            mountOptions = mkOption {
-              type = types.listOf types.str;
-              default = [ ];
-
-              description = ''
-                Additional mount options appended to the backend defaults.
-              '';
-            };
-
-            neededForBoot = mkOption {
-              type = types.bool;
-              default = false;
-
-              description = ''
-                Indicates this volume must be mounted during early boot.
-              '';
-            };
-
-            snapshot = mkOption {
-              type = types.bool;
-              default = false;
-
-              description = ''
-                Indicates this volume participates in snapshot creation.
-              '';
-            };
-
-            rollback = mkOption {
-              type = types.bool;
-              default = false;
-
-              description = ''
-                Indicates this volume participates in rollback.
-              '';
-            };
-
-          };
+          }
+          // mapAttrs (
+            field: spec:
+            mkOption {
+              inherit (spec) type description;
+              default = (volumeDefaults name).${field};
+            }
+          ) volumeFields;
         }
       );
+
+      #
+      # Host override of a layout volume, or a new volume. Only fields
+      # that are set (non-null) replace the layout value; a layout
+      # volume therefore cannot be un-mounted by an override.
+      #
+      volumeOverride = types.submodule {
+        options = mapAttrs (
+          _: spec:
+          mkOption {
+            type = types.nullOr spec.type;
+            default = null;
+            inherit (spec) description;
+          }
+        ) volumeFields;
+      };
 
       #
       # A preserved path: either a plain absolute path or an attrset with

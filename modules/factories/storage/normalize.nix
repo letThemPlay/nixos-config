@@ -3,32 +3,39 @@
   flake.library.storageNormalize =
     let
       inherit (lib)
+        attrNames
         attrValues
         concatMap
         filter
-        mapAttrs
+        filterAttrs
+        genAttrs
         optionalAttrs
+        unique
         zipAttrsWith
         ;
 
       inherit (config.flake.library)
         storageLayouts
+        storageTypes
         ;
 
+      # Layout policies are plain data and may omit either list.
       mergePolicies = zipAttrsWith (
         _: policies: {
-          directories = concatMap (policy: policy.directories) policies;
-          files = concatMap (policy: policy.files) policies;
+          directories = concatMap (policy: policy.directories or [ ]) policies;
+          files = concatMap (policy: policy.files or [ ]) policies;
         }
       );
+
+      # An override only replaces the fields it sets.
+      setFields = filterAttrs (_: value: value != null);
     in
 
     #
-    # cfg is the evaluated ohmydarlings.storage option set.
-    #
-    # Layout volumes have already been merged into cfg.volumes by the
-    # module system, so normalization only resolves inheritance and
-    # gathers platform settings.
+    # cfg is the ohmydarlings.storage option set, or any attrset of the
+    # same shape: layout, filesystem.type, volumes (partial overrides),
+    # persistence.{layoutDefaults,policy,state}, renderer, rollback and
+    # the platform settings. No module system is required.
     #
     cfg:
 
@@ -46,15 +53,30 @@
 
       backend = cfg.filesystem.type;
 
-      normalizedVolumes = mapAttrs (
-        id: volume:
+      layoutVolumes = layout.volumes or { };
+
+      #
+      # defaults <- layout volume <- host override. An attribute that
+      # exists only in the overrides adds a new volume. An unknown
+      # layout contributes nothing; validation reports it.
+      #
+      normalizedVolumes = genAttrs (unique (attrNames layoutVolumes ++ attrNames cfg.volumes)) (
+        id:
+        let
+          volume =
+            storageTypes.volumeDefaults id
+            // (layoutVolumes.${id} or { })
+            // setFields (cfg.volumes.${id} or { });
+        in
         volume
         // {
           inherit id;
 
           backend = if volume.backend == null then backend else volume.backend;
         }
-      ) cfg.volumes;
+      );
+
+      layoutPolicy = if cfg.persistence.layoutDefaults then layout.persistence or { } else { };
 
       #
       # Feature-declared state goes to the volume with the layout's
@@ -92,6 +114,7 @@
       volumes = normalizedVolumes;
 
       persistence = mergePolicies [
+        layoutPolicy
         cfg.persistence.policy
         (optionalAttrs (hasState && stateTarget != null) { ${stateTarget} = state; })
       ];
