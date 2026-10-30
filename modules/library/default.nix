@@ -1,10 +1,15 @@
 { lib, ... }:
 {
   options.flake.library = lib.mkOption {
-    type = lib.types.attrsOf lib.types.anything;
+    #
+    # raw: values are stored untouched. `anything` would wrap functions
+    # and merge their results, resolving mkIf/mkMerge returned by
+    # library functions at call time instead of in the consumer.
+    #
+    type = lib.types.lazyAttrsOf lib.types.raw;
 
     default = { };
 
-    description = "Custom library functions merged across modules.";
+    description = "Custom library functions, one definition per attribute.";
   };
 }

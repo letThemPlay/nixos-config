@@ -4,6 +4,7 @@
     let
       inherit (lib)
         concatMapStrings
+        mkIf
         optionalString
         ;
 
@@ -106,39 +107,42 @@
         '';
       };
 
+      active = volumes != [ ];
+
     in
 
-    if volumes == [ ] then
-      { }
-    else
-      {
-        enable = true;
+    #
+    # Keys are fixed and conditions sit inside mkIf: the module system
+    # must know the attribute names before the model can be evaluated.
+    #
+    {
+      enable = mkIf active true;
 
-        storePaths = [ script ];
+      storePaths = mkIf active [ script ];
 
-        services.storage-rollback = {
-          description = "Reset ephemeral btrfs subvolumes from ${template.name}";
+      services.storage-rollback = mkIf active {
+        description = "Reset ephemeral btrfs subvolumes from ${template.name}";
 
-          wantedBy = [ "initrd.target" ];
+        wantedBy = [ "initrd.target" ];
 
-          requires = [ deviceUnit ];
+        requires = [ deviceUnit ];
 
-          after = [
-            deviceUnit
+        after = [
+          deviceUnit
 
-            # Resuming from hibernation must see the untouched root.
-            "systemd-hibernate-resume.service"
-          ];
+          # Resuming from hibernation must see the untouched root.
+          "systemd-hibernate-resume.service"
+        ];
 
-          before = [ "sysroot.mount" ];
+        before = [ "sysroot.mount" ];
 
-          unitConfig.DefaultDependencies = false;
+        unitConfig.DefaultDependencies = false;
 
-          serviceConfig = {
-            Type = "oneshot";
+        serviceConfig = {
+          Type = "oneshot";
 
-            ExecStart = "${script}/bin/storage-rollback";
-          };
+          ExecStart = "${script}/bin/storage-rollback";
         };
       };
+    };
 }

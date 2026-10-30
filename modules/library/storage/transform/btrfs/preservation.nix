@@ -8,6 +8,7 @@
         filterAttrs
         isString
         mapAttrs'
+        mkIf
         nameValuePair
         optionalAttrs
         zipAttrsWith
@@ -86,21 +87,23 @@
       ) policies;
 
     in
+
+    #
+    # Keys are fixed and conditions sit inside mkIf: the module system
+    # must know the attribute names before the model can be evaluated.
+    #
     {
       preservation = {
         enable = preserveAt != { };
 
         inherit preserveAt;
       };
-    }
-
-    // optionalAttrs essentials {
 
       #
       # userborn keeps passwd, group and shadow in its preserved state
       # directory and links them into /etc.
       #
-      services.userborn = {
+      services.userborn = mkIf essentials {
         enable = true;
 
         passwordFilesLocation = userbornState;
@@ -111,12 +114,13 @@
       # ConditionFirstBoot holds, then commit the generated ID to the
       # persistent volume instead of /etc.
       #
-      boot.initrd.systemd.tmpfiles.settings.preservation."/sysroot${persist.mountpoint}/etc/machine-id".f =
-        {
+      boot.initrd.systemd.tmpfiles.settings.preservation = mkIf essentials {
+        "/sysroot${persist.mountpoint}/etc/machine-id".f = {
           argument = "uninitialized";
         };
+      };
 
-      systemd.services.systemd-machine-id-commit = {
+      systemd.services.systemd-machine-id-commit = mkIf essentials {
         unitConfig.ConditionPathIsMountPoint = [
           ""
           "${persist.mountpoint}/etc/machine-id"
