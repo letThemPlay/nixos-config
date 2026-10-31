@@ -10,7 +10,10 @@
 # assembled library itself, so the parts can refer to each other
 # without global names.
 #
-{ lib, ... }:
+{ config, lib, ... }:
+let
+  inherit (config.flake.library) diagnostics;
+in
 {
   flake.library.storage = lib.fix (storage: {
 
@@ -22,7 +25,7 @@
 
     query = import ./_usecases/query.nix { inherit lib; };
 
-    validate = import ./_usecases/validate.nix { inherit lib storage; };
+    validate = import ./_usecases/validate.nix { inherit lib storage diagnostics; };
 
     #
     # Backend registry. The keys are the valid values of
