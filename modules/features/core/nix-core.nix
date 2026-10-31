@@ -1,14 +1,10 @@
-{ inputs, findFilesWithExt, ... }: {
+_: {
   flake.nixosModules.nix-core =
     { config, pkgs, ... }:
     let
       inherit (config.networking) hostName;
-
-      schemaFiles = findFilesWithExt "nix" "${inputs.self}/modules/_schemas";
     in
     {
-      imports = schemaFiles;
-
       config = {
 
         # Rebuild this host from the flake in the current directory.

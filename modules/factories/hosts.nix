@@ -52,17 +52,6 @@
 
           nixpkgs.hostPlatform = lib.mkDefault architecture;
 
-          registry.hosts.${hostName} = {
-            inherit
-              hostName
-              architecture
-              stateVersion
-              features
-              users
-              extraModules
-              ;
-          };
-
           ltp.identity = {
             users = lib.genAttrs users (_: {
               enable = true;
