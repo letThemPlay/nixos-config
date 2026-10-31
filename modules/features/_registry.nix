@@ -11,8 +11,6 @@
     modules.features.registry = {
       tailscale = [ inputs.self.nixosModules.tailscale ];
       gpg = [ inputs.self.nixosModules.gpg ];
-      nextdns = [ inputs.self.nixosModules.nextdns ];
-      controld-dns = [ inputs.self.nixosModules.controld ];
       nvidia = [ inputs.self.nixosModules.nvidia-graphics ];
       gaming = [ inputs.self.nixosModules.steam-gaming ];
 
@@ -21,6 +19,7 @@
         inputs.self.nixosModules.boot
         inputs.self.nixosModules.nix-core
         inputs.self.nixosModules.network
+        inputs.self.nixosModules.network-api
         inputs.self.nixosModules.security
         inputs.self.nixosModules.users
         inputs.self.nixosModules.stylix
@@ -42,7 +41,6 @@
 
       vm = [
         inputs.self.nixosModules.proxmox-qemu
-        inputs.self.nixosModules.wired
         inputs.self.nixosModules.audio
       ];
 

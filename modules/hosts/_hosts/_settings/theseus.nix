@@ -1,4 +1,6 @@
 _: {
+  ltp.network.profile = "laptop";
+
   ltp.stylixOverrides = {
     cursorSize = 32;
     fontSize = {
