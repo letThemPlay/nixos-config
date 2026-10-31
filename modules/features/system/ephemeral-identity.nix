@@ -12,19 +12,19 @@ _: {
     let
       inherit (lib) mkIf mkOption types;
 
-      inherit (config.ohmydarlings.storage) facts;
+      inherit (config.ltp.storage) facts;
 
       active = facts.ephemeralRoot && facts.statePath != null;
 
       userbornState = "/var/lib/userborn";
     in
     {
-      options.ohmydarlings.identity.passwordDirectory = mkOption {
+      options.ltp.identity.passwordDirectory = mkOption {
         type = types.nullOr types.str;
 
         default = if active then "${facts.statePath}/secrets/passwords" else null;
 
-        defaultText = lib.literalExpression ''"''${config.ohmydarlings.storage.facts.statePath}/secrets/passwords" on an ephemeral root, otherwise null'';
+        defaultText = lib.literalExpression ''"''${config.ltp.storage.facts.statePath}/secrets/passwords" on an ephemeral root, otherwise null'';
 
         description = ''
           Directory holding one hashed password file per user profile,
@@ -37,7 +37,7 @@ _: {
 
       config = mkIf active {
 
-        ohmydarlings.storage.persistence.state = {
+        ltp.storage.persistence.state = {
           directories = [
             {
               directory = userbornState;

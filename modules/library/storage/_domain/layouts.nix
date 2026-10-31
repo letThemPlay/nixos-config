@@ -19,7 +19,7 @@ _: {
     ];
 
     #
-    # Role of the volume that receives ohmydarlings.storage.persistence.state,
+    # Role of the volume that receives ltp.storage.persistence.state,
     # the entries features declare without knowing this layout's volumes.
     #
     stateRole = "persist";
@@ -122,7 +122,7 @@ _: {
     # System state that must survive the root rollback.
     #
     # Generic operating system state only. Features declare their own
-    # state through ohmydarlings.storage.persistence.state, so this
+    # state through ltp.storage.persistence.state, so this
     # layout does not need to know which services a host runs.
     #
     # /home is its own persistent volume and needs no entries.

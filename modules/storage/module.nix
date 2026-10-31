@@ -22,7 +22,7 @@ in
         nameValuePair
         ;
 
-      cfg = config.ohmydarlings.storage;
+      cfg = config.ltp.storage;
 
       model = storage.normalize cfg;
 
@@ -62,7 +62,7 @@ in
 
       ephemeralRoot = storage.query.ephemeralRoot model;
 
-      format = diagnostic: "ohmydarlings.storage [${diagnostic.code}]: ${diagnostic.message}";
+      format = diagnostic: "ltp.storage [${diagnostic.code}]: ${diagnostic.message}";
 
       errors = map (diagnostic: {
         assertion = false;
@@ -77,11 +77,11 @@ in
         # Kept here rather than in storage-api: it needs NixOS assertions.
         (lib.mkRemovedOptionModule
           [
-            "ohmydarlings"
+            "ltp"
             "storage"
             "renderer"
           ]
-          "disko is the only renderer; select the filesystem backend with ohmydarlings.storage.filesystem.type."
+          "disko is the only renderer; select the filesystem backend with ltp.storage.filesystem.type."
         )
       ];
 
@@ -94,7 +94,7 @@ in
         # define conditionally on these facts.
         #
         {
-          ohmydarlings.storage.facts = {
+          ltp.storage.facts = {
             ephemeralRoot = cfg.enable && ephemeralRoot;
 
             statePath = if cfg.enable && persist != null then persist.mountpoint else null;

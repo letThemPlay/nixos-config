@@ -21,7 +21,7 @@
         # Uses the local list: reading config.age here would loop
         # through the storage module, which consumes persistence.state.
         #
-        ohmydarlings.storage.persistence.state.files = lib.mkIf config.ohmydarlings.storage.enable (
+        ltp.storage.persistence.state.files = lib.mkIf config.ltp.storage.enable (
           map (file: {
             inherit file;
             how = "symlink";

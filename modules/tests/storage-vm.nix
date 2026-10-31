@@ -33,9 +33,9 @@ in
         (lib.evalModules {
           modules = [
             storage-api
-            { ohmydarlings.storage = settings; }
+            { ltp.storage = settings; }
           ];
-        }).config.ohmydarlings.storage;
+        }).config.ltp.storage;
 
       disko = storage.backends.btrfs.disko { model = storage.normalize cfg; };
     in
@@ -63,7 +63,7 @@ in
             identityModule
           ];
 
-          ohmydarlings.storage = settings // {
+          ltp.storage = settings // {
             #
             # Stand-ins for what features declare: a state directory and
             # the SSH host key (the secrets feature is not part of this

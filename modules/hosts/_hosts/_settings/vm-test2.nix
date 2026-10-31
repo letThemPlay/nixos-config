@@ -1,5 +1,5 @@
 _: {
-  ohmydarlings.storage = {
+  ltp.storage = {
     enable = true;
 
     disk = "/dev/vda";

@@ -14,14 +14,14 @@ let
       modules = [
         storage-api
         {
-          ohmydarlings.storage = {
+          ltp.storage = {
             enable = true;
             disk = "/dev/disk/by-id/test";
           };
         }
-        { ohmydarlings.storage = settings; }
+        { ltp.storage = settings; }
       ];
-    }).config.ohmydarlings.storage;
+    }).config.ltp.storage;
 
   modelOf = settings: storage.normalize (evalCfg settings);
 

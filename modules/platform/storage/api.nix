@@ -17,7 +17,7 @@ in
         ;
     in
     {
-      options.ohmydarlings.storage = {
+      options.ltp.storage = {
 
         enable = mkEnableOption "Oh My Darlings storage subsystem";
 
@@ -200,7 +200,7 @@ in
               stateRole ("persist" for erase-my-darlings).
 
               Features should set this only when storage is enabled:
-              `lib.mkIf config.ohmydarlings.storage.enable { ... }`.
+              `lib.mkIf config.ltp.storage.enable { ... }`.
             '';
           };
 

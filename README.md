@@ -36,13 +36,13 @@ Use code with caution.modules/hosts/_common/hardware-.nix
 
 ## 💾 Step 2: Configure Storage
 
-Storage is rendered by the `ohmydarlings.storage` subsystem (part of the `base` feature). The default `erase-my-darlings` layout creates the disko partitions, Btrfs subvolumes, the initrd rollback of `/` and the preservation rules for system state. `/home` is a persistent subvolume.
+Storage is rendered by the `ltp.storage` subsystem (part of the `base` feature). The default `erase-my-darlings` layout creates the disko partitions, Btrfs subvolumes, the initrd rollback of `/` and the preservation rules for system state. `/home` is a persistent subvolume.
 
 Find a stable path for the target drive with `ls -l /dev/disk/by-id` and put the host's storage settings in `modules/hosts/_hosts/_settings/<new-host>.nix`:
 
 ```nix
 _: {
-  ohmydarlings.storage = {
+  ltp.storage = {
     enable = true;
 
     disk = "/dev/disk/by-id/nvme-Samsung_990_PRO_...";

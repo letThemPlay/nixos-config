@@ -26,7 +26,7 @@
 
     #
     # Backend registry. The keys are the valid values of
-    # ohmydarlings.storage.filesystem.type; types.backend and validation
+    # ltp.storage.filesystem.type; types.backend and validation
     # derive from them, and the storage module renders the selected one.
     #
     # A backend provides:

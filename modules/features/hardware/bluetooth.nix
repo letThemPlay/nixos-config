@@ -10,7 +10,7 @@ _: {
         };
 
         # Paired devices and adapter settings.
-        ohmydarlings.storage.persistence.state.directories = lib.mkIf config.ohmydarlings.storage.enable [
+        ltp.storage.persistence.state.directories = lib.mkIf config.ltp.storage.enable [
           "/var/lib/bluetooth"
         ];
       };
