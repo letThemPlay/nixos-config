@@ -34,11 +34,6 @@ let
   };
 
   context = {
-    themes = [
-      "tokyonight"
-      "catppuccin"
-    ];
-
     hasPackage =
       name:
       builtins.elem name [
@@ -155,13 +150,6 @@ let
       expected = [ ];
     };
 
-    testUnknownTheme = {
-      expr = codes (withAlice {
-        theme = "nope";
-      });
-      expected = [ "identity.user.theme.unknown" ];
-    };
-
     testUnknownPackage = {
       expr = codes (withAlice {
         extraPackages = [
@@ -179,20 +167,17 @@ let
       expected = [ "identity.user.feature.unknown" ];
     };
 
-    # Without the catalogues the checks are skipped, as in the VM test.
-    testMissingCataloguesSkipChecks = {
+    # Without knownFeatures the feature check is skipped, as in the VM test.
+    testMissingFeatureListSkipsCheck = {
       expr = codesOf (
         identity.normalize {
           cfg = evalCfg {
             users.alice = alice // {
-              theme = "nope";
               features = [ "nope" ];
             };
           };
           storage = persistentRoot;
-          context = context // {
-            themes = null;
-          };
+          inherit context;
         }
       );
       expected = [ ];

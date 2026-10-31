@@ -27,6 +27,8 @@
         inputs.self.nixosModules.identity
         inputs.self.nixosModules.identity-home
         inputs.self.nixosModules.users
+        inputs.self.nixosModules.theme-api
+        inputs.self.nixosModules.theme
         inputs.self.nixosModules.stylix
         inputs.self.nixosModules.secrets
         inputs.self.nixosModules.zsh

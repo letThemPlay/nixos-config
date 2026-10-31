@@ -1,7 +1,7 @@
 _: {
   # Standardized flat metrics suited for generic SPICE display interfaces
-  ltp.stylixOverrides = {
-    cursorSize = 24;
+  ltp.theme.appearance = {
+    cursor.size = 24;
     fontSize = {
       terminal = 11;
       applications = 12;

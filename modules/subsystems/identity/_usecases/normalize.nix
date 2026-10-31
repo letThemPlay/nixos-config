@@ -15,7 +15,6 @@ in
 # shape. storage is the published storage facts (ephemeralRoot,
 # statePath). context supplies the host's catalogues as plain data:
 #
-#   themes     : theme names, or null
 #   hasPackage : package name -> bool
 #
 # The feature names come from cfg.knownFeatures. No module system is
@@ -70,8 +69,6 @@ in
   inherit (storage) statePath;
 
   known = {
-    inherit (context) themes;
-
     features = cfg.knownFeatures;
 
     packages = filter context.hasPackage requestedPackages;

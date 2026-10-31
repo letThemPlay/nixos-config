@@ -1,4 +1,4 @@
-{ inputs, ... }: {
+_: {
   flake.nixosModules.niri =
     {
       config,
@@ -6,9 +6,6 @@
       pkgs,
       ...
     }:
-    let
-      themesVault = config.ltp.theme.catalog;
-    in
     {
 
       config = {
@@ -31,19 +28,14 @@
           extraPortals = [ pkgs.xdg-desktop-portal-gnome ];
         };
 
-        home-manager.users = lib.mapAttrs (_: profile: _: {
-          xdg.configFile."niri/config.kdl".text =
-            let
-              cleanThemeToken = builtins.unsafeDiscardStringContext (profile.theme or "tokyonight");
-              selected = themesVault.${cleanThemeToken} or themesVault.tokyonight;
-
-              resolvedImagePath = "${inputs.self}/modules/features/theme/_theme/${selected.imageName}";
-            in
-            import ./_niri/config-template.nix {
-              inherit pkgs;
-              profileThemeImage = resolvedImagePath;
-            };
-        }) config.ltp.identity.facts.users;
+        # Users with an unknown theme are left out; the theme subsystem
+        # reports them.
+        home-manager.users = lib.mapAttrs (_: userTheme: _: {
+          xdg.configFile."niri/config.kdl".text = import ./_niri/config-template.nix {
+            inherit pkgs;
+            profileThemeImage = userTheme.wallpaper;
+          };
+        }) (lib.filterAttrs (_: userTheme: userTheme.known) config.ltp.theme.facts.users);
       };
     };
 }

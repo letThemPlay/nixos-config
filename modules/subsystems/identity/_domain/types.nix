@@ -53,7 +53,7 @@ rec {
     theme = {
       type = types.str;
       default = "tokyonight";
-      description = "Theme name from the theme catalog.";
+      description = "Theme name; the theme subsystem checks it against its catalogue.";
     };
 
     shell = {
@@ -147,10 +147,6 @@ rec {
       known = mkOption {
         type = types.submodule {
           options = {
-
-            themes = mkOption {
-              type = types.nullOr (types.listOf types.str);
-            };
 
             features = mkOption {
               type = types.nullOr (types.listOf types.str);

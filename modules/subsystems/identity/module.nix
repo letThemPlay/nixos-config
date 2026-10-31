@@ -21,14 +21,8 @@ in
 
       cfg = config.ltp.identity;
 
-      #
-      # Catalogues the users may refer to, as plain data. A host
-      # without the theme schema (e.g. the storage VM test) skips the
-      # theme check.
-      #
+      # What the users may refer to, as plain data.
       context = {
-        themes = if config ? ltp.theme then builtins.attrNames config.ltp.theme.catalog else null;
-
         hasPackage = name: pkgs ? ${name};
       };
 
@@ -91,7 +85,7 @@ in
           # Not behind validation.ok: home-manager looks up an account for
           # every published user, so withholding accounts would turn a
           # validation error into a missing-attribute crash. Accounts use
-          # none of the validated fields (theme, packages, features); the
+          # none of the validated fields (packages, features); the
           # shell is checked by its type.
           #
           {

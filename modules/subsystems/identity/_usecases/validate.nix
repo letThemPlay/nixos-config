@@ -60,17 +60,6 @@ rec {
     mkResult
     ;
 
-  themes =
-    model:
-    mkResult (unknownValues {
-      inherit model;
-      code = "identity.user.theme.unknown";
-      field = "theme";
-      known = model.known.themes;
-      what = "theme";
-      values = user: [ user.theme ];
-    });
-
   packages =
     model:
     mkResult (unknownValues {
@@ -113,7 +102,6 @@ rec {
   all =
     model:
     combine [
-      (themes model)
       (packages model)
       (features model)
       (users model)

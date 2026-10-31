@@ -7,8 +7,8 @@ _: {
 
     boot.secureBoot.enable = true;
 
-    stylixOverrides = {
-      cursorSize = 32;
+    theme.appearance = {
+      cursor.size = 32;
       fontSize = {
         terminal = 14;
         applications = 13;
