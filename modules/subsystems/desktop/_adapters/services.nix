@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, desktop }:
 
 #
 # systemd user units for the background components, as plain data in
@@ -20,7 +20,9 @@
     // lib.optionalAttrs (service.compositors != null) {
       # uwsm exports the session's desktop name to the user manager;
       # "|" makes the conditions alternatives.
-      ConditionEnvironment = map (name: "|XDG_CURRENT_DESKTOP=${name}") service.compositors;
+      ConditionEnvironment = map (
+        name: "|XDG_CURRENT_DESKTOP=${desktop.compositors.${name}.session or name}"
+      ) service.compositors;
     };
 
     Service.Restart = service.restart;

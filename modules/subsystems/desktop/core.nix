@@ -53,7 +53,7 @@ in
 
     waybar = import ./_adapters/waybar.nix { inherit lib; };
 
-    services = import ./_adapters/services.nix { inherit lib; };
+    services = import ./_adapters/services.nix { inherit lib desktop; };
 
   });
 }

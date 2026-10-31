@@ -1,6 +1,15 @@
 _: {
-  flake.nixosModules.hyprlock = { pkgs, ... }: {
+  #
+  # Screen locker (hyprlock) and idle handling (hypridle). hyprlock uses
+  # the ext-session-lock protocol, so it works under any compositor.
+  #
+  flake.nixosModules.locker = { pkgs, ... }: {
     security.pam.services.hyprlock = { };
+
+    ltp.desktop.binds."Mod+L".spawn = [
+      "loginctl"
+      "lock-session"
+    ];
 
     home-manager.sharedModules = [
       ({ config, lib, ... }: {

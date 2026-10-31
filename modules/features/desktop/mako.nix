@@ -1,9 +1,9 @@
 _: {
   flake.nixosModules.mako =
-    {
-      pkgs,
-      ...
-    }:
+    { pkgs, ... }:
+    let
+      makoctl = "${pkgs.mako}/bin/makoctl";
+    in
     {
       config = {
         environment.systemPackages = [
@@ -11,6 +11,26 @@ _: {
         ];
 
         services.dbus.packages = [ pkgs.mako ];
+
+        ltp.desktop = {
+          services.mako = {
+            description = "Mako notification daemon";
+            exec = [ "${pkgs.mako}/bin/mako" ];
+          };
+
+          binds = {
+            "Mod+Escape".spawn = [
+              makoctl
+              "dismiss"
+            ];
+
+            "Mod+Shift+Escape".spawn = [
+              makoctl
+              "dismiss"
+              "--all"
+            ];
+          };
+        };
 
         home-manager.sharedModules = [
           (_: {
@@ -31,24 +51,6 @@ _: {
             };
 
             stylix.targets.mako.enable = true;
-
-            systemd.user.services.mako = {
-              Unit = {
-                Description = "Mako notification daemon (UWSM Integrated)";
-                After = [ "graphical-session.target" ];
-                PartOf = [ "graphical-session.target" ];
-              };
-
-              Service = {
-                ExecStart = "${pkgs.mako}/bin/mako";
-                ExecReload = "${pkgs.mako}/bin/makoctl reload";
-                Restart = "on-failure";
-              };
-
-              Install = {
-                WantedBy = [ "graphical-session.target" ];
-              };
-            };
           })
         ];
       };
