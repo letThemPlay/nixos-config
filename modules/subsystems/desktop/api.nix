@@ -74,6 +74,29 @@ in
           description = "Background components of the graphical session.";
         };
 
+        defaultWindowRules = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Whether the default window rules (active/inactive opacity) are included.";
+        };
+
+        windowRules = mkOption {
+          type = types.attrsOf desktop.types.windowRule;
+          default = { };
+
+          example = {
+            pavucontrol = {
+              match.appId = "^pavucontrol$";
+              floating = true;
+            };
+          };
+
+          description = ''
+            Window rules by name. Components add theirs; one here
+            replaces the default with the same name.
+          '';
+        };
+
         apps = mkOption {
           type = types.attrsOf desktop.types.appOverride;
           default = { };

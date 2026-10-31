@@ -228,19 +228,82 @@ let
     };
 
     testUnsupportedAction = {
-      expr = lib.unique (codesOf bareValidate (onBare { }));
+      expr = lib.unique (
+        codesOf bareValidate (onBare {
+          defaultWindowRules = false;
+        })
+      );
       expected = [ "desktop.bind.unsupported" ];
     };
 
     testUnsupportedWidget = {
       expr = codesOf bareValidate (onBare {
         defaultBinds = false;
+        defaultWindowRules = false;
         bar.left = [
           "clock"
           "workspaces"
         ];
       });
       expected = [ "desktop.bar.widget.unsupported" ];
+    };
+
+    testDefaultRulesRender = {
+      expr = map (hasLine (niriOf { })) [
+        "window-rule {\n    match is-active=true\n    opacity 1.0\n}"
+        "window-rule {\n    match is-active=false\n    opacity 0.85\n}"
+      ];
+      expected = [
+        true
+        true
+      ];
+    };
+
+    testComponentRuleRenders = {
+      expr =
+        let
+          text = niriOf {
+            windowRules.launcher = {
+              match.appId = "^launcher$";
+              shadow = {
+                softness = 16;
+                color = "rgba(0, 0, 0, 0.65)";
+                offset = {
+                  x = 10;
+                  y = 10;
+                };
+              };
+              focusRing = true;
+              floating = true;
+            };
+          };
+        in
+        map (hasLine text) [
+          "match app-id=\"^launcher$\""
+          "        offset x=10 y=10;"
+          "    focus-ring { on; }"
+          "    open-floating true"
+        ];
+      expected = [
+        true
+        true
+        true
+        true
+      ];
+    };
+
+    testRuleMatchEmpty = {
+      expr = codes { windowRules.nothing.opacity = 0.5; };
+      expected = [ "desktop.rule.match.empty" ];
+    };
+
+    testRuleUnsupported = {
+      expr = lib.unique (
+        codesOf bareValidate (onBare {
+          defaultBinds = false;
+        })
+      );
+      expected = [ "desktop.rule.unsupported" ];
     };
 
     testWaybarResolvesWidgets = {

@@ -193,9 +193,66 @@ rec {
       ) (filterAttrs (_: app: app.inTerminal && !terminalUsable) model.apps)
     );
 
+  #
+  # A rule must match something, and every enabled compositor must be
+  # able to render the properties it sets.
+  #
+  windowRules =
+    model:
+    let
+      setProperties = rule: filter (property: rule.${property} != null) desktop.types.ruleProperties;
+    in
+    mkResult (
+      mapAttrsToList (
+        name: _:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.rule.match.empty";
+          target = name;
+          path = [
+            "windowRules"
+            name
+            "match"
+          ];
+          message = "Window rule '${name}' matches no window: set match.appId or match.isActive.";
+        }
+      ) (filterAttrs (_: rule: rule.match.appId == null && rule.match.isActive == null) model.windowRules)
+
+      ++ concatMap (
+        c:
+        let
+          entry = desktop.compositors.${c.name};
+        in
+        concatMap (
+          name:
+          map
+            (
+              property:
+              mkDiagnostic {
+                severity = "error";
+                code = "desktop.rule.unsupported";
+                target = "${c.name}.${name}.${property}";
+                path = [
+                  "windowRules"
+                  name
+                  property
+                ];
+                message = "Window rule '${name}' sets '${property}', which compositor '${c.name}' cannot render.";
+              }
+            )
+            (
+              filter (property: !builtins.elem property (entry.ruleProperties or [ ])) (
+                setProperties model.windowRules.${name}
+              )
+            )
+        ) (attrNames model.windowRules)
+      ) (known model)
+    );
+
   all =
     model:
     combine [
+      (windowRules model)
       (compositors model)
       (binds model)
       (apps model)

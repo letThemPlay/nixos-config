@@ -27,6 +27,8 @@ in
 
     defaultApps = import ./_domain/apps.nix { };
 
+    defaultWindowRules = import ./_domain/rules.nix { };
+
     normalize = import ./_usecases/normalize.nix { inherit lib desktop; };
 
     validate = import ./_usecases/validate.nix { inherit lib desktop diagnostics; };
@@ -39,6 +41,7 @@ in
     #   configFile : path under ~/.config
     #   actions    : vocabulary name -> native bind action
     #   widgets    : abstract bar widget -> waybar module
+    #   ruleProperties : window rule properties it can render
     #   system     : { package; portals; keyring; } as names
     #   render     : { model, spawnPrefix } -> config text
     #

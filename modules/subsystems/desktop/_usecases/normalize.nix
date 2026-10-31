@@ -61,6 +61,24 @@ let
   merged = mapAttrs (_: shape) (
     (if cfg.defaultBinds then desktop.defaultBinds else { }) // cfg.binds
   );
+
+  # Plain-data rules get the rule type's full shape.
+  ruleShape =
+    rule:
+    {
+      opacity = null;
+      shadow = null;
+      focusRing = null;
+      floating = null;
+    }
+    // rule
+    // {
+      match = {
+        appId = null;
+        isActive = null;
+      }
+      // (rule.match or { });
+    };
 in
 {
   compositors = map (name: {
@@ -69,6 +87,11 @@ in
   }) cfg.compositors;
 
   inherit apps;
+
+  # A component or host rule replaces the default with the same name.
+  windowRules = mapAttrs (_: ruleShape) (
+    (if cfg.defaultWindowRules then desktop.defaultWindowRules else { }) // cfg.windowRules
+  );
 
   # A component or host bind replaces the default for its key; command
   # is the final argv of a spawn or app bind.

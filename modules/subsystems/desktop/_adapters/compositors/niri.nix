@@ -2,6 +2,7 @@
 let
   inherit (lib)
     concatMapStringsSep
+    concatStringsSep
     escape
     mapAttrsToList
     filterAttrs
@@ -48,6 +49,14 @@ rec {
     workspaces = "niri/workspaces";
   };
 
+  # Window rule properties niri renders.
+  ruleProperties = [
+    "opacity"
+    "shadow"
+    "focusRing"
+    "floating"
+  ];
+
   # System pieces, as names; the desktop module maps them to NixOS.
   system = {
     package = "niri";
@@ -64,6 +73,55 @@ rec {
           "spawn ${kdlArgs (spawnPrefix ++ bind.command)};"
         else
           "${actions.${bind.action}};";
+
+      # 0.85, not Nix's 0.850000.
+      number =
+        value:
+        let
+          text = toString value;
+          trimmed = builtins.match "(-?[0-9]+\\.[0-9]*[1-9])0*" text;
+          whole = builtins.match "(-?[0-9]+)\\.0*" text;
+        in
+        if trimmed != null then
+          builtins.head trimmed
+        else if whole != null then
+          "${builtins.head whole}.0"
+        else
+          text;
+
+      onOff = enabled: if enabled then "on" else "off";
+
+      ruleMatch =
+        match:
+        concatStringsSep " " (
+          lib.optional (match.appId != null) "app-id=${kdlString match.appId}"
+          ++ lib.optional (match.isActive != null) "is-active=${lib.boolToString match.isActive}"
+        );
+
+      #
+      # Unsupported properties are reported by validation; niri renders
+      # every property a rule can set.
+      #
+      renderRule =
+        rule:
+        concatStringsSep "\n" (
+          [
+            "window-rule {"
+            "    match ${ruleMatch rule.match}"
+          ]
+          ++ lib.optional (rule.opacity != null) "    opacity ${number rule.opacity}"
+          ++ lib.optionals (rule.shadow != null) [
+            "    shadow {"
+            "        on;"
+            "        softness ${toString rule.shadow.softness};"
+            "        color ${kdlString rule.shadow.color};"
+            "        offset x=${toString rule.shadow.offset.x} y=${toString rule.shadow.offset.y};"
+            "    }"
+          ]
+          ++ lib.optional (rule.focusRing != null) "    focus-ring { ${onOff rule.focusRing}; }"
+          ++ lib.optional (rule.floating != null) "    open-floating ${lib.boolToString rule.floating}"
+          ++ [ "}" ]
+        );
 
       # Unsupported actions are reported by validation; leave them out.
       binds = filterAttrs (
@@ -99,29 +157,7 @@ rec {
           }
       }
 
-      window-rule {
-          match is-active=true
-          opacity 1.0
-      }
-
-      window-rule {
-          match is-active=false
-          opacity 0.85
-      }
-
-      window-rule {
-          match app-id="^fuzzel$"
-
-          // Soft floating shadow for the launcher.
-          shadow {
-              on;
-              softness 16;
-              color "rgba(0, 0, 0, 0.65)";
-              offset x=10 y=10;
-          }
-
-          focus-ring { on; }
-      }
+      ${concatStringsSep "\n\n" (map renderRule (builtins.attrValues model.windowRules))}
 
       // Export NIRI_SOCKET to the systemd user session (waybar's
       // niri/workspaces needs it).

@@ -110,6 +110,70 @@ rec {
   };
 
   #
+  # A compositor-neutral window rule: what it matches and the properties
+  # it sets. Null means "not set"; a compositor reports properties it
+  # cannot render.
+  #
+  windowRule = types.submodule {
+    options = {
+
+      match = {
+        appId = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Regular expression on the window's app id.";
+        };
+
+        isActive = mkOption {
+          type = types.nullOr types.bool;
+          default = null;
+        };
+      };
+
+      opacity = mkOption {
+        type = types.nullOr types.float;
+        default = null;
+      };
+
+      shadow = mkOption {
+        type = types.nullOr (
+          types.submodule {
+            options = {
+              softness = mkOption { type = types.ints.unsigned; };
+              color = mkOption { type = types.str; };
+              offset = {
+                x = mkOption { type = types.int; };
+                y = mkOption { type = types.int; };
+              };
+            };
+          }
+        );
+        default = null;
+      };
+
+      focusRing = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+      };
+
+      floating = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        description = "Open the window floating.";
+      };
+
+    };
+  };
+
+  # The properties a rule can set, for compositor capability checks.
+  ruleProperties = [
+    "opacity"
+    "shadow"
+    "focusRing"
+    "floating"
+  ];
+
+  #
   # A background component, run as a systemd user service in the
   # graphical session. exec may be a function of the user's
   # home-manager { config, osConfig } for per-user arguments.
@@ -193,6 +257,10 @@ rec {
       apps = mkOption {
         type = types.attrsOf app;
         description = "App roles, resolved.";
+      };
+
+      windowRules = mkOption {
+        type = types.attrsOf windowRule;
       };
 
       bar = mkOption {
