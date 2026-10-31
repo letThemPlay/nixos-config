@@ -19,10 +19,15 @@
         lib = inputs.nixpkgs.lib;
       };
 
+      featureRegistry = registryData.config.modules.features.registry;
+
+      unknownFeatures = lib.subtractLists (builtins.attrNames featureRegistry) features;
+
       resolvedFeatures =
-        features
-        |> map (featureName: registryData.config.modules.features.registry.${featureName} or [ ])
-        |> lib.flatten;
+        if unknownFeatures != [ ] then
+          throw "host '${hostName}': unknown features ${lib.concatStringsSep ", " unknownFeatures} (known: ${lib.concatStringsSep ", " (builtins.attrNames featureRegistry)})"
+        else
+          features |> map (featureName: featureRegistry.${featureName}) |> lib.flatten;
 
       hardwarePath = inputs.self + "/modules/hosts/_hosts/_hardware/${hostName}.nix";
 
@@ -64,7 +69,7 @@
             });
 
             # User features are checked against every feature name.
-            knownFeatures = builtins.attrNames registryData.config.modules.features.registry;
+            knownFeatures = builtins.attrNames featureRegistry;
           };
 
           environment.systemPackages = [ pkgs.curl ];
