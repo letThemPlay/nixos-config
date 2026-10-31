@@ -12,7 +12,6 @@
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
-      featureConfig ? { },
       ...
     }:
     let
@@ -57,7 +56,6 @@
               features
               users
               extraModules
-              featureConfig
               ;
           };
 

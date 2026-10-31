@@ -30,10 +30,6 @@
             type = lib.types.listOf lib.types.deferredModule;
             default = [ ];
           };
-          featureConfig = lib.mkOption {
-            type = lib.types.attrsOf lib.types.unspecified;
-            default = { };
-          };
         };
       }
     );
