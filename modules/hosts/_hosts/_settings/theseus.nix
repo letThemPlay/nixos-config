@@ -1,5 +1,8 @@
 _: {
-  ltp.network.profile = "laptop";
+  ltp.network = {
+    profile = "laptop";
+    dns.provider = "controld";
+  };
 
   ltp.stylixOverrides = {
     cursorSize = 32;
