@@ -53,7 +53,7 @@ _: {
     swap.size = "16G";
 
     # Extra state to keep across reboots
-    persistence.policy.persist.directories = [ "/var/lib/tailscale" ];
+    persistence.policy.persist.directories = [ "/var/lib/my-service" ];
   };
 }
 ```
@@ -129,3 +129,58 @@ sudo nixos-install --flake "github:Kelvin/my-dendritic-flake#laptop-x1"
 ```
 
 Reboot your machine when complete. Your early-boot Stage 1 systemd unit service will intercept the boot process, flash-wiping your operating system root subvolume clean back to an absolute blank snapshot canvas on every power cycle 
+
+---
+
+## 🧱 Subsystem Conventions
+
+Host-facing configuration lives in subsystems under `modules/subsystems/<name>/` (storage, network, boot, identity, theme, desktop, shell, locale, hardware). Each one follows the same shape and naming.
+
+### Layout
+
+| File | Provides |
+|---|---|
+| `core.nix` | `flake.subsystems.<name>`: the pure core, assembled from the rings below |
+| `_domain/` | entity types and plain data (layouts, profiles, providers, defaults) |
+| `_usecases/` | `normalize` (settings → model), `query`, `validate` |
+| `_adapters/` | model → plain data for one target (disko, networkd, stylix, …); registries live here |
+| `api.nix` | `nixosModules.<name>-api`: options only, under `ltp.<name>` |
+| `module.nix` | `nixosModules.<name>`: assertions from validation, then rendering |
+| `<target>.nix` | `nixosModules.<name>-<target>` for tool-specific rendering (`identity-home`, `theme-stylix`) |
+| `modules/tests/<name>-unit.nix` | `checks.<name>-unit` |
+
+Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `api`/`module`. The core never reads NixOS options; `module.nix` passes it plain data, including other subsystems' facts. `modules/subsystems/diagnostics.nix` and `overrides.nix` are shared by every core.
+
+### Options (`ltp.<name>`)
+
+- `enable` on every subsystem (true by default, except storage).
+- Read-only results for other modules go under `facts` (`ltp.storage.facts.statePath`, `ltp.identity.facts.users`).
+- Collections are attribute sets keyed by name (`volumes`, `links`, `apps`, `binds`, `windowRules`, `gpus`).
+- Partial overrides (`storage.volumes`, `network.links`, `desktop.apps`) apply only the fields they define, so a nullable field can be set to `null` on purpose.
+- Choosing an implementation: `backend`, a **string** checked against the core's registry. Use a domain noun when the user picks a concept (`boot.loader`, `desktop.compositors`, `hardware.guest`). Never an `enum` of registry keys: a bad name should produce a readable diagnostic listing the known ones.
+- "Include the defaults" switches are `default<Things>` (`defaultBinds`, `defaultAliases`, `persistence.defaultPolicy`).
+- Acronyms are written as words: `dnsOverTls`, `busId`, `appId`.
+
+### Validation codes
+
+`<subsystem>.<path>.<problem>`, with a plural segment for collection-wide checks (`network.links.none`) and a singular one for items (`network.link.match.duplicate`). `<problem>` is one word:
+
+| Word | Meaning |
+|---|---|
+| `unknown` | the name is not in a registry or catalogue |
+| `unsupported` | a known thing cannot do what is asked |
+| `missing` | something required is absent |
+| `duplicate`, `multiple`, `ambiguous` | more than one where one is expected |
+| `empty`, `none` | an empty value / an empty collection |
+| `invalid`, `format`, `order` | malformed or inconsistent values |
+
+### Core attributes
+
+`types`, `normalize`, `query`, `validate`; registries are plural nouns of what they key (`backends`, `loaders`, `compositors`, `gpuVendors`); adapters are named after their target (`preservation`, `resolved`, `systemdUnits`). A core attribute never shares a name with an `ltp.<name>` option of a different meaning.
+
+### Adding a subsystem
+
+1. Create `modules/subsystems/<name>/` with `core.nix`, the rings, `api.nix` and `module.nix`.
+2. Add `<name>-api` and `<name>` to the `base` bundle in `modules/features/_registry.nix`.
+3. Add `modules/tests/<name>-unit.nix` with a model contract test (normalize output against `types.model`).
+4. Features contribute to the subsystem's options; they don't configure its targets directly.
