@@ -60,6 +60,12 @@ let
 
   tests = {
 
+    # Selectors are strings, so a bad name reaches validation.
+    testUnknownBackendOption = {
+      expr = codes { backend = "nm"; };
+      expected = [ "network.backend.unknown" ];
+    };
+
     testOverlayDefaultsMatchFeature = {
       expr = network.overlays.tailscale { model = modelOf { overlay.enable = true; }; };
       expected = {
@@ -389,7 +395,7 @@ let
       };
     };
 
-    testUnsupportedWirelessBackendOnlyWithWireless = {
+    testUnknownWirelessBackendOnlyWithWireless = {
       expr =
         let
           withBackend = settings: (modelOf settings) // { wireless.backend = "nope"; };
@@ -400,7 +406,7 @@ let
         };
       expected = {
         wired = [ ];
-        laptop = [ "network.wireless.backend.unsupported" ];
+        laptop = [ "network.wireless.backend.unknown" ];
       };
     };
 

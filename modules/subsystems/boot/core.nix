@@ -17,7 +17,7 @@ in
 {
   flake.subsystems.boot = lib.fix (boot: {
 
-    types = import ./_domain/types.nix { inherit lib boot; };
+    types = import ./_domain/types.nix { inherit lib; };
 
     normalize = import ./_usecases/normalize.nix { inherit boot; };
 

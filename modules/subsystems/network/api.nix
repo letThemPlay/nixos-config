@@ -39,7 +39,7 @@ in
         };
 
         backend = mkOption {
-          type = network.types.backend;
+          type = types.str;
           default = "networkd";
 
           description = ''
@@ -48,7 +48,7 @@ in
         };
 
         wireless.backend = mkOption {
-          type = network.types.wirelessBackend;
+          type = types.str;
           default = "iwd";
 
           description = ''

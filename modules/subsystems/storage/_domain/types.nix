@@ -1,4 +1,4 @@
-{ lib, storage }:
+{ lib }:
 let
   inherit (lib) mapAttrs mkOption types;
 in
@@ -8,9 +8,6 @@ rec {
     "warning"
     "info"
   ];
-
-  # Valid backends are the keys of the backend registry.
-  backend = types.enum (builtins.attrNames storage.backends);
 
   #
   # Volume fields, declared once. `volume` is the full entity used by

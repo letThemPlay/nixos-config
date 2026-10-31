@@ -18,7 +18,7 @@ in
 {
   flake.subsystems.network = lib.fix (network: {
 
-    types = import ./_domain/types.nix { inherit lib network; };
+    types = import ./_domain/types.nix { inherit lib; };
 
     profiles = import ./_domain/profiles.nix { };
 

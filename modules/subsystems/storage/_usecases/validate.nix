@@ -112,7 +112,7 @@ rec {
       supportedText = lib.concatStringsSep ", " supported;
 
       # Volumes that inherit the model backend are covered above.
-      unsupportedVolumes = filter (
+      unknownVolumes = filter (
         volume: volume.backend != model.backend && !builtins.elem volume.backend supported
       ) (query.all model);
     in
@@ -120,26 +120,26 @@ rec {
     mkResult (
       optional (!builtins.elem model.backend supported) (mkDiagnostic {
         severity = "error";
-        code = "storage.backend.unsupported";
+        code = "storage.backend.unknown";
         target = model.backend;
         path = [ "backend" ];
-        message = "Unsupported backend '${model.backend}' (supported: ${supportedText}).";
+        message = "Unknown backend '${model.backend}' (known: ${supportedText}).";
       })
 
       ++ map (
         volume:
         mkDiagnostic {
           severity = "error";
-          code = "storage.volume.backend.unsupported";
+          code = "storage.volume.backend.unknown";
           target = volume.id;
           path = [
             "volumes"
             volume.id
             "backend"
           ];
-          message = "Volume '${volume.id}' uses unsupported backend '${volume.backend}' (supported: ${supportedText}).";
+          message = "Volume '${volume.id}' uses unknown backend '${volume.backend}' (known: ${supportedText}).";
         }
-      ) unsupportedVolumes
+      ) unknownVolumes
     );
 
   layout =

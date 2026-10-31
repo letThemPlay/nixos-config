@@ -1,11 +1,8 @@
-{ lib, boot }:
+{ lib }:
 let
   inherit (lib) mkOption types;
 in
 {
-
-  # Valid loaders are the keys of the loader registry.
-  loader = types.enum (builtins.attrNames boot.loaders);
 
   model = types.submodule {
     options = {

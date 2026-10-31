@@ -1,8 +1,4 @@
-{ config, ... }:
-let
-  boot = config.flake.subsystems.boot;
-in
-{
+_: {
   #
   # Options only. Choosing the loader is a domain rule and happens in
   # normalize.
@@ -29,7 +25,7 @@ in
         };
 
         loader = mkOption {
-          type = types.nullOr boot.types.loader;
+          type = types.nullOr types.str;
           default = null;
 
           description = ''

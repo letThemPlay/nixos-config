@@ -95,21 +95,9 @@ let
       expected = [ "boot.secureBoot.loaderUnsupported" ];
     };
 
+    # loader is a string, so a bad name reaches validation.
     testUnknownLoader = {
-      expr =
-        let
-          model = modelOf { };
-        in
-        codesOf (
-          model
-          // {
-            loader = {
-              name = "grub";
-              known = false;
-              secureBoot = false;
-            };
-          }
-        );
+      expr = codes { loader = "grub"; };
       expected = [ "boot.loader.unknown" ];
     };
 

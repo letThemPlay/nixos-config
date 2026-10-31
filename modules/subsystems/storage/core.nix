@@ -20,7 +20,7 @@ in
 {
   flake.subsystems.storage = lib.fix (storage: {
 
-    types = import ./_domain/types.nix { inherit lib storage; };
+    types = import ./_domain/types.nix { inherit lib; };
 
     layouts = import ./_domain/layouts.nix { };
 
@@ -32,8 +32,8 @@ in
 
     #
     # Backend registry. The keys are the valid values of
-    # ltp.storage.backend; types.backend and validation
-    # derive from them, and the storage module renders the selected one.
+    # ltp.storage.backend; validation derives from them, and the
+    # storage module renders the selected one.
     #
     # A backend provides:
     #

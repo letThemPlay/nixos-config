@@ -143,7 +143,7 @@ in
         };
 
         backend = mkOption {
-          type = storage.types.backend;
+          type = types.str;
           default = "btrfs";
 
           description = ''

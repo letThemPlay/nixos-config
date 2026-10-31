@@ -70,23 +70,23 @@ rec {
     mkResult (
       optional (!builtins.hasAttr model.backend network.backends) (mkDiagnostic {
         severity = "error";
-        code = "network.backend.unsupported";
+        code = "network.backend.unknown";
         target = model.backend;
         path = [ "backend" ];
-        message = "Unsupported network backend '${model.backend}' (supported: ${supportedText network.backends}).";
+        message = "Unknown network backend '${model.backend}' (known: ${supportedText network.backends}).";
       })
 
       ++
         optional (query.hasWireless model && !builtins.hasAttr model.wireless.backend network.wireless)
           (mkDiagnostic {
             severity = "error";
-            code = "network.wireless.backend.unsupported";
+            code = "network.wireless.backend.unknown";
             target = model.wireless.backend;
             path = [
               "wireless"
               "backend"
             ];
-            message = "Unsupported wireless backend '${model.wireless.backend}' (supported: ${supportedText network.wireless}).";
+            message = "Unknown wireless backend '${model.wireless.backend}' (known: ${supportedText network.wireless}).";
           })
     );
 
@@ -208,9 +208,9 @@ rec {
     mkResult (
       lib.optionals overlay.enable (
         optional (!overlay.known) (
-          diagnostic "network.overlay.backend.unsupported" overlay.backend [
+          diagnostic "network.overlay.backend.unknown" overlay.backend [
             "backend"
-          ] "Unsupported overlay backend '${overlay.backend}' (supported: ${supportedText network.overlays})."
+          ] "Unknown overlay backend '${overlay.backend}' (known: ${supportedText network.overlays})."
         )
 
         ++ map (

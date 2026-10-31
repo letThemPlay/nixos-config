@@ -136,18 +136,15 @@ let
       ];
     };
 
-    testUnsupportedBackend = {
-      expr =
-        let
-          model = modelOf { };
-        in
-        codesOf (model // { backend = "zfs"; });
-      expected = [ "storage.backend.unsupported" ];
+    # A selector is a string, so a bad name reaches validation.
+    testUnknownBackend = {
+      expr = codes { backend = "zfs"; };
+      expected = [ "storage.backend.unknown" ];
     };
 
-    testUnsupportedVolumeBackend = {
+    testUnknownVolumeBackend = {
       expr = codes { volumes.home.backend = "zfs"; };
-      expected = [ "storage.volume.backend.unsupported" ];
+      expected = [ "storage.volume.backend.unknown" ];
     };
 
     testDefaultPersistence = {

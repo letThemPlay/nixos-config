@@ -1,15 +1,8 @@
-{ lib, network }:
+{ lib }:
 let
   inherit (lib) mapAttrs mkOption types;
 in
 rec {
-
-  # Valid backends are the keys of the registries.
-  backend = types.enum (builtins.attrNames network.backends);
-
-  wirelessBackend = types.enum (builtins.attrNames network.wireless);
-
-  overlayBackend = types.enum (builtins.attrNames network.overlays);
 
   routing = types.enum [
     "none"
@@ -32,7 +25,7 @@ rec {
       };
 
       backend = mkOption {
-        type = overlayBackend;
+        type = types.str;
         default = "tailscale";
       };
 
