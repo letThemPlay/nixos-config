@@ -20,7 +20,7 @@ in
 #
 # cfg is the ltp.network option set, or any attrset of the same
 # shape: profile, backend, wireless.backend, links (partial
-# overrides) and dns. No module system is required.
+# overrides), dns and overlay. No module system is required.
 #
 cfg:
 
@@ -83,6 +83,25 @@ in
 
   wireless = {
     inherit (cfg.wireless) backend;
+  };
+
+  overlay = {
+    inherit (cfg.overlay)
+      enable
+      backend
+      interface
+      routing
+      tags
+      acceptDns
+      ;
+
+    known = network.overlays ? ${cfg.overlay.backend};
+
+    authKey = {
+      inherit (cfg.overlay.authKey) secret;
+
+      available = builtins.pathExists (network.secretsDir + "/${cfg.overlay.authKey.secret}.age");
+    };
   };
 
   dns = {

@@ -54,6 +54,32 @@ rec {
   # True when an enabled link needs the wireless backend.
   hasWireless = model: wireless model != [ ];
 
+  #
+  # Whether a networkd match glob (*, ?, [...]) matches an interface
+  # name. Other regex characters in the glob are taken literally.
+  #
+  matchesGlob =
+    glob: name:
+    let
+      special = [
+        "."
+        "+"
+        "("
+        ")"
+        "{"
+        "}"
+        "^"
+        "$"
+        "|"
+        "\\"
+      ];
+
+      escaped = lib.replaceStrings special (map (c: "\\" + c) special) glob;
+
+      regex = lib.replaceStrings [ "*" "?" ] [ ".*" "." ] escaped;
+    in
+    builtins.match regex name != null;
+
   # Name of the backend unit for a link.
   unitName = link: "${toString link.priority}-${link.id}";
 

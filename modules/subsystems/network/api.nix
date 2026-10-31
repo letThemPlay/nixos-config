@@ -73,6 +73,22 @@ in
           '';
         };
 
+        overlay = mkOption {
+          type = network.types.overlay;
+          default = { };
+
+          example = {
+            enable = true;
+            tags = [ "laptop" ];
+          };
+
+          description = ''
+            Mesh VPN overlay (tailscale). The auth key is the agenix
+            secret secrets/<authKey.secret>.age, which must be encrypted
+            for this host's SSH host key.
+          '';
+        };
+
         dns = {
 
           provider = mkOption {

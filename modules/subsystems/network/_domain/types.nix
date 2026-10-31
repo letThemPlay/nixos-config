@@ -9,6 +9,66 @@ rec {
 
   wirelessBackend = types.enum (builtins.attrNames network.wireless);
 
+  overlayBackend = types.enum (builtins.attrNames network.overlays);
+
+  routing = types.enum [
+    "none"
+    "client"
+    "server"
+    "both"
+  ];
+
+  #
+  # A mesh VPN overlay. It owns its own interface; the links must not
+  # match it.
+  #
+  overlay = types.submodule {
+    options = {
+
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether this host joins the overlay network.";
+      };
+
+      backend = mkOption {
+        type = overlayBackend;
+        default = "tailscale";
+      };
+
+      interface = mkOption {
+        type = types.str;
+        default = "tailscale0";
+        description = "Name of the overlay's tunnel interface.";
+      };
+
+      routing = mkOption {
+        type = routing;
+        default = "client";
+        description = "Whether the host uses (client) or offers (server) subnet routes and exit nodes.";
+      };
+
+      tags = mkOption {
+        type = types.listOf types.str;
+        default = [ "server" ];
+        description = "Tags the node advertises, without the tag: prefix.";
+      };
+
+      acceptDns = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Whether the overlay's DNS (MagicDNS) is used for its names.";
+      };
+
+      authKey.secret = mkOption {
+        type = types.str;
+        default = "tailscale-authkey";
+        description = "agenix secret holding the auth key: secrets/<name>.age in the repository.";
+      };
+
+    };
+  };
+
   dnsOverTLS = types.enum [
     "yes"
     "opportunistic"
@@ -261,6 +321,27 @@ rec {
         description = ''
           Fully merged links.
         '';
+      };
+
+      overlay = mkOption {
+        type = types.submodule {
+          options = {
+            enable = mkOption { type = types.bool; };
+            backend = mkOption { type = types.str; };
+            known = mkOption { type = types.bool; };
+            interface = mkOption { type = types.str; };
+            routing = mkOption { type = routing; };
+            tags = mkOption { type = types.listOf types.str; };
+            acceptDns = mkOption { type = types.bool; };
+            authKey = {
+              secret = mkOption { type = types.str; };
+              available = mkOption {
+                type = types.bool;
+                description = "Whether secrets/<secret>.age exists in the repository.";
+              };
+            };
+          };
+        };
       };
 
       wireless = mkOption {

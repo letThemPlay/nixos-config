@@ -4,7 +4,8 @@
 #   _domain/    entities: link, profile and provider types; profiles;
 #               DNS providers
 #   _usecases/  normalize (host settings -> model), validate, query
-#   _adapters/  model -> networkd units, resolved settings, iwd
+#   _adapters/  model -> networkd units, resolved settings, iwd,
+#               tailscale overlay
 #
 # api.nix and module.nix beside this file are the outer ring.
 #
@@ -47,6 +48,19 @@ in
     wireless = {
       iwd = import ./_adapters/iwd.nix { inherit network; };
     };
+
+    #
+    # Overlay backend registry, keyed like ltp.network.overlay.backend.
+    #
+    #   { model } -> { interfaceName; useRoutingFeatures; extraUpFlags;
+    #                  secret; state; }
+    #
+    overlays = {
+      tailscale = import ./_adapters/tailscale.nix { };
+    };
+
+    # Where agenix secrets live in the repository.
+    secretsDir = ../../../secrets;
 
     # Backend-agnostic resolver adapter.
     resolved = import ./_adapters/resolved.nix { };

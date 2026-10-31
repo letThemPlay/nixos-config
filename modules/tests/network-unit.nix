@@ -60,6 +60,107 @@ let
 
   tests = {
 
+    testOverlayDefaultsMatchFeature = {
+      expr = network.overlays.tailscale { model = modelOf { overlay.enable = true; }; };
+      expected = {
+        interfaceName = "tailscale0";
+        useRoutingFeatures = "client";
+        extraUpFlags = [ "--advertise-tags=tag:server" ];
+        secret = "tailscale-authkey";
+        state.directories = [ "/var/lib/tailscale" ];
+      };
+    };
+
+    testOverlayFlags = {
+      expr =
+        (network.overlays.tailscale {
+          model = modelOf {
+            overlay = {
+              enable = true;
+              tags = [
+                "server"
+                "laptop"
+              ];
+              acceptDns = false;
+            };
+          };
+        }).extraUpFlags;
+      expected = [
+        "--advertise-tags=tag:server,tag:laptop"
+        "--accept-dns=false"
+      ];
+    };
+
+    testOverlayValidByDefault = {
+      expr = map codes [
+        { overlay.enable = true; }
+        (laptop // { overlay.enable = true; })
+      ];
+      expected = [
+        [ ]
+        [ ]
+      ];
+    };
+
+    testOverlayInterfaceClaimed = {
+      expr = codes {
+        overlay.enable = true;
+        links.all = {
+          match = "*";
+          routeMetric = 10;
+        };
+      };
+      expected = [ "network.overlay.interface.managed" ];
+    };
+
+    testGlobMatching = {
+      expr = map (glob: network.query.matchesGlob glob "tailscale0") [
+        "*"
+        "en*"
+        "tail?cale0"
+        "tailscale[0-9]"
+        "tailscale0.x"
+      ];
+      expected = [
+        true
+        false
+        true
+        true
+        false
+      ];
+    };
+
+    testOverlayTagPrefix = {
+      expr = codes {
+        overlay = {
+          enable = true;
+          tags = [ "tag:server" ];
+        };
+      };
+      expected = [ "network.overlay.tag.invalid" ];
+    };
+
+    testOverlayMissingSecret = {
+      expr = codes {
+        overlay = {
+          enable = true;
+          authKey.secret = "nope";
+        };
+      };
+      expected = [ "network.overlay.authKey.missing" ];
+    };
+
+    testDisabledOverlayIsNotChecked = {
+      expr = codes {
+        links.all = {
+          match = "*";
+          routeMetric = 10;
+        };
+        overlay.tags = [ "tag:x" ];
+      };
+      expected = [ ];
+    };
+
     testDefaultLinks = {
       expr = lib.attrNames (modelOf { }).links;
       expected = [ "wired" ];

@@ -181,6 +181,58 @@ rec {
       })
     );
 
+  #
+  # The overlay owns its interface, needs a known backend and an auth
+  # key in the repository, and advertises well-formed tags. Checked
+  # only when the overlay is enabled.
+  #
+  overlay =
+    model:
+
+    let
+      inherit (model) overlay;
+
+      diagnostic =
+        code: target: path: message:
+        mkDiagnostic {
+          severity = "error";
+          inherit code target message;
+          path = [ "overlay" ] ++ path;
+        };
+
+      claiming = filter (link: query.matchesGlob link.match overlay.interface) (query.enabled model);
+
+      badTags = filter (tag: builtins.match "[a-z0-9-]+" tag == null) overlay.tags;
+    in
+
+    mkResult (
+      lib.optionals overlay.enable (
+        optional (!overlay.known) (
+          diagnostic "network.overlay.backend.unsupported" overlay.backend [
+            "backend"
+          ] "Unsupported overlay backend '${overlay.backend}' (supported: ${supportedText network.overlays})."
+        )
+
+        ++ map (
+          link:
+          diagnostic "network.overlay.interface.managed" link.id [ "interface" ]
+            "Link '${link.id}' (match '${link.match}') also matches overlay interface '${overlay.interface}'; networkd would manage the tunnel."
+        ) claiming
+
+        ++ map (
+          tag:
+          diagnostic "network.overlay.tag.invalid" tag [
+            "tags"
+          ] "Overlay tag '${tag}' must be lowercase letters, digits and dashes, without the tag: prefix."
+        ) badTags
+
+        ++ optional (!overlay.authKey.available) (
+          diagnostic "network.overlay.authKey.missing" overlay.authKey.secret [ "authKey" "secret" ]
+            "Overlay auth key secret '${overlay.authKey.secret}' has no secrets/${overlay.authKey.secret}.age in the repository."
+        )
+      )
+    );
+
   all =
     model:
 
@@ -189,6 +241,7 @@ rec {
       (backend model)
       (links model)
       (dns model)
+      (overlay model)
     ];
 
 }
