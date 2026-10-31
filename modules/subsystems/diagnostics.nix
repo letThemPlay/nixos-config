@@ -1,5 +1,6 @@
 #
-# Diagnostics shared by the subsystem libraries' validate use cases.
+# Diagnostics shared by the subsystem cores' validate use cases. The
+# shared kernel: it depends on no subsystem.
 #
 # A diagnostic is plain data; mkResult groups a list of them. Each
 # subsystem module turns errors into assertions and warnings into
@@ -16,7 +17,7 @@ let
     ;
 in
 {
-  flake.library.diagnostics = rec {
+  flake.subsystems.diagnostics = rec {
 
     mkDiagnostic =
       {

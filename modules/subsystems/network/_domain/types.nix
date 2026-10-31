@@ -231,7 +231,7 @@ rec {
               type = types.bool;
 
               description = ''
-                Whether the selected profile exists in the profile library.
+                Whether the selected profile exists in the profile registry.
               '';
             };
 

@@ -349,7 +349,7 @@ rec {
               type = types.bool;
 
               description = ''
-                Whether the selected layout exists in the layout library.
+                Whether the selected layout exists in the layout registry.
               '';
             };
 

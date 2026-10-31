@@ -1,19 +1,21 @@
 #
-# The network library, laid out like the storage library:
+# The network core, laid out like the storage core:
 #
 #   _domain/    entities: link, profile and provider types; profiles;
 #               DNS providers
 #   _usecases/  normalize (host settings -> model), validate, query
 #   _adapters/  model -> networkd units, resolved settings, iwd
 #
-# Each file is a plain function; `network` is the assembled library.
+# api.nix and module.nix beside this file are the outer ring.
+#
+# Each file is a plain function; `network` is the assembled core.
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.library) diagnostics;
+  inherit (config.flake.subsystems) diagnostics;
 in
 {
-  flake.library.network = lib.fix (network: {
+  flake.subsystems.network = lib.fix (network: {
 
     types = import ./_domain/types.nix { inherit lib network; };
 

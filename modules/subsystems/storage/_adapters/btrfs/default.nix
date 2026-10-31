@@ -1,5 +1,5 @@
 #
-# The btrfs backend: see the backend contract in ../../default.nix.
+# The btrfs backend: see the backend contract in ../../core.nix.
 #
 { lib, storage }:
 {

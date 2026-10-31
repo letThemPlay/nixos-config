@@ -1,4 +1,8 @@
-{ inputs, lib, ... }:
+#
+# Repository plumbing passed to every flake-parts module as an argument.
+# Not related to nixpkgs `lib`.
+#
+{ lib, ... }:
 let
   findFilesWithExt =
     ext: dir:
@@ -12,18 +16,9 @@ let
       |> lib.mapAttrsToList (name: _: dir + "/${name}")
     else
       [ ];
-
-  importAscFiles =
-    username:
-    (inputs.self + "/gpg/${username}")
-    |> findFilesWithExt "asc"
-    |> lib.forEach (filePath: {
-      source = filePath;
-      trust = 5;
-    });
 in
 {
   _module.args = {
-    inherit findFilesWithExt importAscFiles;
+    inherit findFilesWithExt;
   };
 }

@@ -1,21 +1,24 @@
 #
-# The storage library, one directory per Clean Architecture ring:
+# The storage core, one directory per Clean Architecture ring:
 #
 #   _domain/    entities: volume, persistence and layout types; layouts
 #   _usecases/  normalize (host settings -> model), validate, query
 #   _adapters/  model -> disko, rollback (per backend) and preservation
 #
+# api.nix (options) and module.nix (NixOS wiring) beside this file are
+# the outer ring: they depend on the core, never the reverse.
+#
 # The underscore directories are not flake-parts modules (import-tree
 # skips them); each file is a plain function. `storage` is the
-# assembled library itself, so the parts can refer to each other
+# assembled core itself, so the parts can refer to each other
 # without global names.
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.library) diagnostics;
+  inherit (config.flake.subsystems) diagnostics;
 in
 {
-  flake.library.storage = lib.fix (storage: {
+  flake.subsystems.storage = lib.fix (storage: {
 
     types = import ./_domain/types.nix { inherit lib storage; };
 

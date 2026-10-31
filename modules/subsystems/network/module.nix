@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  network = config.flake.library.network;
+  network = config.flake.subsystems.network;
 in
 {
   flake.nixosModules.network =

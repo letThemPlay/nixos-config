@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  network = config.flake.library.network;
+  network = config.flake.subsystems.network;
 
   inherit (config.flake.nixosModules) network-api;
 
@@ -312,10 +312,10 @@ in
       failures = lib.runTests tests;
     in
     {
-      checks.network-lib =
+      checks.network-unit =
         if failures == [ ] then
-          pkgs.runCommand "network-lib-tests" { } "touch $out"
+          pkgs.runCommand "network-unit-tests" { } "touch $out"
         else
-          throw "network library tests failed:\n${lib.generators.toPretty { } failures}";
+          throw "network unit tests failed:\n${lib.generators.toPretty { } failures}";
     };
 }

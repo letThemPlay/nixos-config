@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  storage = config.flake.library.storage;
+  storage = config.flake.subsystems.storage;
 
   inherit (config.flake.nixosModules) storage-api;
 
@@ -577,10 +577,10 @@ in
       failures = lib.runTests (tests pkgs);
     in
     {
-      checks.storage-lib =
+      checks.storage-unit =
         if failures == [ ] then
-          pkgs.runCommand "storage-lib-tests" { } "touch $out"
+          pkgs.runCommand "storage-unit-tests" { } "touch $out"
         else
-          throw "storage library tests failed:\n${lib.generators.toPretty { } failures}";
+          throw "storage unit tests failed:\n${lib.generators.toPretty { } failures}";
     };
 }
