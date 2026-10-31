@@ -92,7 +92,7 @@ let
 
     testExplicitLoaderWithoutSigning = {
       expr = codes (secureBoot // { loader = "systemd-boot"; });
-      expected = [ "boot.secureBoot.loaderUnsupported" ];
+      expected = [ "boot.secureBoot.loader.unsupported" ];
     };
 
     # loader is a string, so a bad name reaches validation.
@@ -107,7 +107,7 @@ let
         encrypted = codesOf (modelWith encrypted { tpmUnlock.enable = true; });
       };
       expected = {
-        unencrypted = [ "boot.tpmUnlock.noEncryption" ];
+        unencrypted = [ "boot.tpmUnlock.encryption.missing" ];
         encrypted = [ ];
       };
     };

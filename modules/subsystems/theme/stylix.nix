@@ -7,7 +7,7 @@ in
   # stylix for every themed user. Separate from the theme module so the
   # theme facts are usable without stylix and home-manager.
   #
-  flake.nixosModules.stylix =
+  flake.nixosModules.theme-stylix =
     {
       config,
       lib,

@@ -32,7 +32,7 @@
         inputs.self.nixosModules.users
         inputs.self.nixosModules.theme-api
         inputs.self.nixosModules.theme
-        inputs.self.nixosModules.stylix
+        inputs.self.nixosModules.theme-stylix
         inputs.self.nixosModules.secrets
         inputs.self.nixosModules.shell-api
         inputs.self.nixosModules.shell

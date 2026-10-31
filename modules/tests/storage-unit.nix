@@ -412,7 +412,7 @@ let
         };
       };
       expected = [
-        "storage.persistence.volume.lateMount"
+        "storage.persistence.volume.late"
         "storage.persistence.volume.rollback"
         "storage.persistence.volume.unknown"
         "storage.persistence.volume.unmounted"

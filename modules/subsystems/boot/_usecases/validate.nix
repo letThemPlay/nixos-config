@@ -41,7 +41,7 @@ rec {
     mkResult (
       optional (model.secureBoot.enable && model.loader.known && !model.loader.secureBoot) (mkDiagnostic {
         severity = "error";
-        code = "boot.secureBoot.loaderUnsupported";
+        code = "boot.secureBoot.loader.unsupported";
         target = model.loader.name;
         path = [
           "secureBoot"
@@ -60,7 +60,7 @@ rec {
     mkResult (
       optional (model.tpmUnlock.enable && model.tpmUnlock.luksName == null) (mkDiagnostic {
         severity = "error";
-        code = "boot.tpmUnlock.noEncryption";
+        code = "boot.tpmUnlock.encryption.missing";
         target = "tpmUnlock";
         path = [
           "tpmUnlock"

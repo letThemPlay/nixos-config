@@ -215,7 +215,7 @@ rec {
           )
 
           ++ optional (volume.mountpoint != null && !volume.neededForBoot) (
-            diagnostic "storage.persistence.volume.lateMount" "Persistence policy references volume '${volumeId}', which is not neededForBoot."
+            diagnostic "storage.persistence.volume.late" "Persistence policy references volume '${volumeId}', which is not neededForBoot."
           );
     in
 
