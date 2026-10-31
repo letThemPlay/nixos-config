@@ -63,6 +63,42 @@ in
           }
         ]);
 
+      #
+      # How each overlay backend reaches NixOS. Every key of
+      # network.overlays needs an entry here.
+      #
+      overlayOptions = {
+        tailscale = overlay: {
+          services.tailscale = {
+            enable = true;
+
+            inherit (overlay) interfaceName useRoutingFeatures extraUpFlags;
+
+            authKeyFile = config.age.secrets.${overlay.secret}.path;
+          };
+
+          age.secrets.${overlay.secret} = {
+            file = network.secretsDir + "/${overlay.secret}.age";
+            mode = "0400";
+            owner = "root";
+          };
+        };
+      };
+
+      renderOverlay =
+        name: backend:
+        let
+          overlay = backend { inherit model; };
+        in
+        mkIf (model.overlay.enable && model.overlay.backend == name) (mkMerge [
+          (overlayOptions.${name} overlay)
+
+          {
+            # Reads only network options, like the wireless state.
+            ltp.storage.persistence.state = mkIf config.ltp.storage.enable overlay.state;
+          }
+        ]);
+
       format = diagnostic: "ltp.network [${diagnostic.code}]: ${diagnostic.message}";
 
       errors = map (diagnostic: {
@@ -108,6 +144,8 @@ in
               ++ mapAttrsToList renderBackend network.backends
 
               ++ mapAttrsToList renderWireless network.wireless
+
+              ++ mapAttrsToList renderOverlay network.overlays
             )
           ))
 
