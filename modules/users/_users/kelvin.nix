@@ -1,5 +1,4 @@
 {
-  username = "kelvin";
   fullName = "Kelvin";
   email = "kelvin@example.com";
   admin = true;
@@ -11,5 +10,5 @@
     "vlc"
   ];
   theme = "catppuccin";
-  defaultShell = "zsh";
+  shell = "zsh";
 }

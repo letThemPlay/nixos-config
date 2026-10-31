@@ -1,21 +1,16 @@
-{ inputs, findFilesWithExt, ... }: {
+{ findFilesWithExt, ... }:
+{
+  #
+  # The user catalogue: each file in _users defines
+  # ltp.identity.users.<file name>. Hosts enable the users they have.
+  #
   flake.nixosModules.users =
+    { lib, ... }:
     {
-      lib,
-      ...
-    }:
-    let
-      inherit (inputs) self;
-
-      userFiles = findFilesWithExt "nix" ./_users;
-    in
-    {
-      imports = lib.forEach userFiles (
-        file:
-        let
-          userData = import file;
-        in
-        self.factory.user userData
+      config.ltp.identity.users = lib.listToAttrs (
+        map (file: lib.nameValuePair (lib.removeSuffix ".nix" (baseNameOf file)) (import file)) (
+          findFilesWithExt "nix" ./_users
+        )
       );
     };
 }

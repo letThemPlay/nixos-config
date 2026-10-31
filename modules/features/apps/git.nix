@@ -12,7 +12,7 @@ _: {
           (
             { config, osConfig, ... }:
             let
-              userProfile = osConfig.ltp.users.registry.${config.home.username} or { };
+              userProfile = osConfig.ltp.identity.facts.users.${config.home.username} or { };
             in
             {
               programs.git = {

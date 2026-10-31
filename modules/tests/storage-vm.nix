@@ -6,7 +6,9 @@ let
 
   storageModule = config.flake.nixosModules.storage;
 
-  identityModule = config.flake.nixosModules.ephemeral-identity;
+  inherit (config.flake.nixosModules) identity-api;
+
+  identityModule = config.flake.nixosModules.identity;
 
   settings = {
     enable = true;
@@ -60,6 +62,7 @@ in
           imports = [
             storage-api
             storageModule
+            identity-api
             identityModule
           ];
 
@@ -89,10 +92,12 @@ in
 
           services.openssh.enable = true;
 
-          users.users.alice = {
-            isNormalUser = true;
-            extraGroups = [ "wheel" ];
-            hashedPasswordFile = "/persist/secrets/passwords/alice";
+          # Her password file is derived: /persist/secrets/passwords/alice.
+          ltp.identity.users.alice = {
+            fullName = "Alice";
+            email = "alice@example.com";
+            admin = true;
+            enable = true;
           };
         };
 

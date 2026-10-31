@@ -13,6 +13,7 @@
       gpg = [ inputs.self.nixosModules.gpg ];
       nvidia = [ inputs.self.nixosModules.nvidia-graphics ];
       gaming = [ inputs.self.nixosModules.steam-gaming ];
+      flashgbx = [ inputs.self.nixosModules.flashgbx ];
 
       base = [
         inputs.self.nixosModules.cachix-caches
@@ -22,6 +23,9 @@
         inputs.self.nixosModules.network
         inputs.self.nixosModules.network-api
         inputs.self.nixosModules.security
+        inputs.self.nixosModules.identity-api
+        inputs.self.nixosModules.identity
+        inputs.self.nixosModules.identity-home
         inputs.self.nixosModules.users
         inputs.self.nixosModules.stylix
         inputs.self.nixosModules.secrets
@@ -30,7 +34,6 @@
 
         inputs.self.nixosModules.storage
         inputs.self.nixosModules.storage-api
-        inputs.self.nixosModules.ephemeral-identity
       ];
 
       laptop = [

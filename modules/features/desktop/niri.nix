@@ -43,7 +43,7 @@
               inherit pkgs;
               profileThemeImage = resolvedImagePath;
             };
-        }) config.ltp.users.registry;
+        }) config.ltp.identity.facts.users;
       };
     };
 }

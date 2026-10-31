@@ -524,7 +524,7 @@ let
     };
 
     # Plain data only; identity and user policy live in the
-    # ephemeral-identity feature.
+    # identity subsystem.
     testPreservationIsPlainData = {
       expr = lib.attrNames (preservationOf { });
       expected = [ "preserveAt" ];

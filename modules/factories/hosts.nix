@@ -58,9 +58,14 @@
               ;
           };
 
-          users.profiles = lib.genAttrs users (_: {
-            enable = true;
-          });
+          ltp.identity = {
+            users = lib.genAttrs users (_: {
+              enable = true;
+            });
+
+            # User features are checked against every feature name.
+            knownFeatures = builtins.attrNames registryData.config.modules.features.registry;
+          };
 
           environment.systemPackages = [ pkgs.curl ];
         })

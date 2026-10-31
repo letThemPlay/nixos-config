@@ -74,7 +74,7 @@
               size = config.ltp.stylixOverrides.cursorSize;
             };
           };
-        }) config.ltp.users.registry;
+        }) config.ltp.identity.facts.users;
       };
     };
 }

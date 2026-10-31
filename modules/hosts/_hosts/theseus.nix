@@ -8,6 +8,7 @@
     "laptop"
     "window-management"
     "core-apps"
+    "flashgbx"
   ];
 
   users = [ "kelvin" ];

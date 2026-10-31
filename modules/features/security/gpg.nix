@@ -16,7 +16,7 @@
             Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
           '';
         }
-      ) config.ltp.users.registry;
+      ) config.ltp.identity.facts.users;
     };
   };
 }
