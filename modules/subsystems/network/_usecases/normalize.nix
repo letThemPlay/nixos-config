@@ -2,7 +2,6 @@
 let
   inherit (lib)
     attrNames
-    filterAttrs
     genAttrs
     unique
     ;
@@ -10,9 +9,6 @@ let
   networkProfiles = network.profiles;
   networkProviders = network.providers;
   networkTypes = network.types;
-
-  # An override only replaces the fields it sets.
-  setFields = filterAttrs (_: value: value != null);
 
   orDefault = value: default: if value == null then default else value;
 in
@@ -42,9 +38,9 @@ let
   #
   links = genAttrs (unique (attrNames profileLinks ++ attrNames cfg.links)) (
     id:
-    networkTypes.linkDefaults id
-    // (profileLinks.${id} or { })
-    // setFields (cfg.links.${id} or { })
+    networkTypes.applyLinkOverride (networkTypes.linkDefaults id // (profileLinks.${id} or { })) (
+      cfg.links.${id} or { }
+    )
     // {
       inherit id;
     }

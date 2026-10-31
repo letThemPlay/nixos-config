@@ -441,6 +441,19 @@ let
       expected = { };
     };
 
+    # Overrides apply the fields they define, so a nullable field can be
+    # set to null on purpose.
+    testExplicitNullOverride = {
+      expr = {
+        unmounted = (modelOf { volumes.home.mountpoint = null; }).volumes.home.mountpoint;
+        untouched = (modelOf { volumes.home.snapshot = false; }).volumes.home.mountpoint;
+      };
+      expected = {
+        unmounted = null;
+        untouched = "/home";
+      };
+    };
+
     testMountOptions = {
       expr = (subvolumesOf { volumes.persist.mountOptions = [ "nodev" ]; })."@persist".mountOptions;
       expected = [

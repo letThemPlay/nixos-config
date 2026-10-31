@@ -15,12 +15,12 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.subsystems) diagnostics;
+  inherit (config.flake.subsystems) diagnostics overrides;
 in
 {
   flake.subsystems.storage = lib.fix (storage: {
 
-    types = import ./_domain/types.nix { inherit lib; };
+    types = import ./_domain/types.nix { inherit lib overrides; };
 
     layouts = import ./_domain/layouts.nix { };
 

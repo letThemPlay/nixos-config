@@ -227,23 +227,9 @@ let
       expected = [ "desktop.app.package.unknown" ];
     };
 
-    # An override cannot unset execFlag (null means "not set"), so the
-    # model is edited directly.
+    # execFlag is nullable, so an override can clear it.
     testTerminalWithoutExecFlag = {
-      expr =
-        let
-          model = modelOf { };
-        in
-        codesOf desktop.validate (
-          model
-          // {
-            apps = model.apps // {
-              terminal = model.apps.terminal // {
-                execFlag = null;
-              };
-            };
-          }
-        );
+      expr = codes { apps.terminal.execFlag = null; };
       expected = [ "desktop.app.terminal.missing" ];
     };
 

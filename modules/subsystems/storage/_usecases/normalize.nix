@@ -5,7 +5,6 @@ let
     attrValues
     concatMap
     filter
-    filterAttrs
     genAttrs
     optionalAttrs
     unique
@@ -23,8 +22,6 @@ let
     }
   );
 
-  # An override only replaces the fields it sets.
-  setFields = filterAttrs (_: value: value != null);
 in
 
 #
@@ -59,10 +56,9 @@ let
   normalizedVolumes = genAttrs (unique (attrNames layoutVolumes ++ attrNames cfg.volumes)) (
     id:
     let
-      volume =
-        storageTypes.volumeDefaults id
-        // (layoutVolumes.${id} or { })
-        // setFields (cfg.volumes.${id} or { });
+      volume = storageTypes.applyVolumeOverride (
+        storageTypes.volumeDefaults id // (layoutVolumes.${id} or { })
+      ) (cfg.volumes.${id} or { });
     in
     volume
     // {

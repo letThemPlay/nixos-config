@@ -60,6 +60,12 @@ let
 
   tests = {
 
+    # null on a field that is not nullable still means "not set".
+    testNullOverrideOnRequiredField = {
+      expr = (modelOf { links.wired.routeMetric = null; }).links.wired.routeMetric;
+      expected = 1024;
+    };
+
     # Selectors are strings, so a bad name reaches validation.
     testUnknownBackendOption = {
       expr = codes { backend = "nm"; };

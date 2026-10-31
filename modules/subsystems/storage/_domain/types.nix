@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, overrides }:
 let
   inherit (lib) mapAttrs mkOption types;
 in
@@ -12,7 +12,7 @@ rec {
   #
   # Volume fields, declared once. `volume` is the full entity used by
   # layouts and the model; `volumeOverride` is the host-facing
-  # partial form where null means "not set". normalize merges
+  # partial form: only the fields it defines apply. normalize merges
   # volumeDefaults <- layout volume <- override.
   #
   volumeFields = {
@@ -155,20 +155,13 @@ rec {
   );
 
   #
-  # Host override of a layout volume, or a new volume. Only fields
-  # that are set (non-null) replace the layout value; a layout
-  # volume therefore cannot be un-mounted by an override.
+  # Host override of a layout volume, or a new volume. Only the fields
+  # an override defines replace the layout value, so a layout volume
+  # can be un-mounted with mountpoint = null (see overrides.nix).
   #
-  volumeOverride = types.submodule {
-    options = mapAttrs (
-      _: spec:
-      mkOption {
-        type = types.nullOr spec.type;
-        default = null;
-        inherit (spec) description;
-      }
-    ) volumeFields;
-  };
+  volumeOverride = overrides.type volumeFields;
+
+  applyVolumeOverride = overrides.apply volumeFields;
 
   #
   # A preserved path: either a plain absolute path or an attrset with

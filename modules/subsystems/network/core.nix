@@ -13,12 +13,12 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.subsystems) diagnostics;
+  inherit (config.flake.subsystems) diagnostics overrides;
 in
 {
   flake.subsystems.network = lib.fix (network: {
 
-    types = import ./_domain/types.nix { inherit lib; };
+    types = import ./_domain/types.nix { inherit lib overrides; };
 
     profiles = import ./_domain/profiles.nix { };
 

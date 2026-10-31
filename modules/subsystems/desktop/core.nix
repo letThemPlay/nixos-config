@@ -14,12 +14,12 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.subsystems) diagnostics;
+  inherit (config.flake.subsystems) diagnostics overrides;
 in
 {
   flake.subsystems.desktop = lib.fix (desktop: {
 
-    types = import ./_domain/types.nix { inherit lib desktop; };
+    types = import ./_domain/types.nix { inherit lib desktop overrides; };
 
     actions = import ./_domain/actions.nix { };
 

@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, overrides }:
 let
   inherit (lib) mapAttrs mkOption types;
 in
@@ -71,7 +71,7 @@ rec {
   #
   # Link fields, declared once. `link` is the full entity used by
   # profiles and the model; `linkOverride` is the host-facing partial
-  # form where null means "not set". normalize merges
+  # form: only the fields it defines apply. normalize merges
   # linkDefaults <- profile link <- override.
   #
   linkFields = {
@@ -182,19 +182,12 @@ rec {
   );
 
   #
-  # Host override of a profile link, or a new link. Only fields that
-  # are set (non-null) replace the profile value.
+  # Host override of a profile link, or a new link. Only the fields an
+  # override defines replace the profile value (see overrides.nix).
   #
-  linkOverride = types.submodule {
-    options = mapAttrs (
-      _: spec:
-      mkOption {
-        type = types.nullOr spec.type;
-        default = null;
-        inherit (spec) description;
-      }
-    ) linkFields;
-  };
+  linkOverride = overrides.type linkFields;
+
+  applyLinkOverride = overrides.apply linkFields;
 
   profile = types.submodule {
     options = {

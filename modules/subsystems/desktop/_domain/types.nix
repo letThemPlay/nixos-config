@@ -1,4 +1,8 @@
-{ lib, desktop }:
+{
+  lib,
+  desktop,
+  overrides,
+}:
 let
   inherit (lib) mkOption types;
 in
@@ -9,8 +13,9 @@ rec {
 
   #
   # App role fields, declared once. `app` is the full entity; `appOverride`
-  # is the host-facing partial form where null means "not set". normalize
-  # merges appDefaults <- default role <- override, like storage volumes.
+  # is the host-facing partial form: only the fields it defines apply.
+  # normalize merges appDefaults <- default role <- override, like
+  # storage volumes.
   #
   appFields = {
 
@@ -49,16 +54,9 @@ rec {
     execFlag = null;
   };
 
-  appOverride = types.submodule {
-    options = lib.mapAttrs (
-      _: spec:
-      mkOption {
-        type = types.nullOr spec.type;
-        default = null;
-        inherit (spec) description;
-      }
-    ) appFields;
-  };
+  appOverride = overrides.type appFields;
+
+  applyAppOverride = overrides.apply appFields;
 
   # A resolved role: command already wrapped in the terminal when needed.
   app = types.submodule {

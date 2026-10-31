@@ -2,14 +2,11 @@
 let
   inherit (lib)
     attrNames
-    filterAttrs
     genAttrs
     mapAttrs
     unique
     ;
 
-  # An override only replaces the fields it sets.
-  setFields = filterAttrs (_: value: value != null);
 in
 
 #
@@ -31,9 +28,9 @@ let
   # appDefaults <- default role <- override.
   roles = genAttrs (unique (attrNames desktop.defaultApps ++ attrNames cfg.apps)) (
     role:
-    desktop.types.appDefaults role
-    // (desktop.defaultApps.${role} or { })
-    // setFields (cfg.apps.${role} or { })
+    desktop.types.applyAppOverride (
+      desktop.types.appDefaults role // (desktop.defaultApps.${role} or { })
+    ) (cfg.apps.${role} or { })
   );
 
   terminal = roles.terminal or null;
