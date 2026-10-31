@@ -74,6 +74,21 @@ in
           description = "Background components of the graphical session.";
         };
 
+        idle = mkOption {
+          type = desktop.types.idle;
+          default = { };
+
+          example = {
+            lockAfter = 600;
+            suspendAfter = null;
+          };
+
+          description = ''
+            Idle policy: seconds until the session locks and until the
+            machine suspends. Null skips that step.
+          '';
+        };
+
         defaultWindowRules = mkOption {
           type = types.bool;
           default = true;

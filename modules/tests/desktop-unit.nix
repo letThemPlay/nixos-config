@@ -306,6 +306,32 @@ let
       expected = [ "desktop.rule.unsupported" ];
     };
 
+    testIdleOrder = {
+      expr = map codes [
+        { idle.suspendAfter = 60; }
+        { idle.suspendAfter = 300; }
+        {
+          idle = {
+            lockAfter = null;
+            suspendAfter = 60;
+          };
+        }
+      ];
+      expected = [
+        [ "desktop.idle.order" ]
+        [ "desktop.idle.order" ]
+        [ ]
+      ];
+    };
+
+    testIdleDefaults = {
+      expr = (modelOf { }).idle;
+      expected = {
+        lockAfter = 300;
+        suspendAfter = 900;
+      };
+    };
+
     testWaybarResolvesWidgets = {
       expr = desktop.waybar {
         model = modelOf {

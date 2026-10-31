@@ -165,6 +165,26 @@ rec {
     };
   };
 
+  #
+  # When the idle session locks and suspends, in seconds. Null skips
+  # that step.
+  #
+  idle = types.submodule {
+    options = {
+
+      lockAfter = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = 300;
+      };
+
+      suspendAfter = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = 900;
+      };
+
+    };
+  };
+
   # The properties a rule can set, for compositor capability checks.
   ruleProperties = [
     "opacity"
@@ -261,6 +281,10 @@ rec {
 
       windowRules = mkOption {
         type = types.attrsOf windowRule;
+      };
+
+      idle = mkOption {
+        type = idle;
       };
 
       bar = mkOption {

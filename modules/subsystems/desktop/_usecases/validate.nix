@@ -249,9 +249,33 @@ rec {
       ) (known model)
     );
 
+  #
+  # Suspending at or before the lock time makes the lock step pointless
+  # (the session is locked on sleep anyway), so it is almost certainly a
+  # mistake.
+  #
+  idle =
+    model:
+    let
+      inherit (model.idle) lockAfter suspendAfter;
+    in
+    mkResult (
+      optional (lockAfter != null && suspendAfter != null && suspendAfter <= lockAfter) (mkDiagnostic {
+        severity = "error";
+        code = "desktop.idle.order";
+        target = "idle";
+        path = [
+          "idle"
+          "suspendAfter"
+        ];
+        message = "idle.suspendAfter (${toString suspendAfter}s) must be later than idle.lockAfter (${toString lockAfter}s).";
+      })
+    );
+
   all =
     model:
     combine [
+      (idle model)
       (windowRules model)
       (compositors model)
       (binds model)

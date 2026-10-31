@@ -109,5 +109,10 @@ in
     }
   ) merged;
 
-  inherit (cfg) bar services keyboard;
+  inherit (cfg)
+    bar
+    services
+    keyboard
+    idle
+    ;
 }
