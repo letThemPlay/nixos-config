@@ -85,14 +85,11 @@ in
           # Not behind validation.ok: home-manager looks up an account for
           # every published user, so withholding accounts would turn a
           # validation error into a missing-attribute crash. Accounts use
-          # none of the validated fields (packages, features); the
-          # shell is checked by its type.
+          # none of the validated fields (packages, features).
           #
           {
             users.users = mapAttrs (_: account: {
               inherit (account) isNormalUser description extraGroups;
-
-              shell = pkgs.${account.shell};
 
               hashedPasswordFile = mkIf (account.passwordFile != null) (mkDefault account.passwordFile);
             }) accounts.users;

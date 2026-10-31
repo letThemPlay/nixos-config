@@ -57,12 +57,9 @@ rec {
     };
 
     shell = {
-      type = types.enum [
-        "bash"
-        "zsh"
-      ];
+      type = types.str;
       default = "bash";
-      description = "Login shell.";
+      description = "Login shell; the shell subsystem checks and renders it.";
     };
 
   };

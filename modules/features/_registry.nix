@@ -31,7 +31,8 @@
         inputs.self.nixosModules.theme
         inputs.self.nixosModules.stylix
         inputs.self.nixosModules.secrets
-        inputs.self.nixosModules.zsh
+        inputs.self.nixosModules.shell-api
+        inputs.self.nixosModules.shell
         inputs.self.nixosModules.shell-utilities
 
         inputs.self.nixosModules.storage

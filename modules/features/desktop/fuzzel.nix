@@ -11,20 +11,26 @@ _: {
     in
     {
       config = {
-        ltp.desktop.binds."Mod+D".spawn = [ "${pkgs.fuzzel}/bin/fuzzel" ];
+        ltp = {
+          desktop = {
+            binds."Mod+D".spawn = [ "${pkgs.fuzzel}/bin/fuzzel" ];
 
-        # A soft floating shadow for the launcher.
-        ltp.desktop.windowRules.fuzzel = {
-          match.appId = "^fuzzel$";
-          shadow = {
-            softness = 16;
-            color = "rgba(0, 0, 0, 0.65)";
-            offset = {
-              x = 10;
-              y = 10;
+            # A soft floating shadow for the launcher.
+            windowRules.fuzzel = {
+              match.appId = "^fuzzel$";
+              shadow = {
+                softness = 16;
+                color = "rgba(0, 0, 0, 0.65)";
+                offset = {
+                  x = 10;
+                  y = 10;
+                };
+              };
+              focusRing = true;
             };
           };
-          focusRing = true;
+
+          shell.aliases.ff = "fuzzel";
         };
 
         home-manager.sharedModules = [

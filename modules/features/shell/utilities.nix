@@ -1,5 +1,7 @@
 _: {
   flake.nixosModules.shell-utilities = _: {
+    ltp.shell.aliases.lt = "eza --tree --level=2";
+
     home-manager.sharedModules = [
       (_: {
         programs = {
@@ -20,10 +22,6 @@ _: {
               "--group-directories-first"
               "--header"
             ];
-          };
-
-          zsh.shellAliases = {
-            lt = "eza --tree --level=2";
           };
         };
       })

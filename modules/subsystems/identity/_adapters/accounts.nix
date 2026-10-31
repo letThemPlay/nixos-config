@@ -1,8 +1,8 @@
 { lib }:
 
 #
-# users.users entries as plain data. The shell is a package name; the
-# identity module resolves it from pkgs.
+# users.users entries as plain data. The login shell is set by the shell
+# subsystem from the user's `shell`.
 #
 { model }:
 
@@ -14,6 +14,6 @@
 
     extraGroups = user.groups;
 
-    inherit (user) shell passwordFile;
+    inherit (user) passwordFile;
   }) model.users;
 }

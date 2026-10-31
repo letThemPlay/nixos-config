@@ -246,7 +246,6 @@ let
           "video"
           "audio"
         ];
-        shell = "zsh";
         passwordFile = "/persist/secrets/passwords/alice";
       };
     };
