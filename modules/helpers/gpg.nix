@@ -1,6 +1,5 @@
 {
   inputs,
-  lib,
   findFilesWithExt,
   ...
 }:
@@ -9,7 +8,7 @@ let
     username:
     (inputs.self + "/gpg/${username}")
     |> findFilesWithExt "asc"
-    |> lib.forEach (filePath: {
+    |> map (filePath: {
       source = filePath;
       trust = 5;
     });
