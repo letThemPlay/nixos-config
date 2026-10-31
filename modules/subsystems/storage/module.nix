@@ -79,7 +79,7 @@ in
           "ltp"
           "storage"
           "renderer"
-        ] "disko is the only renderer; select the filesystem backend with ltp.storage.filesystem.type.")
+        ] "disko is the only renderer; select the storage backend with ltp.storage.backend.")
       ];
 
       config = mkMerge [

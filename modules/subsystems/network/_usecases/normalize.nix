@@ -57,13 +57,13 @@ let
   # No provider, or an unknown one, supplies nothing.
   provider = if dns.provider == null then { } else networkProviders.${dns.provider} or { };
 
-  dnsOverTLS = orDefault dns.dnsOverTLS (provider.dnsOverTLS or "yes");
+  dnsOverTls = orDefault dns.dnsOverTls (provider.dnsOverTls or "yes");
 
   tlsName = provider.tlsName or null;
 
   # The TLS name lets the resolver verify the provider's certificate.
   providerServers = map (
-    server: if tlsName != null && dnsOverTLS != "no" then "${server}#${tlsName}" else server
+    server: if tlsName != null && dnsOverTls != "no" then "${server}#${tlsName}" else server
   ) (provider.servers or [ ]);
 in
 {
@@ -112,7 +112,7 @@ in
     # Host servers are taken as written.
     servers = orDefault dns.servers providerServers;
 
-    inherit dnsOverTLS;
+    inherit dnsOverTls;
 
     dnssec = orDefault dns.dnssec false;
 

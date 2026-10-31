@@ -115,8 +115,8 @@ in
             '';
           };
 
-          dnsOverTLS = mkOption {
-            type = types.nullOr network.types.dnsOverTLS;
+          dnsOverTls = mkOption {
+            type = types.nullOr network.types.dnsOverTls;
             default = null;
 
             description = ''

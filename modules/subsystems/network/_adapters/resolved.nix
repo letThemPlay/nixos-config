@@ -10,7 +10,7 @@ _:
   Resolve = {
     DNS = model.dns.servers;
 
-    DNSOverTLS = model.dns.dnsOverTLS;
+    DNSOverTLS = model.dns.dnsOverTls;
 
     DNSSEC = model.dns.dnssec;
 

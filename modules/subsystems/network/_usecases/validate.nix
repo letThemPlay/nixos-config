@@ -169,7 +169,7 @@ rec {
         message = "No DNS servers: select a provider or set dns.servers.";
       })
 
-      ++ optional (dns.dnsOverTLS == "yes" && unverifiedFallback != [ ]) (mkDiagnostic {
+      ++ optional (dns.dnsOverTls == "yes" && unverifiedFallback != [ ]) (mkDiagnostic {
         severity = "warning";
         code = "network.dns.fallback.insecure";
         target = concatStringsSep ", " unverifiedFallback;

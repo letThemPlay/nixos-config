@@ -16,7 +16,7 @@ _: {
 
     tlsName = "cloudflare-dns.com";
 
-    dnsOverTLS = "yes";
+    dnsOverTls = "yes";
 
     # Verified over TLS like the primary servers.
     fallback = [ "8.8.8.8#dns.google" ];
@@ -36,7 +36,7 @@ _: {
 
     tlsName = "965e8b.dns.nextdns.io";
 
-    dnsOverTLS = "yes";
+    dnsOverTls = "yes";
 
     fallback = [ ];
   };
@@ -55,7 +55,7 @@ _: {
 
     tlsName = "1cn20by0pm5.dns.controld.com";
 
-    dnsOverTLS = "yes";
+    dnsOverTls = "yes";
 
     fallback = [ ];
   };

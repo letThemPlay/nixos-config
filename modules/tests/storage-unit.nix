@@ -182,10 +182,8 @@ let
           plain = storage.normalize {
             layout = "erase-my-darlings";
             disk = "/dev/disk/by-id/test";
-            filesystem = {
-              type = "btrfs";
-              compression = "zstd";
-            };
+            backend = "btrfs";
+            filesystem.compression = "zstd";
             boot.efiSize = "1G";
             swap = {
               enable = false;
@@ -200,7 +198,7 @@ let
             rollback.keepSnapshots = 5;
             volumes.home.mountpoint = "/data";
             persistence = {
-              layoutDefaults = true;
+              defaultPolicy = true;
               policy = { };
               state = {
                 directories = [ ];
@@ -278,7 +276,7 @@ let
     testLayoutDefaultsCanBeDisabled = {
       expr =
         (modelOf {
-          persistence.layoutDefaults = false;
+          persistence.defaultPolicy = false;
           persistence.policy.persist.directories = [ "/var/lib/only" ];
         }).persistence.persist.directories;
       expected = [ "/var/lib/only" ];

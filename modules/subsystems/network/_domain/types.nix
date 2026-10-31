@@ -69,7 +69,7 @@ rec {
     };
   };
 
-  dnsOverTLS = types.enum [
+  dnsOverTls = types.enum [
     "yes"
     "opportunistic"
     "no"
@@ -259,8 +259,8 @@ rec {
         '';
       };
 
-      dnsOverTLS = mkOption {
-        type = dnsOverTLS;
+      dnsOverTls = mkOption {
+        type = dnsOverTls;
         default = "yes";
       };
 
@@ -378,8 +378,8 @@ rec {
               '';
             };
 
-            dnsOverTLS = mkOption {
-              type = dnsOverTLS;
+            dnsOverTls = mkOption {
+              type = dnsOverTls;
             };
 
             dnssec = mkOption {

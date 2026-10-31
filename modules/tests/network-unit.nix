@@ -51,7 +51,7 @@ let
       dns = {
         provider = null;
         servers = [ "9.9.9.9#dns.quad9.net" ];
-        dnsOverTLS = "opportunistic";
+        dnsOverTls = "opportunistic";
         dnssec = true;
         fallback = [ ];
       };
@@ -288,7 +288,7 @@ let
     };
 
     testPlainServersWithoutTls = {
-      expr = (modelOf { dns.dnsOverTLS = "no"; }).dns.servers;
+      expr = (modelOf { dns.dnsOverTls = "no"; }).dns.servers;
       expected = [
         "1.1.1.1"
         "1.0.0.1"

@@ -142,12 +142,17 @@ in
 
         };
 
-        filesystem = {
+        backend = mkOption {
+          type = storage.types.backend;
+          default = "btrfs";
 
-          type = mkOption {
-            type = storage.types.backend;
-            default = "btrfs";
-          };
+          description = ''
+            Storage backend that renders the volumes (see
+            flake.subsystems.storage.backends).
+          '';
+        };
+
+        filesystem = {
 
           compression = mkOption {
             type = types.str;
@@ -174,7 +179,7 @@ in
 
         persistence = {
 
-          layoutDefaults = mkOption {
+          defaultPolicy = mkOption {
             type = types.bool;
             default = true;
 

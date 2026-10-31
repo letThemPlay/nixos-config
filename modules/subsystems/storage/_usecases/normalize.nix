@@ -29,8 +29,8 @@ in
 
 #
 # cfg is the ltp.storage option set, or any attrset of the
-# same shape: layout, filesystem.type, volumes (partial overrides),
-# persistence.{layoutDefaults,policy,state}, rollback and
+# same shape: layout, backend, volumes (partial overrides),
+# persistence.{defaultPolicy,policy,state}, rollback and
 # the platform settings. No module system is required.
 #
 cfg:
@@ -47,7 +47,7 @@ let
 
   stateRole = layout.stateRole or "persist";
 
-  backend = cfg.filesystem.type;
+  inherit (cfg) backend;
 
   layoutVolumes = layout.volumes or { };
 
@@ -72,7 +72,7 @@ let
     }
   );
 
-  layoutPolicy = if cfg.persistence.layoutDefaults then layout.persistence or { } else { };
+  layoutPolicy = if cfg.persistence.defaultPolicy then layout.persistence or { } else { };
 
   #
   # Feature-declared state goes to the volume with the layout's
