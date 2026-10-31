@@ -22,7 +22,10 @@ in
 
   # In a PRIME pair the nvidia driver also drives the integrated GPU.
   videoDrivers =
-    if active then [ "nvidia" ] else lib.unique (map (gpu: hardware.gpus.${gpu.vendor}.driver) gpus);
+    if active then
+      [ "nvidia" ]
+    else
+      lib.unique (map (gpu: hardware.gpuVendors.${gpu.vendor}.driver) gpus);
 
   nvidia =
     if nvidia == null then
@@ -50,7 +53,7 @@ in
 
           nvidiaBusId = nvidia.busId;
 
-          ${hardware.gpus.${integrated.vendor}.primeField} = integrated.busId;
+          ${hardware.gpuVendors.${integrated.vendor}.primeField} = integrated.busId;
         };
       };
 

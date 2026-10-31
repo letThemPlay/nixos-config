@@ -64,7 +64,7 @@ in
       );
 
       inherit
-        (desktop.services {
+        (desktop.systemdUnits {
           model = model // {
             services = model.services // barServices;
           };

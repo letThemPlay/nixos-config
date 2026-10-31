@@ -395,7 +395,7 @@ let
       expr =
         let
           inherit
-            (desktop.services {
+            (desktop.systemdUnits {
               model = modelOf {
                 services = {
                   any = {

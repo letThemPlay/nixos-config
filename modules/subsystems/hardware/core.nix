@@ -3,7 +3,8 @@
 #
 #   _domain/    entities: GPU, PRIME mode, model
 #   _usecases/  normalize, query, validate
-#   _adapters/  gpus/<vendor> and guests/<type> (registries); graphics
+#   _adapters/  gpu-vendors/<vendor> and guests/<type> (registries);
+#               graphics
 #
 # api.nix and module.nix beside this file are the outer ring. Generated
 # hardware files (nixos-generate-config) stay in hosts/_hosts/_hardware.
@@ -23,11 +24,12 @@ in
 
     validate = import ./_usecases/validate.nix { inherit lib hardware diagnostics; };
 
-    # GPU vendor registry: { driver; primeField; }.
-    gpus = {
-      amd = import ./_adapters/gpus/amd.nix { };
-      intel = import ./_adapters/gpus/intel.nix { };
-      nvidia = import ./_adapters/gpus/nvidia.nix { };
+    # GPU vendor registry, keyed like ltp.hardware.gpus.<n>.vendor:
+    # { driver; primeField; }.
+    gpuVendors = {
+      amd = import ./_adapters/gpu-vendors/amd.nix { };
+      intel = import ./_adapters/gpu-vendors/intel.nix { };
+      nvidia = import ./_adapters/gpu-vendors/nvidia.nix { };
     };
 
     # Guest registry, keyed like ltp.hardware.guest:

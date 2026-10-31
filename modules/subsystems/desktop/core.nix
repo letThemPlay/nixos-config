@@ -6,7 +6,7 @@
 #   _usecases/  normalize (host and component settings -> model),
 #               validate
 #   _adapters/  compositors/<name> (registry), waybar bar config,
-#               systemd user services
+#               systemd user units
 #
 # api.nix and module.nix beside this file are the outer ring.
 # Components (bar, launcher, notifier, ...) are features that
@@ -58,7 +58,7 @@ in
 
     waybar = import ./_adapters/waybar.nix { inherit lib; };
 
-    services = import ./_adapters/services.nix { inherit lib desktop; };
+    systemdUnits = import ./_adapters/systemd-units.nix { inherit lib desktop; };
 
   });
 }
