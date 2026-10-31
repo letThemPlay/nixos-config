@@ -295,8 +295,10 @@ rec {
         type = types.attrsOf service;
       };
 
-      keyboard.layout = mkOption {
-        type = types.str;
+      # The session keyboard, from ltp.locale.
+      keyboard = {
+        layout = mkOption { type = types.str; };
+        variant = mkOption { type = types.str; };
       };
 
     };

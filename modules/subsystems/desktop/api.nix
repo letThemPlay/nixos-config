@@ -35,12 +35,6 @@ in
           '';
         };
 
-        keyboard.layout = mkOption {
-          type = types.str;
-          default = "gb";
-          description = "XKB layout in the graphical session.";
-        };
-
         defaultBinds = mkOption {
           type = types.bool;
           default = true;

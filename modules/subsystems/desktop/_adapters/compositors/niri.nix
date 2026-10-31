@@ -132,7 +132,11 @@ rec {
       input {
           keyboard {
               xkb {
-                  layout ${kdlString model.keyboard.layout}
+                  layout ${kdlString model.keyboard.layout}${
+                    lib.optionalString (
+                      model.keyboard.variant != ""
+                    ) "\n            variant ${kdlString model.keyboard.variant}"
+                  }
               }
           }
           touchpad {

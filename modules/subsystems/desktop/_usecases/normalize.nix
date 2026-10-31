@@ -14,12 +14,17 @@ in
 
 #
 # cfg is the ltp.desktop option set, or any attrset of the same shape.
-# hasPackage tells whether a pkgs attribute path exists; the desktop
-# module supplies it. No module system is required.
+# hasPackage tells whether a pkgs attribute path exists, and keyboard
+# is the session keyboard ({ layout; variant; }, from ltp.locale); the
+# desktop module supplies both. No module system is required.
 #
 {
   cfg,
   hasPackage ? _: true,
+  keyboard ? {
+    layout = "gb";
+    variant = "";
+  },
 }:
 
 let
@@ -109,10 +114,11 @@ in
     }
   ) merged;
 
+  inherit keyboard;
+
   inherit (cfg)
     bar
     services
-    keyboard
     idle
     ;
 }

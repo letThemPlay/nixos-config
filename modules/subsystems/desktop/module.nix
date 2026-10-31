@@ -32,6 +32,7 @@ in
       model = desktop.normalize {
         inherit cfg;
         hasPackage = path: lib.hasAttrByPath (lib.splitString "." path) pkgs;
+        keyboard = config.ltp.locale.keyboard.session;
       };
 
       validation = desktop.validate.all model;

@@ -102,10 +102,41 @@ let
       expected = true;
     };
 
-    testKeyboardLayout = {
-      expr = hasLine (niriOf { keyboard.layout = "us"; }) ''layout "us"'';
-      expected = true;
-    };
+    # The session keyboard comes from ltp.locale as an input.
+    testKeyboardLayout =
+      let
+        render =
+          keyboard:
+          desktop.compositors.niri.render {
+            model = desktop.normalize {
+              cfg = evalCfg { };
+              inherit keyboard;
+            };
+            inherit (desktop) spawnPrefix;
+          };
+
+        plain = render {
+          layout = "us";
+          variant = "";
+        };
+
+        withVariant = render {
+          layout = "gb";
+          variant = "extd";
+        };
+      in
+      {
+        expr = {
+          layout = hasLine plain ''layout "us"'';
+          noVariant = hasLine plain "variant";
+          variant = hasLine withVariant "layout \"gb\"\n            variant \"extd\"";
+        };
+        expected = {
+          layout = true;
+          noVariant = false;
+          variant = true;
+        };
+      };
 
     testComponentBindReplacesDefault = {
       expr = (modelOf { binds."Mod+Q".spawn = [ "foo" ]; }).binds."Mod+Q";
