@@ -29,9 +29,6 @@
           extraOptions = "experimental-features = nix-command flakes pipe-operators";
         };
 
-        time.timeZone = "Europe/London";
-        i18n.defaultLocale = "en_GB.UTF-8";
-        console.keyMap = "uk";
         systemd.network.wait-online.enable = false;
       };
     };

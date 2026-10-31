@@ -20,6 +20,8 @@
         inputs.self.nixosModules.boot
         inputs.self.nixosModules.boot-api
         inputs.self.nixosModules.nix-core
+        inputs.self.nixosModules.locale-api
+        inputs.self.nixosModules.locale
         inputs.self.nixosModules.network
         inputs.self.nixosModules.network-api
         inputs.self.nixosModules.security
