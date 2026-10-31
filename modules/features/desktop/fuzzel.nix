@@ -1,6 +1,14 @@
 _: {
   flake.nixosModules.fuzzel =
-    { pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    let
+      terminal = lib.concatStringsSep " " config.ltp.desktop.facts.apps.terminal.command;
+    in
     {
       config = {
         ltp.desktop.binds."Mod+D".spawn = [ "${pkgs.fuzzel}/bin/fuzzel" ];
@@ -12,7 +20,7 @@ _: {
 
               settings = {
                 main = {
-                  terminal = "alacritty";
+                  inherit terminal;
                   layer = "overlay";
                   width = 40;
                   horizontal-pad = 20;

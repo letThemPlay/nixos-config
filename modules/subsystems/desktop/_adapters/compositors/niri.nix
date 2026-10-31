@@ -60,13 +60,15 @@ rec {
     let
       bindAction =
         bind:
-        if bind.spawn != null then
-          "spawn ${kdlArgs (spawnPrefix ++ bind.spawn)};"
+        if bind.command != null then
+          "spawn ${kdlArgs (spawnPrefix ++ bind.command)};"
         else
           "${actions.${bind.action}};";
 
       # Unsupported actions are reported by validation; leave them out.
-      binds = filterAttrs (_: bind: bind.spawn != null || actions ? ${bind.action}) model.binds;
+      binds = filterAttrs (
+        _: bind: bind.command != null || (bind.action != null && actions ? ${bind.action})
+      ) model.binds;
     in
     ''
       input {

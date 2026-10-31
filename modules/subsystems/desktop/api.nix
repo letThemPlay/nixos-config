@@ -74,6 +74,35 @@ in
           description = "Background components of the graphical session.";
         };
 
+        apps = mkOption {
+          type = types.attrsOf desktop.types.appOverride;
+          default = { };
+
+          example = {
+            browser = {
+              package = "chromium";
+              command = [ "chromium" ];
+              appId = "chromium-browser";
+            };
+          };
+
+          description = ''
+            App roles (terminal, browser, fileManager, ...). Only fields
+            that are set replace the default role; a new name adds a
+            role.
+          '';
+        };
+
+        facts.apps = mkOption {
+          type = types.attrsOf desktop.types.app;
+          readOnly = true;
+
+          description = ''
+            App roles resolved: commands of terminal apps already run
+            through the terminal. Components read launchers from here.
+          '';
+        };
+
       };
     };
 }

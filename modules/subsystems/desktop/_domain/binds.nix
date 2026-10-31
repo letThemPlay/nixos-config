@@ -6,8 +6,12 @@
 _:
 let
   act = action: { inherit action; };
+
+  role = app: { inherit app; };
 in
 {
+  "Mod+Return" = role "terminal";
+
   "Mod+Q" = act "close";
   "Mod+Shift+E" = act "quit";
 

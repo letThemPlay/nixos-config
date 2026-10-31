@@ -29,6 +29,15 @@ let
   );
 
   barModules = bar: bar.left ++ bar.center ++ bar.right;
+
+  # How many of the three bind forms are set.
+  setForms =
+    bind:
+    lib.count (x: x) [
+      (bind.spawn != null && bind.spawn != [ ])
+      (bind.action != null)
+      (bind.app != null)
+    ];
 in
 
 rec {
@@ -64,25 +73,34 @@ rec {
   binds =
     model:
     mkResult (
-      mapAttrsToList
-        (
-          key: _:
-          mkDiagnostic {
-            severity = "error";
-            code = "desktop.bind.invalid";
-            target = key;
-            path = [
-              "binds"
-              key
-            ];
-            message = "Bind '${key}' must set exactly one of spawn (non-empty) or action.";
-          }
-        )
-        (
-          filterAttrs (
-            _: bind: (bind.spawn != null && bind.spawn != [ ]) == (bind.action != null)
-          ) model.binds
-        )
+      mapAttrsToList (
+        key: _:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.bind.invalid";
+          target = key;
+          path = [
+            "binds"
+            key
+          ];
+          message = "Bind '${key}' must set exactly one of spawn (non-empty), action or app.";
+        }
+      ) (filterAttrs (_: bind: setForms bind != 1) model.binds)
+
+      ++ mapAttrsToList (
+        key: bind:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.bind.app.unknown";
+          target = key;
+          path = [
+            "binds"
+            key
+            "app"
+          ];
+          message = "Bind '${key}' starts app role '${bind.app}', which is not defined (roles: ${concatStringsSep ", " (attrNames model.apps)}).";
+        }
+      ) (filterAttrs (_: bind: bind.app != null && !(model.apps ? ${bind.app})) model.binds)
 
       ++ concatMap (
         c:
@@ -132,11 +150,55 @@ rec {
       ) (known model)
     );
 
+  #
+  # App roles: the package must exist, and a role run in a terminal
+  # needs a terminal role that can run commands.
+  #
+  apps =
+    model:
+    let
+      terminal = model.apps.terminal or null;
+
+      terminalUsable = terminal != null && terminal.execFlag != null;
+    in
+    mkResult (
+      mapAttrsToList (
+        role: app:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.app.package.unknown";
+          target = role;
+          path = [
+            "apps"
+            role
+            "package"
+          ];
+          message = "App role '${role}' uses package '${app.package}', which is not in pkgs.";
+        }
+      ) (filterAttrs (_: app: !app.known) model.apps)
+
+      ++ mapAttrsToList (
+        role: _:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.app.terminal.missing";
+          target = role;
+          path = [
+            "apps"
+            role
+            "inTerminal"
+          ];
+          message = "App role '${role}' runs in a terminal, but the terminal role has no execFlag.";
+        }
+      ) (filterAttrs (_: app: app.inTerminal && !terminalUsable) model.apps)
+    );
+
   all =
     model:
     combine [
       (compositors model)
       (binds model)
+      (apps model)
       (bar model)
     ];
 

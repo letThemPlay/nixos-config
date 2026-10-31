@@ -25,7 +25,9 @@ in
 
     defaultBinds = import ./_domain/binds.nix { };
 
-    normalize = import ./_usecases/normalize.nix { inherit desktop; };
+    defaultApps = import ./_domain/apps.nix { };
+
+    normalize = import ./_usecases/normalize.nix { inherit lib desktop; };
 
     validate = import ./_usecases/validate.nix { inherit lib desktop diagnostics; };
 

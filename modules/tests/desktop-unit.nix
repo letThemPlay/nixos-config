@@ -13,7 +13,7 @@ let
       ];
     }).config.ltp.desktop;
 
-  modelOf = settings: desktop.normalize (evalCfg settings);
+  modelOf = settings: desktop.normalize { cfg = evalCfg settings; };
 
   codesOf = validate: model: lib.sort lib.lessThan (map (d: d.code) (validate.all model).diagnostics);
 
@@ -112,6 +112,8 @@ let
       expected = {
         spawn = [ "foo" ];
         action = null;
+        app = null;
+        command = [ "foo" ];
       };
     };
 
@@ -134,6 +136,84 @@ let
         [ "desktop.bind.invalid" ]
         [ "desktop.bind.invalid" ]
       ];
+    };
+
+    testTerminalRoleBind = {
+      expr = hasLine (niriOf { }) ''"Mod+Return" { spawn "uwsm" "app" "--" "alacritty"; }'';
+      expected = true;
+    };
+
+    testInTerminalAppRunsInTerminal = {
+      expr = (modelOf { }).apps.fileManager.command;
+      expected = [
+        "alacritty"
+        "-e"
+        "yazi"
+      ];
+    };
+
+    testRoleOverrideKeepsOtherFields = {
+      expr =
+        let
+          browser =
+            (modelOf {
+              apps.browser.command = [
+                "firefox"
+                "--new-window"
+              ];
+            }).apps.browser;
+        in
+        {
+          inherit (browser) package appId command;
+        };
+      expected = {
+        package = "firefox";
+        appId = "firefox";
+        command = [
+          "firefox"
+          "--new-window"
+        ];
+      };
+    };
+
+    testAppBindUsesRole = {
+      expr = (modelOf { binds."Mod+B".app = "browser"; }).binds."Mod+B".command;
+      expected = [ "firefox" ];
+    };
+
+    testUnknownAppRole = {
+      expr = codes { binds."Mod+B".app = "editor2"; };
+      expected = [ "desktop.bind.app.unknown" ];
+    };
+
+    testUnknownPackage = {
+      expr = codesOf desktop.validate (
+        desktop.normalize {
+          cfg = evalCfg { };
+          hasPackage = path: path != "yazi";
+        }
+      );
+      expected = [ "desktop.app.package.unknown" ];
+    };
+
+    # An override cannot unset execFlag (null means "not set"), so the
+    # model is edited directly.
+    testTerminalWithoutExecFlag = {
+      expr =
+        let
+          model = modelOf { };
+        in
+        codesOf desktop.validate (
+          model
+          // {
+            apps = model.apps // {
+              terminal = model.apps.terminal // {
+                execFlag = null;
+              };
+            };
+          }
+        );
+      expected = [ "desktop.app.terminal.missing" ];
     };
 
     testUnknownCompositor = {

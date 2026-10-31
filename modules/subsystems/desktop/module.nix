@@ -27,7 +27,12 @@ in
 
       cfg = config.ltp.desktop;
 
-      model = desktop.normalize cfg;
+      packageOf = path: lib.getAttrFromPath (lib.splitString "." path) pkgs;
+
+      model = desktop.normalize {
+        inherit cfg;
+        hasPackage = path: lib.hasAttrByPath (lib.splitString "." path) pkgs;
+      };
 
       validation = desktop.validate.all model;
 
@@ -128,50 +133,61 @@ in
       }) validation.errors;
     in
     {
-      config = mkIf cfg.enable (mkMerge [
+      config = mkMerge [
 
-        {
-          assertions = errors;
+        # Published on every host, like the other subsystems' facts.
+        { ltp.desktop.facts.apps = model.apps; }
 
-          warnings = map format validation.warnings;
-        }
+        (mkIf cfg.enable (mkMerge [
 
-        #
-        # Rendering only runs on a valid model; invalid models stop at
-        # the assertions above with a readable diagnostic.
-        #
-        (mkIf validation.ok (
-          mkMerge (
-            [
-              {
-                # Sessions are started through uwsm (see greetd).
-                environment.systemPackages = [ pkgs.uwsm ];
+          {
+            assertions = errors;
 
-                services.dbus.enable = true;
+            warnings = map format validation.warnings;
+          }
 
-                home-manager.sharedModules = [
-                  (
-                    { config, osConfig, ... }:
+          #
+          # Rendering only runs on a valid model; invalid models stop at
+          # the assertions above with a readable diagnostic.
+          #
+          (mkIf validation.ok (
+            mkMerge (
+              [
+                {
+                  # Sessions are started through uwsm (see greetd).
+                  environment.systemPackages = [ pkgs.uwsm ];
+
+                  services.dbus.enable = true;
+
+                  home-manager.sharedModules = [
                     {
-                      systemd.user.services = mapAttrs (_: unit: {
-                        inherit (unit) Unit Install;
-
-                        Service = unit.Service // {
-                          ExecStart = execLine (
-                            if isFunction unit.exec then unit.exec { inherit config osConfig; } else unit.exec
-                          );
-                        };
-                      }) units;
+                      home.packages = map (app: packageOf app.package) (builtins.attrValues model.apps);
                     }
-                  )
-                ];
-              }
-            ]
 
-            ++ mapAttrsToList renderCompositor desktop.compositors
-          )
-        ))
+                    (
+                      { config, osConfig, ... }:
+                      {
+                        systemd.user.services = mapAttrs (_: unit: {
+                          inherit (unit) Unit Install;
 
-      ]);
+                          Service = unit.Service // {
+                            ExecStart = execLine (
+                              if isFunction unit.exec then unit.exec { inherit config osConfig; } else unit.exec
+                            );
+                          };
+                        }) units;
+                      }
+                    )
+                  ];
+                }
+              ]
+
+              ++ mapAttrsToList renderCompositor desktop.compositors
+            )
+          ))
+
+        ]))
+
+      ];
     };
 }
