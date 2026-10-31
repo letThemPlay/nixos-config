@@ -12,7 +12,6 @@
       features ? [ ],
       users ? [ ],
       extraModules ? [ ],
-      ...
     }:
     let
       registryData = import (inputs.self + "/modules/features/_registry.nix") {
