@@ -8,13 +8,14 @@ _:
 
 let
   inherit (model.tpmUnlock) enable luksName;
+
+  active = enable && luksName != null;
 in
 {
-  active = enable && luksName != null;
+  inherit active;
 
-  inherit luksName;
+  # boot.initrd.luks.devices entries, merged with the ones disko defines.
+  devices = if active then { ${luksName}.crypttabExtraOpts = [ "tpm2-device=auto" ]; } else { };
 
-  crypttabExtraOpts = [ "tpm2-device=auto" ];
-
-  packages = [ "tpm2-tss" ];
+  packages = if active then [ "tpm2-tss" ] else [ ];
 }

@@ -127,18 +127,25 @@ let
     testTpmAdapter = {
       expr = {
         encrypted = boot.tpm { model = modelWith encrypted { tpmUnlock.enable = true; }; };
-        disabled = (boot.tpm { model = modelWith encrypted { }; }).active;
-        unencrypted = (boot.tpm { model = modelOf { tpmUnlock.enable = true; }; }).active;
+        disabled = boot.tpm { model = modelWith encrypted { }; };
+        unencrypted = boot.tpm { model = modelOf { tpmUnlock.enable = true; }; };
       };
       expected = {
         encrypted = {
           active = true;
-          luksName = "cryptroot";
-          crypttabExtraOpts = [ "tpm2-device=auto" ];
+          devices.cryptroot.crypttabExtraOpts = [ "tpm2-device=auto" ];
           packages = [ "tpm2-tss" ];
         };
-        disabled = false;
-        unencrypted = false;
+        disabled = {
+          active = false;
+          devices = { };
+          packages = [ ];
+        };
+        unencrypted = {
+          active = false;
+          devices = { };
+          packages = [ ];
+        };
       };
     };
 

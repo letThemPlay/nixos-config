@@ -16,11 +16,4 @@
     inputs.nixos-hardware.nixosModules.framework-13-7040-amd
     (inputs.self + "/modules/hosts/_hosts/_settings/theseus.nix")
   ];
-
-  featureConfig = {
-    boot = {
-      tpmUnlock = true;
-      secureBoot = true;
-    };
-  };
 }

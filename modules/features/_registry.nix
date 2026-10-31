@@ -17,6 +17,7 @@
       base = [
         inputs.self.nixosModules.cachix-caches
         inputs.self.nixosModules.boot
+        inputs.self.nixosModules.boot-api
         inputs.self.nixosModules.nix-core
         inputs.self.nixosModules.network
         inputs.self.nixosModules.network-api
