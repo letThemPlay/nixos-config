@@ -353,13 +353,22 @@ let
           template = (storage.query.template model).id;
           snapshotVolume = (storage.query.snapshotVolume model).id;
           ephemeralRoot = storage.query.ephemeralRoot model;
+          luksName = storage.query.luksName model;
         };
       expected = {
         stateVolume = "persist";
         template = "blank";
         snapshotVolume = "snapshots";
         ephemeralRoot = true;
+        luksName = null;
       };
+    };
+
+    testEncryptedLuksName = {
+      expr = storage.query.luksName (modelOf {
+        encryption.enable = true;
+      });
+      expected = "cryptroot";
     };
 
     testPersistentRootIsNotEphemeral = {

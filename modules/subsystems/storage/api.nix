@@ -86,8 +86,9 @@ in
 
         #
         # Read-only facts derived from the model, published for other
-        # features. They depend only on volumes, never on persistence,
-        # so features may use them in conditions on persistence.state.
+        # features. They depend only on volumes and platform settings,
+        # never on persistence, so features may use them in conditions
+        # on persistence.state.
         #
         facts = {
 
@@ -110,6 +111,18 @@ in
             description = ''
               Mountpoint of the volume that receives persistence.state,
               or null when there is none or storage is disabled.
+            '';
+          };
+
+          luksName = mkOption {
+            type = types.nullOr types.str;
+            readOnly = true;
+
+            example = "cryptroot";
+
+            description = ''
+              LUKS mapping that holds the root filesystem, or null when
+              it is unencrypted or storage is disabled.
             '';
           };
 

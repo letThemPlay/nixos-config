@@ -85,8 +85,9 @@ rec {
   # Derived Facts
   #
   # Single source for layout-independent facts. These read only
-  # model.volumes and model.layout, never model.persistence, so
-  # modules may use them in conditions on persistence.state.
+  # model.volumes, model.layout and model.platform, never
+  # model.persistence, so modules may use them in conditions on
+  # persistence.state.
   #
 
   # The volume that receives feature-declared state, or null.
@@ -110,5 +111,13 @@ rec {
 
   # True when / is recreated on every boot.
   ephemeralRoot = model: builtins.any (volume: volume.mountpoint == "/") (rollback model);
+
+  # LUKS mapping holding the root filesystem, or null when unencrypted.
+  luksName =
+    model:
+    let
+      inherit (model.platform) encryption;
+    in
+    if encryption.enable then encryption.label else null;
 
 }

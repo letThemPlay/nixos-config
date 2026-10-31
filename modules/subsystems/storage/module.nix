@@ -86,15 +86,18 @@ in
 
         #
         # The read-only facts get exactly one definition on every host.
-        # They read only volumes and never sit behind the validation.ok
-        # guard: validation reads persistence.state, which features may
-        # define conditionally on these facts.
+        # They read only volumes and platform settings and never sit
+        # behind the validation.ok guard: validation reads
+        # persistence.state, which features may define conditionally on
+        # these facts.
         #
         {
           ltp.storage.facts = {
             ephemeralRoot = cfg.enable && ephemeralRoot;
 
             statePath = if cfg.enable && persist != null then persist.mountpoint else null;
+
+            luksName = if cfg.enable then storage.query.luksName model else null;
           };
         }
 
