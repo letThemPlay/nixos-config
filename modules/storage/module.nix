@@ -75,14 +75,11 @@ in
         inputs.preservation.nixosModules.default
 
         # Kept here rather than in storage-api: it needs NixOS assertions.
-        (lib.mkRemovedOptionModule
-          [
-            "ltp"
-            "storage"
-            "renderer"
-          ]
-          "disko is the only renderer; select the filesystem backend with ltp.storage.filesystem.type."
-        )
+        (lib.mkRemovedOptionModule [
+          "ltp"
+          "storage"
+          "renderer"
+        ] "disko is the only renderer; select the filesystem backend with ltp.storage.filesystem.type.")
       ];
 
       config = mkMerge [

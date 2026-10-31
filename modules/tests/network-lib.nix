@@ -142,13 +142,21 @@ let
     };
 
     testEveryProfileIsValid = {
-      expr = lib.mapAttrs (name: _: (network.validate.all (modelOf { profile = name; })).diagnostics) network.profiles;
+      expr = lib.mapAttrs (
+        name: _:
+        (network.validate.all (modelOf {
+          profile = name;
+        })).diagnostics
+      ) network.profiles;
       expected = lib.mapAttrs (_: _: [ ]) network.profiles;
     };
 
     testEveryProviderIsValid = {
       expr = lib.mapAttrs (
-        name: _: (network.validate.all (modelOf { dns.provider = name; })).diagnostics
+        name: _:
+        (network.validate.all (modelOf {
+          dns.provider = name;
+        })).diagnostics
       ) network.providers;
       expected = lib.mapAttrs (_: _: [ ]) network.providers;
     };

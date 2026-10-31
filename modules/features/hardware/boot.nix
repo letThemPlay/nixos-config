@@ -49,9 +49,9 @@
         # config.boot.lanzaboote here would loop through the storage
         # module, which consumes persistence.state.
         #
-        ltp.storage.persistence.state.directories = lib.mkIf (
-          config.ltp.storage.enable && secureBoot
-        ) [ pkiBundle ];
+        ltp.storage.persistence.state.directories = lib.mkIf (config.ltp.storage.enable && secureBoot) [
+          pkiBundle
+        ];
       };
     };
 }

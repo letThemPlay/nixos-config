@@ -55,11 +55,7 @@ let
   providerKnown = dns.provider == null || builtins.hasAttr dns.provider networkProviders;
 
   # No provider, or an unknown one, supplies nothing.
-  provider =
-    if dns.provider == null then
-      { }
-    else
-      networkProviders.${dns.provider} or { };
+  provider = if dns.provider == null then { } else networkProviders.${dns.provider} or { };
 
   dnsOverTLS = orDefault dns.dnsOverTLS (provider.dnsOverTLS or "yes");
 
