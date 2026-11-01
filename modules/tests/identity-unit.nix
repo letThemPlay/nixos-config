@@ -57,7 +57,7 @@ let
 
   withAlice = extra: {
     users.alice = alice // extra;
-    knownFeatures = [ "flashgbx" ];
+    knownBundles = [ "flashgbx" ];
   };
 
   contractCases = [
@@ -172,7 +172,7 @@ let
       expr = codes (withAlice {
         theme = "catppuccin";
         extraPackages = [ "firefox" ];
-        features = [ "flashgbx" ];
+        bundles = [ "flashgbx" ];
       });
       expected = [ ];
     };
@@ -187,20 +187,20 @@ let
       expected = [ "identity.user.package.unknown" ];
     };
 
-    testUnknownFeature = {
+    testUnknownBundle = {
       expr = codes (withAlice {
-        features = [ "flashgdx" ];
+        bundles = [ "flashgdx" ];
       });
-      expected = [ "identity.user.feature.unknown" ];
+      expected = [ "identity.user.bundle.unknown" ];
     };
 
-    # Without knownFeatures the feature check is skipped, as in the VM test.
-    testMissingFeatureListSkipsCheck = {
+    # Without knownBundles the bundle check is skipped, as in the VM test.
+    testMissingBundleListSkipsCheck = {
       expr = codesOf (
         identity.normalize {
           cfg = evalCfg {
             users.alice = alice // {
-              features = [ "nope" ];
+              bundles = [ "nope" ];
             };
           };
           storage = persistentRoot;
@@ -243,13 +243,13 @@ let
       expected = false;
     };
 
-    testWithFeature = {
+    testWithBundle = {
       expr = lib.attrNames (
-        identity.query.withFeature
+        identity.query.withBundle
           (modelOf {
             users = {
               alice = alice // {
-                features = [ "flashgbx" ];
+                bundles = [ "flashgbx" ];
               };
               carol = alice;
             };

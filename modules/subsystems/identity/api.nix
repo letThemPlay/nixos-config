@@ -65,14 +65,14 @@ in
           '';
         };
 
-        knownFeatures = mkOption {
+        knownBundles = mkOption {
           type = types.nullOr (types.listOf types.str);
           default = null;
           internal = true;
 
           description = ''
-            Every feature registry name, set by the host factory. User
-            features are checked against it; null skips the check.
+            Every bundle name, set by the host factory. User bundles are
+            checked against it; null skips the check.
           '';
         };
 

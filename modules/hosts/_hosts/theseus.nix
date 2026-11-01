@@ -3,7 +3,7 @@
   architecture = "x86_64-linux";
   stateVersion = "22.11";
 
-  features = [
+  bundles = [
     "base"
     "laptop"
     "window-management"

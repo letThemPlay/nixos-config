@@ -72,19 +72,19 @@ rec {
     });
 
   #
-  # User features are checked against every feature any host could
-  # include, not this host's: a feature the host lacks is skipped, a
+  # User bundles are checked against every bundle any host could
+  # include, not this host's: a bundle the host lacks is skipped, a
   # misspelt one is an error everywhere.
   #
-  features =
+  bundles =
     model:
     mkResult (unknownValues {
       inherit model;
-      code = "identity.user.feature.unknown";
-      field = "features";
-      known = model.known.features;
-      what = "feature";
-      values = user: user.features;
+      code = "identity.user.bundle.unknown";
+      field = "bundles";
+      known = model.known.bundles;
+      what = "bundle";
+      values = user: user.bundles;
     });
 
   users =
@@ -186,7 +186,7 @@ rec {
       (escalation model)
       (gpg model)
       (packages model)
-      (features model)
+      (bundles model)
       (users model)
     ];
 

@@ -9,25 +9,20 @@
       hostName,
       architecture,
       stateVersion,
-      features ? [ ],
+      bundles ? [ ],
       users ? [ ],
       extraModules ? [ ],
     }:
     let
-      registryData = import (inputs.self + "/modules/features/_registry.nix") {
-        inherit inputs;
-        lib = inputs.nixpkgs.lib;
-      };
+      bundleRegistry = import (inputs.self + "/modules/hosts/_bundles.nix") { inherit inputs; };
 
-      featureRegistry = registryData.config.modules.features.registry;
+      unknownBundles = lib.subtractLists (builtins.attrNames bundleRegistry) bundles;
 
-      unknownFeatures = lib.subtractLists (builtins.attrNames featureRegistry) features;
-
-      resolvedFeatures =
-        if unknownFeatures != [ ] then
-          throw "host '${hostName}': unknown features ${lib.concatStringsSep ", " unknownFeatures} (known: ${lib.concatStringsSep ", " (builtins.attrNames featureRegistry)})"
+      resolvedBundles =
+        if unknownBundles != [ ] then
+          throw "host '${hostName}': unknown bundles ${lib.concatStringsSep ", " unknownBundles} (known: ${lib.concatStringsSep ", " (builtins.attrNames bundleRegistry)})"
         else
-          features |> map (featureName: featureRegistry.${featureName}) |> lib.flatten;
+          bundles |> map (name: bundleRegistry.${name}) |> lib.flatten;
 
       hardwarePath = inputs.self + "/modules/hosts/_hosts/_hardware/${hostName}.nix";
 
@@ -42,7 +37,7 @@
           nixpkgs.config.allowUnfreePredicate = _: true;
         })
       ]
-      ++ resolvedFeatures
+      ++ resolvedBundles
       ++ [
         resolvedHardware
         ({ pkgs, ... }: {
@@ -57,8 +52,8 @@
               enable = true;
             });
 
-            # User features are checked against every feature name.
-            knownFeatures = builtins.attrNames featureRegistry;
+            # User bundles are checked against every bundle name.
+            knownBundles = builtins.attrNames bundleRegistry;
           };
 
           environment.systemPackages = [ pkgs.curl ];

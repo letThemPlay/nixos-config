@@ -11,12 +11,12 @@ in
   get = model: name: model.users.${name} or null;
 
   #
-  # Takes the users attrset rather than the model, so feature modules
+  # Takes the users attrset rather than the model, so modules
   # can pass the published facts directly:
   #
-  #   identity.query.withFeature config.ltp.identity.facts.users "flashgbx"
+  #   identity.query.withBundle config.ltp.identity.facts.users "flashgbx"
   #
-  withFeature = users: feature: filterAttrs (_: user: builtins.elem feature user.features) users;
+  withBundle = users: bundle: filterAttrs (_: user: builtins.elem bundle user.bundles) users;
 
   admins = model: filterAttrs (_: user: user.admin) model.users;
 

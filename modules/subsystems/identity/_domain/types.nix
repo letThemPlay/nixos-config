@@ -28,13 +28,12 @@ rec {
       description = "Whether the user is in wheel.";
     };
 
-    features = {
+    bundles = {
       type = types.listOf types.str;
       default = [ ];
       description = ''
-        Features this user wants, by feature registry name. Each one
-        applies on hosts that include that feature and is skipped on
-        the others.
+        Bundles this user wants, by bundle name. Each one applies on
+        hosts that include that bundle and is skipped on the others.
       '';
     };
 
@@ -207,7 +206,7 @@ rec {
         type = types.submodule {
           options = {
 
-            features = mkOption {
+            bundles = mkOption {
               type = types.nullOr (types.listOf types.str);
             };
 

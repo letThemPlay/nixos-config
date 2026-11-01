@@ -17,7 +17,7 @@ in
 #
 #   hasPackage : package name -> bool
 #
-# The feature names come from cfg.knownFeatures. No module system is
+# The bundle names come from cfg.knownBundles. No module system is
 # required.
 #
 {
@@ -82,7 +82,7 @@ in
   };
 
   known = {
-    features = cfg.knownFeatures;
+    bundles = cfg.knownBundles;
 
     packages = filter context.hasPackage requestedPackages;
   };

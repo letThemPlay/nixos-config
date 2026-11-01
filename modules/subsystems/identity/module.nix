@@ -109,7 +109,7 @@ in
           # Not behind validation.ok: home-manager looks up an account for
           # every published user, so withholding accounts would turn a
           # validation error into a missing-attribute crash. Accounts use
-          # none of the validated fields (packages, features).
+          # none of the validated fields (packages, bundles).
           #
           {
             users.users = mapAttrs (_: account: {

@@ -3,7 +3,7 @@
   architecture = "x86_64-linux";
   stateVersion = "26.05";
 
-  features = [
+  bundles = [
     "base"
     "vm"
     "window-management"

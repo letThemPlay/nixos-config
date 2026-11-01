@@ -2,7 +2,7 @@
   fullName = "Kelvin";
   email = "kelvin.d.morris@gmail.com";
   admin = true;
-  features = [
+  bundles = [
     "flashgbx"
   ];
   extraPackages = [

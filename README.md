@@ -64,13 +64,15 @@ _: {
 
 Create your clean, declarative host datasheet profile sheet under **`modules/hosts/_hosts/<new-host>.nix`**. Your file contains **zero hardcoded path blocks** or relative directory walks:
 
+`bundles` picks from the bundles in `modules/hosts/_bundles.nix`; each bundle is a list of feature settings (`laptop` turns on audio, bluetooth and the wireless UI).
+
 ```nix
 { inputs, ... }: {
   hostName = "laptop-x1";
   architecture = "x86_64-linux";
   stateVersion = "26.05";
 
-  features = [
+  bundles = [
     "base"
     "laptop"
     "window-management"
@@ -181,6 +183,6 @@ Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `
 ### Adding a subsystem
 
 1. Create `modules/subsystems/<name>/` with `core.nix`, the rings, `api.nix` and `module.nix`.
-2. Add `<name>-api` and `<name>` to the `base` bundle in `modules/features/_registry.nix`.
+2. Add `<name>-api` and `<name>` to the `base` bundle in `modules/hosts/_bundles.nix`.
 3. Add `modules/tests/<name>-unit.nix` with a model contract test (normalize output against `types.model`).
 4. Features contribute to the subsystem's options; they don't configure its targets directly.
