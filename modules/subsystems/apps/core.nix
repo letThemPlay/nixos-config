@@ -33,6 +33,10 @@ in
     configure = {
       alacritty = ./_configure/alacritty.nix;
       nixvim = ./_configure/nixvim;
+      git = ./_configure/git.nix;
+      discord = ./_configure/discord.nix;
+      steam = ./_configure/steam.nix;
+      flashgbx = ./_configure/flashgbx.nix;
     };
 
   });

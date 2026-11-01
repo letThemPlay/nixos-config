@@ -48,4 +48,46 @@ _: {
     ];
   };
 
+  # Installed without a role (ltp.apps.install); each configure module
+  # provides the program.
+
+  git = {
+    roles = [ ];
+    package = null;
+    aliases = {
+      g = "git";
+      gs = "git status -sb";
+      ga = "git add";
+      gaa = "git add --all";
+      gc = "git commit -m";
+      gca = "git commit --amend";
+      gp = "git push";
+      gpf = "git push --force-with-lease";
+      gl = "git pull";
+      gd = "git diff";
+      gb = "git branch";
+      gco = "git checkout";
+      gcb = "git checkout -b";
+      gsw = "git switch";
+      gsc = "git switch -c";
+
+      glog = "git log --graph --oneline --decorate --all";
+    };
+  };
+
+  discord = {
+    roles = [ ];
+    package = null;
+  };
+
+  steam = {
+    roles = [ ];
+    package = null;
+  };
+
+  flashgbx = {
+    roles = [ ];
+    package = null;
+  };
+
 }

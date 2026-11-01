@@ -11,8 +11,8 @@
     modules.features.registry = {
       tailscale = [ inputs.self.nixosModules.tailscale ];
       gpg = [ inputs.self.nixosModules.gpg ];
-      gaming = [ inputs.self.nixosModules.steam-gaming ];
-      flashgbx = [ inputs.self.nixosModules.flashgbx ];
+      gaming = [ { ltp.apps.install = [ "steam" ]; } ];
+      flashgbx = [ { ltp.apps.install = [ "flashgbx" ]; } ];
 
       base = [
         inputs.self.nixosModules.boot
@@ -46,7 +46,7 @@
       ];
 
       laptop = [
-        inputs.self.nixosModules.discord
+        { ltp.apps.install = [ "discord" ]; }
         inputs.self.nixosModules.wifi
         inputs.self.nixosModules.bluetooth
         inputs.self.nixosModules.audio
@@ -63,7 +63,7 @@
       ];
 
       core-apps = [
-        inputs.self.nixosModules.git
+        { ltp.apps.install = [ "git" ]; }
       ];
     };
   };

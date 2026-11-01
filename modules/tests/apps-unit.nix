@@ -164,6 +164,30 @@ let
       };
     };
 
+    # An installed app's aliases reach the shell; role-less apps fit no role.
+    testInstalledAliases = {
+      expr =
+        let
+          model = modelOf { install = [ "git" ]; };
+        in
+        {
+          gs = model.aliases.gs or null;
+          valid = codesOf model;
+        };
+      expected = {
+        gs = "git status -sb";
+        valid = [ ];
+      };
+    };
+
+    testRoleOnlyCatalogueApp = {
+      expr = codes { roles.terminal = "git"; };
+      expected = [
+        "apps.role.unsupported"
+        "apps.terminal.missing"
+      ];
+    };
+
     testInstallUnknown = {
       expr = codes { install = [ "nope" ]; };
       expected = [ "apps.app.unknown" ];
