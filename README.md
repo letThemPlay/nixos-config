@@ -57,7 +57,7 @@ Storage is the one decision to make before installing.
 | `/` on reboot | rolled back to an empty snapshot | kept | kept |
 | What survives | `/home`, `/nix`, `/persist` and the state preserved into it | everything | everything |
 | Btrfs subvolumes, snapshots, LUKS, swap | yes | yes | whatever you create |
-| User passwords | hashes in `/persist/secrets/passwords/<user>`, users immutable | `passwd`, users mutable | `passwd`, users mutable |
+| User passwords | hashes in `/persist/secrets/passwords/<user>`, users immutable ([how](#-user-passwords-mode-a)) | `passwd`, users mutable | `passwd`, users mutable |
 | Pick it when | you want a clean system on every boot | you want disko's layout without the rollback | you need a layout disko does not cover, or are adopting an existing install |
 
 Mode A is the `erase-my-darlings` layout. It creates the subvolumes `@root`, `@blank`, `@persist`, `@nix`, `@home` and `@snapshots`. On every boot the initrd snapshots `@root` into `@snapshots`, keeping 5 of them, and restores it from `@blank`. [preservation](https://github.com/nix-community/preservation) then bind-mounts system state from `/persist`.
@@ -349,7 +349,7 @@ nix flake check
 
 **Modes A and B.** The disk is formatted and mounted under `/mnt` ([4.6](#46-format-with-disko-modes-a-and-b)). **Mode C:** your own partitions are mounted under `/mnt`.
 
-**Mode A only.** `/etc` lives on `@root`, which is erased on every boot, so passwords are declarative. Each user's hash is read from the persist volume, which is mounted in the initrd before the users are created. agenix can't be used here, because it decrypts after the users exist.
+**Mode A only.** `/etc` lives on `@root`, which is erased on every boot, so passwords are declarative (see [User passwords (mode A)](#-user-passwords-mode-a)). Each user's hash is read from the persist volume, which is mounted in the initrd before the users are created. agenix can't be used here, because it decrypts after the users exist.
 
 ```zsh
 sudo mkdir -p /mnt/persist/secrets/passwords
@@ -436,6 +436,65 @@ Errors stop the build and warnings are printed. `nix flake check` runs every fea
 - **Turn something on:** add a bundle to the datasheet, or set the feature's option in `_settings/<host>.nix`.
 - **Keep extra state in mode A:** add it to `ltp.storage.persistence.policy`. Anything not preserved is gone after the next reboot, and the pre-rollback snapshots in `/.snapshots` are the way back.
 - **Before pushing:** run `nix flake check`. It also runs the formatting and lint hooks used on commit.
+
+---
+
+## 🔑 User passwords (mode A)
+
+On an erase-on-boot host `/etc` is rebuilt on every boot, so passwords set with `passwd` don't survive. Each user's password is instead a file on the persist volume.
+
+### How it works
+
+- Each enabled user has one file, `/persist/secrets/passwords/<user>`. It holds a single yescrypt hash, is owned by root and has mode `0400`.
+- The identity feature points `users.users.<user>.hashedPasswordFile` at it, and users are immutable (`users.mutableUsers = false`).
+- [userborn](https://github.com/nikstur/userborn) creates the accounts early in boot. It reads the hash from the file each time it runs and writes `/etc/shadow` from it. Its database is kept in the preserved `/var/lib/userborn`.
+- The files can't be agenix secrets, because agenix decrypts after the users are created.
+
+### Add a user to an existing host
+
+1. Create the user file ([4.5](#45-users)) and add the user to the datasheet's `users` ([4.4](#44-datasheet)).
+2. Write the hash **before** rebuilding. A user without a file has no password, and nothing warns about it at build time.
+
+   ```zsh
+   mkpasswd -m yescrypt | sudo tee /persist/secrets/passwords/<user> > /dev/null
+   sudo chmod 0400 /persist/secrets/passwords/<user>
+   ```
+
+3. Rebuild with `nrs`.
+
+`mkpasswd` is installed on every host and on the installer.
+
+### Change a password
+
+Write the new hash to the same file, then apply it:
+
+```zsh
+mkpasswd -m yescrypt | sudo tee /persist/secrets/passwords/<user> > /dev/null
+sudo systemctl restart userborn   # or reboot
+```
+
+`nrs` alone does not apply it. userborn restarts when the user configuration changes, not when a hash file does. A change made with `passwd` lasts only until userborn next runs.
+
+### Remove a user
+
+Take the user out of the datasheet, rebuild, then delete `/persist/secrets/passwords/<user>`. Their home in `/home/<user>` stays until you remove it.
+
+### Keep the hashes elsewhere
+
+Set `ltp.identity.passwordDirectory` in the host settings, for example `"/persist/credentials"`. The directory must be on a volume mounted in the initrd (`/persist` is), because userborn runs early in boot.
+
+### Locked out
+
+If a hash file is missing or wrong, nobody can log in as that user:
+
+1. Boot the installer.
+2. Mount the host's file systems with its disko mount script ([4.6](#46-format-with-disko-modes-a-and-b)).
+3. Write the hash under `/mnt/persist/secrets/passwords/<user>`, mode `0400`.
+4. Reboot.
+
+### Modes B and C
+
+Users are mutable there. Set and change passwords with `passwd` as usual.
 
 ---
 
