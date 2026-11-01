@@ -349,13 +349,7 @@ nix flake check
 
 **Modes A and B.** The disk is formatted and mounted under `/mnt` ([4.6](#46-format-with-disko-modes-a-and-b)). **Mode C:** your own partitions are mounted under `/mnt`.
 
-**Mode A only.** `/etc` lives on `@root`, which is erased on every boot, so passwords are declarative (see [User passwords (mode A)](#-user-passwords-mode-a)). Each user's hash is read from the persist volume, which is mounted in the initrd before the users are created. agenix can't be used here, because it decrypts after the users exist.
-
-```zsh
-sudo mkdir -p /mnt/persist/secrets/passwords
-mkpasswd -m yescrypt | sudo tee /mnt/persist/secrets/passwords/<user> > /dev/null
-sudo chmod 0400 /mnt/persist/secrets/passwords/<user>
-```
+**Mode A only.** Write each user's password hash to `/mnt/persist/secrets/passwords/<user>` now, as described in [Set the initial password](#set-the-initial-password). `/etc` lives on `@root`, which the first boot erases, so a password set any other way doesn't last.
 
 **All modes.** Install. Root gets no password; admins use `sudo`.
 
@@ -449,6 +443,46 @@ On an erase-on-boot host `/etc` is rebuilt on every boot, so passwords set with 
 - The identity feature points `users.users.<user>.hashedPasswordFile` at it, and users are immutable (`users.mutableUsers = false`).
 - [userborn](https://github.com/nikstur/userborn) creates the accounts early in boot. It reads the hash from the file each time it runs and writes `/etc/shadow` from it. Its database is kept in the preserved `/var/lib/userborn`.
 - The files can't be agenix secrets, because agenix decrypts after the users are created.
+
+### Set the initial password
+
+Every user listed in the datasheet needs a hash file **before the first boot**. Without one the user has no password and can't log in, and nothing warns about it at build time.
+
+**When:** during the install, after disko has mounted the disk under `/mnt` ([4.6](#46-format-with-disko-modes-a-and-b)) and before `nixos-install` ([4.7](#47-install)). The persist volume is then mounted at `/mnt/persist`.
+
+**1. Write one hash per user.** `mkpasswd` asks for the password twice and prints only the hash:
+
+```zsh
+sudo install -d -m 0700 /mnt/persist/secrets/passwords
+for user in kelvin; do            # every user in the datasheet
+  mkpasswd -m yescrypt | sudo tee /mnt/persist/secrets/passwords/$user > /dev/null
+  sudo chmod 0400 /mnt/persist/secrets/passwords/$user
+done
+```
+
+To keep the password off the installer, create the hash on another machine and paste only the hash. Use single quotes, because the hash contains `$`:
+
+```zsh
+# on another machine
+nix shell nixpkgs#mkpasswd -c mkpasswd -m yescrypt
+
+# on the installer
+printf '%s\n' '$y$j9T$…' | sudo tee /mnt/persist/secrets/passwords/kelvin > /dev/null
+sudo chmod 0400 /mnt/persist/secrets/passwords/kelvin
+```
+
+**2. Check it before installing:**
+
+```zsh
+sudo ls -l /mnt/persist/secrets/passwords/        # one file per user, -r-------- root
+sudo head -c 3 /mnt/persist/secrets/passwords/kelvin; echo   # prints $y$
+```
+
+The files must be under `/mnt/persist`. The first boot erases anything under `/mnt/etc` or elsewhere on `/`, so a `passwd` run inside `nixos-enter` doesn't last.
+
+**3. Install and boot.** Log in with the password at the console or the greeter, then run `sudo -v` to confirm admin rights. Root has no password (`--no-root-passwd`); admins use `sudo`.
+
+If a file was missed, follow [Locked out](#locked-out). For users added after the install, see [Add a user to an existing host](#add-a-user-to-an-existing-host); it's the same file, without the `/mnt` prefix.
 
 ### Add a user to an existing host
 
