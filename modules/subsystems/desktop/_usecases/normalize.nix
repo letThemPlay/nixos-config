@@ -155,5 +155,6 @@ in
   inherit (cfg)
     services
     idle
+    dmenuConsumers
     ;
 }

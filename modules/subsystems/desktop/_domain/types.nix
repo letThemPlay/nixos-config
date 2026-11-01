@@ -44,6 +44,11 @@ rec {
       description = "For a terminal: the flag that runs a command in it (e.g. -e).";
     };
 
+    dmenu = {
+      type = types.nullOr (types.listOf types.str);
+      description = "For a launcher: the command that picks a line from stdin (dmenu mode).";
+    };
+
   };
 
   appDefaults = role: {
@@ -52,6 +57,7 @@ rec {
     appId = role;
     inTerminal = false;
     execFlag = null;
+    dmenu = null;
   };
 
   appOverride = overrides.type appFields;
@@ -298,6 +304,10 @@ rec {
 
       idle = mkOption {
         type = idle;
+      };
+
+      dmenuConsumers = mkOption {
+        type = types.listOf types.str;
       };
 
       requirements = mkOption {

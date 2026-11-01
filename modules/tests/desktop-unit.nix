@@ -408,6 +408,27 @@ let
         };
       };
 
+    testLauncherRole = {
+      expr = {
+        bind = hasLine (niriOf { }) ''"Mod+D" { spawn "uwsm" "app" "--" "fuzzel"; }'';
+        inherit ((modelOf { }).apps.launcher) dmenu;
+        ok = codes { dmenuConsumers = [ "clipboard" ]; };
+        missing = codes {
+          dmenuConsumers = [ "clipboard" ];
+          apps.launcher.dmenu = null;
+        };
+      };
+      expected = {
+        bind = true;
+        dmenu = [
+          "fuzzel"
+          "--dmenu"
+        ];
+        ok = [ ];
+        missing = [ "desktop.app.dmenu.missing" ];
+      };
+    };
+
     testGreeter = {
       expr = {
         inherit

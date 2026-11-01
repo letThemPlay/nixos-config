@@ -5,6 +5,16 @@
 #
 _: {
 
+  launcher = {
+    package = "fuzzel";
+    command = [ "fuzzel" ];
+    appId = "fuzzel";
+    dmenu = [
+      "fuzzel"
+      "--dmenu"
+    ];
+  };
+
   terminal = {
     package = "alacritty";
     command = [ "alacritty" ];

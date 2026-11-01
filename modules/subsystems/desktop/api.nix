@@ -93,6 +93,13 @@ in
           '';
         };
 
+        dmenuConsumers = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          internal = true;
+          description = "Components that pick through the launcher's dmenu mode.";
+        };
+
         defaultWindowRules = mkOption {
           type = types.bool;
           default = true;

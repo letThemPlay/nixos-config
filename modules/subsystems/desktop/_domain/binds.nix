@@ -11,6 +11,7 @@ let
 in
 {
   "Mod+Return" = role "terminal";
+  "Mod+D" = role "launcher";
 
   "Mod+Q" = act "close";
   "Mod+Shift+E" = act "quit";

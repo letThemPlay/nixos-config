@@ -323,9 +323,31 @@ rec {
       ) droppedBinds
     );
 
+  # Pickers (clipboard, …) need a launcher that has a dmenu mode.
+  dmenu =
+    model:
+    let
+      launcher = model.apps.launcher or null;
+    in
+    mkResult (
+      optional (model.dmenuConsumers != [ ] && (launcher == null || launcher.dmenu == null))
+        (mkDiagnostic {
+          severity = "error";
+          code = "desktop.app.dmenu.missing";
+          target = "launcher";
+          path = [
+            "apps"
+            "launcher"
+            "dmenu"
+          ];
+          message = "The launcher role has no dmenu command, which ${concatStringsSep ", " model.dmenuConsumers} needs to pick entries.";
+        })
+    );
+
   all =
     model:
     combine [
+      (dmenu model)
       (requirements model)
       (greeter model)
       (idle model)

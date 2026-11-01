@@ -1,11 +1,6 @@
 _: {
   flake.nixosModules.fuzzel =
-    {
-      config,
-      lib,
-      pkgs,
-      ...
-    }:
+    { config, lib, ... }:
     let
       terminal = lib.concatStringsSep " " config.ltp.desktop.facts.apps.terminal.command;
     in
@@ -13,8 +8,6 @@ _: {
       config = {
         ltp = {
           desktop = {
-            binds."Mod+D".spawn = [ "${pkgs.fuzzel}/bin/fuzzel" ];
-
             # A soft floating shadow for the launcher.
             windowRules.fuzzel = {
               match.appId = "^fuzzel$";
