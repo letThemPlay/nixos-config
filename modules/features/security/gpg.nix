@@ -1,22 +1,10 @@
-{ importAscFiles, ... }: {
-  flake.nixosModules.gpg = { config, lib, ... }: {
-    config = {
-      home-manager.users = lib.mapAttrs (
-        _: profile:
-        let
-          userKeys = profile.username |> importAscFiles;
-        in
-        lib.optionalAttrs (userKeys != [ ]) {
-          programs.gpg = {
-            enable = true;
-            publicKeys = userKeys;
-          };
-
-          home.file.".ssh/config".text = ''
-            Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
-          '';
-        }
-      ) config.ltp.identity.facts.users;
-    };
+_: {
+  #
+  # Sets up the users' OpenPGP keys on this host: gpg, gpg-agent with
+  # pinentry, SSH through the agent, smartcard rules and git signing.
+  # See ltp.identity.gpg and each user's gpg settings.
+  #
+  flake.nixosModules.gpg = _: {
+    ltp.identity.gpg.enable = true;
   };
 }

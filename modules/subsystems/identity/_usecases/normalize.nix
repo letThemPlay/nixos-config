@@ -54,6 +54,12 @@ let
       ++ optional user.admin "wheel";
 
       passwordFile = if passwordDirectory == null then null else "${passwordDirectory}/${name}";
+
+      # SSH through gpg-agent defaults to on when the user signs or has a card.
+      gpg = user.gpg // {
+        ssh =
+          if user.gpg.ssh != null then user.gpg.ssh else user.gpg.signingKey != null || user.gpg.smartcard;
+      };
     }
   ) enabled;
 
@@ -67,6 +73,8 @@ in
     ;
 
   inherit (storage) statePath;
+
+  gpg = cfg.gpg.enable;
 
   known = {
     features = cfg.knownFeatures;

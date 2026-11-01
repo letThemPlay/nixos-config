@@ -42,6 +42,11 @@ in
 
       ephemeral = identity.ephemeral { inherit model; };
 
+      gpg = identity.gpg {
+        inherit model;
+        graphical = false;
+      };
+
       format = diagnostic: "ltp.identity [${diagnostic.code}]: ${diagnostic.message}";
 
       errors = map (diagnostic: {
@@ -53,7 +58,11 @@ in
       config = mkMerge [
 
         # Published on every host, like the storage facts.
-        { ltp.identity.facts.users = model.users; }
+        {
+          ltp.identity.facts = {
+            inherit (model) users gpg;
+          };
+        }
 
         (mkIf cfg.enable (mkMerge [
 
@@ -79,6 +88,11 @@ in
             systemd.services.systemd-machine-id-commit = ephemeral.machineIdCommit;
 
             users.mutableUsers = ephemeral.mutableUsers;
+          })
+
+          # The smartcard holding users' keys needs its device rules.
+          (mkIf (model.gpg && gpg.smartcard) {
+            hardware.gpgSmartcards.enable = true;
           })
 
           #

@@ -62,6 +62,47 @@ rec {
       description = "Login shell; the shell subsystem checks and renders it.";
     };
 
+    gpg = {
+      type = gpg;
+      default = { };
+      description = ''
+        The user's OpenPGP setup. Rendered only on hosts with
+        ltp.identity.gpg.enable.
+      '';
+    };
+
+  };
+
+  # A user's OpenPGP keys; the loader fills keys from gpg/<user>/*.asc.
+  gpg = types.submodule {
+    options = {
+
+      keys = mkOption {
+        type = types.listOf types.path;
+        default = [ ];
+        description = "Public keys (armoured .asc files), imported with ultimate trust.";
+      };
+
+      signingKey = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "0x5D0149C121F819A6";
+        description = "Key that signs git commits: a 16-hex key ID (optionally 0x) or a 40-hex fingerprint.";
+      };
+
+      smartcard = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether the secret keys live on a smartcard (installs its device rules).";
+      };
+
+      ssh = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        description = "Whether gpg-agent serves SSH; null: when there is a signing key or a smartcard.";
+      };
+
+    };
   };
 
   fieldOptions = mapAttrs (
@@ -122,6 +163,11 @@ rec {
       users = mkOption {
         type = types.attrsOf modelUser;
         description = "Users enabled on the host.";
+      };
+
+      gpg = mkOption {
+        type = types.bool;
+        description = "Whether this host renders the users' OpenPGP setup.";
       };
 
       ephemeral = mkOption {

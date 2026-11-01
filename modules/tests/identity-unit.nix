@@ -288,6 +288,108 @@ let
     };
 
     # Every model normalize produces satisfies the declared model type.
+    testGpgDefaults = {
+      expr = {
+        plain = (modelOf (withAlice { })).users.alice.gpg;
+        signing =
+          (modelOf (withAlice {
+            gpg.signingKey = "0x5D0149C121F819A6";
+          })).users.alice.gpg.ssh;
+        sshOff =
+          (modelOf (withAlice {
+            gpg = {
+              smartcard = true;
+              ssh = false;
+            };
+          })).users.alice.gpg.ssh;
+      };
+      expected = {
+        plain = {
+          keys = [ ];
+          signingKey = null;
+          smartcard = false;
+          ssh = false;
+        };
+        signing = true;
+        sshOff = false;
+      };
+    };
+
+    testSigningKeyFormat = {
+      expr =
+        map
+          (
+            signingKey:
+            codes (withAlice {
+              gpg = { inherit signingKey; };
+            })
+          )
+          [
+            "0x5D0149C121F819A6"
+            "5D0149C121F819A6"
+            "571F1C2692CA8381968A8E6900CF53A10AA8CB53"
+            "nope"
+          ];
+      expected = [
+        [ ]
+        [ ]
+        [ ]
+        [ "identity.user.gpg.signingKey.format" ]
+      ];
+    };
+
+    # alice's example.com address only matters where the host signs.
+    testPlaceholderEmail = {
+      expr =
+        map
+          (
+            enable:
+            codes (withAlice { gpg.signingKey = "0x5D0149C121F819A6"; } // { gpg = { inherit enable; }; })
+          )
+          [
+            false
+            true
+          ];
+      expected = [
+        [ ]
+        [ "identity.user.email.placeholder" ]
+      ];
+    };
+
+    testGpgAdapter = {
+      expr =
+        let
+          model = modelOf (withAlice {
+            gpg = {
+              signingKey = "0x5D0149C121F819A6";
+              smartcard = true;
+            };
+          });
+          rendered = graphical: identity.gpg { inherit model graphical; };
+        in
+        {
+          gui = (rendered true).users.alice;
+          tty = (rendered false).users.alice.pinentry;
+          inherit (rendered true) smartcard;
+          none =
+            (identity.gpg {
+              model = modelOf (withAlice { });
+              graphical = true;
+            }).users;
+        };
+      expected = {
+        gui = {
+          publicKeys = [ ];
+          ssh = true;
+          signingKey = "0x5D0149C121F819A6";
+          pinentry = "pinentry-gnome3";
+        };
+        tty = "pinentry-curses";
+        smartcard = true;
+        none = { };
+      };
+    };
+
     testModelContract = {
       expr = map (
         settings:

@@ -49,6 +49,16 @@ in
           '';
         };
 
+        gpg.enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            Whether this host sets up the users' OpenPGP keys: gpg,
+            gpg-agent with pinentry, SSH through the agent, smartcard
+            rules and git commit signing.
+          '';
+        };
+
         knownFeatures = mkOption {
           type = types.nullOr (types.listOf types.str);
           default = null;
@@ -58,6 +68,12 @@ in
             Every feature registry name, set by the host factory. User
             features are checked against it; null skips the check.
           '';
+        };
+
+        facts.gpg = mkOption {
+          type = types.bool;
+          readOnly = true;
+          description = "Whether this host renders the users' OpenPGP setup.";
         };
 
         facts.users = mkOption {

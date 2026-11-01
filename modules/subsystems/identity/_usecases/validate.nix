@@ -99,9 +99,60 @@ rec {
       })
     );
 
+  #
+  # A signing key must look like a key ID or fingerprint; on a host that
+  # signs, a placeholder email makes the signatures unverifiable.
+  #
+  gpg =
+    model:
+    let
+      signing = filter (user: user.gpg.signingKey != null) (query.all model);
+
+      validKey =
+        key:
+        builtins.match "(0x)?[0-9A-Fa-f]{16}" key != null || builtins.match "[0-9A-Fa-f]{40}" key != null;
+
+      placeholder = email: builtins.match ".*@(example\\.(com|org|net)|.*\\.invalid)" email != null;
+    in
+    mkResult (
+      map (
+        user:
+        mkDiagnostic {
+          severity = "error";
+          code = "identity.user.gpg.signingKey.format";
+          target = user.username;
+          path = [
+            "users"
+            user.username
+            "gpg"
+            "signingKey"
+          ];
+          message = "User '${user.username}' has signing key '${user.gpg.signingKey}', which is neither a 16-hex key ID nor a 40-hex fingerprint.";
+        }
+      ) (filter (user: !validKey user.gpg.signingKey) signing)
+
+      ++ lib.optionals model.gpg (
+        map (
+          user:
+          mkDiagnostic {
+            severity = "warning";
+            code = "identity.user.email.placeholder";
+            target = user.username;
+            path = [
+              "users"
+              user.username
+              "email"
+            ];
+            message = "User '${user.username}' signs commits as '${user.email}', a placeholder address; the signatures will not verify against the key.";
+          }
+        ) (filter (user: placeholder user.email) signing)
+      )
+    );
+
   all =
     model:
     combine [
+      (gpg model)
       (packages model)
       (features model)
       (users model)

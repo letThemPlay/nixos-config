@@ -4,7 +4,8 @@
 #   _domain/    entities: user catalogue entry, normalized user, model
 #   _usecases/  normalize (host settings + storage facts -> model),
 #               query, validate
-#   _adapters/  model -> accounts, ephemeral-root identity, home-manager
+#   _adapters/  model -> accounts, ephemeral-root identity, home-manager,
+#               OpenPGP (gpg, gpg-agent, ssh)
 #
 # api.nix, module.nix and home.nix beside this file are the outer ring.
 #
@@ -30,6 +31,8 @@ in
     ephemeral = import ./_adapters/ephemeral.nix { };
 
     home = import ./_adapters/home.nix { inherit lib; };
+
+    gpg = import ./_adapters/gpg.nix { inherit lib; };
 
   });
 }

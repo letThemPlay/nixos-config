@@ -9,6 +9,7 @@
     "window-management"
     "core-apps"
     "flashgbx"
+    "gpg"
   ];
 
   users = [ "kelvin" ];

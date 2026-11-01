@@ -30,13 +30,28 @@ _: {
 
         home-manager.sharedModules = [
           (
-            { config, osConfig, ... }:
+            {
+              config,
+              lib,
+              osConfig,
+              ...
+            }:
             let
               userProfile = osConfig.ltp.identity.facts.users.${config.home.username} or { };
             in
             {
               programs.git = {
                 enable = true;
+
+                # Signs commits with the user's key where the host sets up gpg.
+                signing =
+                  lib.mkIf (osConfig.ltp.identity.facts.gpg && (userProfile.gpg.signingKey or null) != null)
+                    {
+                      key = userProfile.gpg.signingKey;
+                      format = "openpgp";
+                      signByDefault = true;
+                    };
+
                 settings = {
                   user = {
                     name = userProfile.fullName or "";
