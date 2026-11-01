@@ -27,6 +27,17 @@ in
           '';
         };
 
+        waitOnline = mkOption {
+          type = types.bool;
+          default = false;
+
+          description = ''
+            Whether boot waits for the network to be online
+            (systemd-networkd-wait-online). Off: nothing here needs the
+            network before the session starts.
+          '';
+        };
+
         profile = mkOption {
           type = types.str;
           default = "wired";

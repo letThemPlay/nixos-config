@@ -15,10 +15,10 @@
       flashgbx = [ inputs.self.nixosModules.flashgbx ];
 
       base = [
-        inputs.self.nixosModules.cachix-caches
         inputs.self.nixosModules.boot
         inputs.self.nixosModules.boot-api
-        inputs.self.nixosModules.nix-core
+        inputs.self.nixosModules.nix-api
+        inputs.self.nixosModules.nix
         inputs.self.nixosModules.locale-api
         inputs.self.nixosModules.locale
         inputs.self.nixosModules.hardware-api

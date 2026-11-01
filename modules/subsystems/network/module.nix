@@ -123,6 +123,8 @@ in
               dhcpcd.enable = false;
               useDHCP = false;
             };
+
+            systemd.network.wait-online.enable = cfg.waitOnline;
           }
 
           #

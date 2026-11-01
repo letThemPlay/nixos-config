@@ -9,16 +9,14 @@
         system = "x86_64-linux";
         modules = [
           "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+          inputs.self.nixosModules.nix-api
+          inputs.self.nixosModules.nix
           ({ pkgs, ... }: {
             environment.systemPackages = with pkgs; [
               git
               htop
               tmux
             ];
-
-            nix = {
-              extraOptions = "experimental-features = nix-command flakes pipe-operators";
-            };
 
             networking = {
               firewall.enable = false;

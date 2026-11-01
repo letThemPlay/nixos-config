@@ -4,7 +4,12 @@ let
 in
 {
   flake.nixosModules.theme =
-    { config, lib, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
 
     let
       inherit (lib) mkIf mkMerge;
@@ -35,6 +40,11 @@ in
           assertions = errors;
 
           warnings = map format validation.warnings;
+
+          # The monospace font and the extra ones, for every program.
+          fonts.packages = map (path: lib.getAttrFromPath (lib.splitString "." path) pkgs) (
+            [ cfg.appearance.fonts.monospace.package ] ++ cfg.appearance.fonts.extra
+          );
         })
 
       ];

@@ -123,6 +123,7 @@ let
             package = "dejavu_fonts";
             name = "DejaVu Sans";
           };
+          extra = [ "nerd-fonts.symbols-only" ];
         };
         cursor = {
           package = "bibata-cursors";

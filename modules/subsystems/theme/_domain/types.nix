@@ -82,6 +82,15 @@ rec {
         monospace = packaged "nerd-fonts.jetbrains-mono" "JetBrainsMono Nerd Font" { };
 
         sansSerif = packaged "dejavu_fonts" "DejaVu Sans" { };
+
+        extra = mkOption {
+          type = types.listOf types.str;
+          default = [ "nerd-fonts.symbols-only" ];
+          description = ''
+            Further system fonts, as pkgs attribute paths (icon glyphs
+            for the bar and dock).
+          '';
+        };
       };
 
       cursor = packaged "bibata-cursors" "Bibata-Modern-Ice" {
