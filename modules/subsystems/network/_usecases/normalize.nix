@@ -78,7 +78,7 @@ in
   inherit links;
 
   wireless = {
-    inherit (cfg.wireless) backend;
+    inherit (cfg.wireless) backend ui;
   };
 
   overlay = {

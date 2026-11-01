@@ -52,7 +52,7 @@
 
       laptop = [
         { ltp.apps.install = [ "discord" ]; }
-        inputs.self.nixosModules.wifi
+        { ltp.network.wireless.ui = true; }
         inputs.self.nixosModules.bluetooth
         inputs.self.nixosModules.audio
       ];

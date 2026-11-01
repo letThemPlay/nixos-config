@@ -43,7 +43,7 @@ in
     #
     # Wireless backend registry, keyed like ltp.network.wireless.backend.
     #
-    #   { model } -> { active; settings; state; }
+    #   { model } -> { active; settings; state; ui; }
     #
     wireless = {
       iwd = import ./_adapters/iwd.nix { inherit network; };

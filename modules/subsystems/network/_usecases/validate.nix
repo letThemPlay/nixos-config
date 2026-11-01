@@ -88,6 +88,17 @@ rec {
             ];
             message = "Unknown wireless backend '${model.wireless.backend}' (known: ${supportedText network.wireless}).";
           })
+
+      ++ optional (model.wireless.ui && !query.hasWireless model) (mkDiagnostic {
+        severity = "warning";
+        code = "network.wireless.ui.unused";
+        target = model.wireless.backend;
+        path = [
+          "wireless"
+          "ui"
+        ];
+        message = "The wireless UI is enabled, but no wireless link is.";
+      })
     );
 
   links =

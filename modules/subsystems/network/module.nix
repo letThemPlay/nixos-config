@@ -4,7 +4,12 @@ let
 in
 {
   flake.nixosModules.network =
-    { config, lib, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
 
     let
       inherit (lib)
@@ -53,6 +58,13 @@ in
         in
         mkIf (wireless.active && model.wireless.backend == name) (mkMerge [
           (wirelessOptions.${name} wireless.settings)
+
+          # The backend's UI where the host asks for it.
+          {
+            environment.systemPackages = lib.optional (
+              model.wireless.ui && wireless.ui != null
+            ) pkgs.${wireless.ui};
+          }
 
           {
             #

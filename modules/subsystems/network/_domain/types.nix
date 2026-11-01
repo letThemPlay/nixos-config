@@ -328,6 +328,10 @@ rec {
 
       wireless = mkOption {
         type = types.submodule {
+          options.ui = mkOption {
+            type = types.bool;
+          };
+
           options.backend = mkOption {
             type = types.str;
           };

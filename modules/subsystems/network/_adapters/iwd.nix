@@ -18,6 +18,9 @@
     Settings.AutoConnect = true;
   };
 
+  # Its graphical UI (a pkgs attribute name).
+  ui = "iwgtk";
+
   # Known networks and their passphrases.
   state.directories = [ "/var/lib/iwd" ];
 }

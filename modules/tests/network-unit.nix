@@ -46,6 +46,7 @@ let
         routeMetric = 512;
       };
       dns.provider = "nextdns";
+      wireless.ui = true;
     }
     {
       dns = {
@@ -341,6 +342,24 @@ let
       expected = map (_: true) contractCases;
     };
 
+    # The wireless UI only makes sense with a wireless link.
+    testWirelessUi = {
+      expr = {
+        withLink = codes (laptop // { wireless.ui = true; });
+        withoutLink = codes {
+          profile = "laptop";
+          links.wireless.enable = false;
+          wireless.ui = true;
+        };
+        inherit (iwdOf laptop) ui;
+      };
+      expected = {
+        withLink = [ ];
+        withoutLink = [ "network.wireless.ui.unused" ];
+        ui = "iwgtk";
+      };
+    };
+
     testNetworkdUnits = {
       expr = networksOf laptop;
       expected = {
@@ -394,7 +413,17 @@ let
     testUnknownWirelessBackendOnlyWithWireless = {
       expr =
         let
-          withBackend = settings: (modelOf settings) // { wireless.backend = "nope"; };
+          withBackend =
+            settings:
+            let
+              model = modelOf settings;
+            in
+            model
+            // {
+              wireless = model.wireless // {
+                backend = "nope";
+              };
+            };
         in
         {
           wired = codesOf (withBackend { });

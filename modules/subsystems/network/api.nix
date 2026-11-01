@@ -58,6 +58,12 @@ in
           '';
         };
 
+        wireless.ui = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the wireless backend's graphical UI is installed (iwgtk for iwd).";
+        };
+
         wireless.backend = mkOption {
           type = types.str;
           default = "iwd";
