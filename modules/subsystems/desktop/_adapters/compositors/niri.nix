@@ -57,6 +57,18 @@ rec {
     "floating"
   ];
 
+  #
+  # The uwsm-managed session (programs.uwsm.waylandCompositors). niri's
+  # own niri.service runs `niri --session`; under uwsm it runs as a
+  # systemd user unit the same way.
+  #
+  uwsm = {
+    prettyName = "Niri";
+    comment = "Niri, managed by uwsm";
+    binPath = "/run/current-system/sw/bin/niri";
+    extraArgs = [ "--session" ];
+  };
+
   # System pieces, as names; the desktop module maps them to NixOS.
   system = {
     package = "niri";

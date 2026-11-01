@@ -349,6 +349,35 @@ let
       };
     };
 
+    testGreeter = {
+      expr = {
+        inherit
+          (desktop.greeters.tuigreet {
+            pkgs.tuigreet = "/tuigreet";
+            sessionsDir = "/sessions";
+          })
+          command
+          ;
+        unknown = codes { greeter = "gdm"; };
+        none = codes { greeter = null; };
+      };
+      expected = {
+        command = "/tuigreet/bin/tuigreet --time --asterisks --remember --remember-session --sessions /sessions";
+        unknown = [ "desktop.greeter.unknown" ];
+        none = [ ];
+      };
+    };
+
+    testCompositorsHaveUwsmSessions = {
+      expr = lib.mapAttrs (_: entry: builtins.attrNames entry.uwsm) desktop.compositors;
+      expected = lib.mapAttrs (_: _: [
+        "binPath"
+        "comment"
+        "extraArgs"
+        "prettyName"
+      ]) desktop.compositors;
+    };
+
     testWaybarResolvesWidgets = {
       expr = desktop.waybar {
         model = modelOf {

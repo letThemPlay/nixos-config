@@ -42,11 +42,22 @@ in
     #   actions    : vocabulary name -> native bind action
     #   widgets    : abstract bar widget -> waybar module
     #   ruleProperties : window rule properties it can render
+    #   uwsm       : { prettyName; comment; binPath; extraArgs; } for its
+    #                uwsm session
     #   system     : { package; portals; keyring; } as names
     #   render     : { model, spawnPrefix } -> config text
     #
     compositors = {
       niri = import ./_adapters/compositors/niri.nix { inherit lib; };
+    };
+
+    #
+    # Greeter registry, keyed like ltp.desktop.greeter:
+    #   { pkgs, sessionsDir } -> { command; }
+    #   (NixOS creates the tuigreet cache directory for greetd.)
+    #
+    greeters = {
+      tuigreet = import ./_adapters/greeters/tuigreet.nix { };
     };
 
     # Spawned commands run as session applications.

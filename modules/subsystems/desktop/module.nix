@@ -97,6 +97,12 @@ in
           (compositorOptions.${name} entry)
 
           {
+            # The uwsm-managed session the greeter offers.
+            programs.uwsm = {
+              enable = true;
+              waylandCompositors.${name} = entry.uwsm;
+            };
+
             xdg.portal = {
               enable = true;
               extraPortals = map (portal: pkgs.${portal}) entry.system.portals;
@@ -125,6 +131,26 @@ in
             ];
           }
         ]);
+
+      #
+      # Only the uwsm sessions: the desktop relies on uwsm (uwsm app,
+      # uwsm finalize, XDG_CURRENT_DESKTOP for the per-session units).
+      #
+      uwsmSessions = pkgs.symlinkJoin {
+        name = "uwsm-sessions";
+        paths = builtins.filter (
+          package: builtins.any (lib.hasSuffix "-uwsm") (package.providedSessions or [ ])
+        ) config.services.displayManager.sessionPackages;
+      };
+
+      greeter =
+        if model.greeter.name == null then
+          null
+        else
+          desktop.greeters.${model.greeter.name} {
+            inherit pkgs;
+            sessionsDir = "${uwsmSessions}/share/wayland-sessions";
+          };
 
       format = diagnostic: "ltp.desktop [${diagnostic.code}]: ${diagnostic.message}";
 
@@ -155,10 +181,17 @@ in
             mkMerge (
               [
                 {
-                  # Sessions are started through uwsm (see greetd).
-                  environment.systemPackages = [ pkgs.uwsm ];
-
                   services.dbus.enable = true;
+
+                  services.greetd = mkIf (greeter != null) {
+                    enable = true;
+                    useTextGreeter = true;
+
+                    settings.default_session = {
+                      inherit (greeter) command;
+                      user = "greeter";
+                    };
+                  };
 
                   home-manager.sharedModules = [
                     {

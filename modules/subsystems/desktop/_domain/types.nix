@@ -285,6 +285,15 @@ rec {
         type = idle;
       };
 
+      greeter = mkOption {
+        type = types.submodule {
+          options = {
+            name = mkOption { type = types.nullOr types.str; };
+            known = mkOption { type = types.bool; };
+          };
+        };
+      };
+
       bar = mkOption {
         type = bar;
       };

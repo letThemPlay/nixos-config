@@ -272,9 +272,22 @@ rec {
       })
     );
 
+  greeter =
+    model:
+    mkResult (
+      optional (!model.greeter.known) (mkDiagnostic {
+        severity = "error";
+        code = "desktop.greeter.unknown";
+        target = model.greeter.name;
+        path = [ "greeter" ];
+        message = "Unknown greeter '${model.greeter.name}' (known: ${concatStringsSep ", " (attrNames desktop.greeters)}).";
+      })
+    );
+
   all =
     model:
     combine [
+      (greeter model)
       (idle model)
       (windowRules model)
       (compositors model)

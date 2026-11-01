@@ -25,6 +25,16 @@ in
           '';
         };
 
+        greeter = mkOption {
+          type = types.nullOr types.str;
+          default = "tuigreet";
+
+          description = ''
+            Login greeter (greetd). It offers the uwsm session of every
+            enabled compositor. Null leaves the login to the host.
+          '';
+        };
+
         compositors = mkOption {
           type = types.listOf types.str;
           default = [ "niri" ];

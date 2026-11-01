@@ -113,6 +113,11 @@ in
 
   inherit keyboard;
 
+  greeter = {
+    name = cfg.greeter;
+    known = cfg.greeter == null || desktop.greeters ? ${cfg.greeter};
+  };
+
   inherit (cfg)
     bar
     services

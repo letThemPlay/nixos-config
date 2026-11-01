@@ -61,7 +61,6 @@
         inputs.self.nixosModules.dock
         inputs.self.nixosModules.fuzzel
         inputs.self.nixosModules.mako
-        inputs.self.nixosModules.greetd
         inputs.self.nixosModules.locker
         inputs.self.nixosModules.clipboard-manager
         inputs.self.nixosModules.screenshot
