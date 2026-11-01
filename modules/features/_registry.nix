@@ -9,8 +9,16 @@
 
   config = {
     modules.features.registry = {
-      tailscale = [ inputs.self.nixosModules.tailscale ];
-      gpg = [ inputs.self.nixosModules.gpg ];
+      # Joins the overlay; its tags, routing and auth key secret are
+      # ltp.network.overlay options.
+      tailscale = [ { ltp.network.overlay.enable = true; } ];
+
+      #
+      # Sets up the users' OpenPGP keys: gpg, gpg-agent with pinentry,
+      # SSH through the agent, smartcard rules and git signing.
+      #
+      gpg = [ { ltp.identity.gpg.enable = true; } ];
+
       gaming = [ { ltp.apps.install = [ "steam" ]; } ];
       flashgbx = [ { ltp.apps.install = [ "flashgbx" ]; } ];
 
@@ -52,13 +60,23 @@
       laptop = [
         { ltp.apps.install = [ "discord" ]; }
         { ltp.network.wireless.ui = true; }
-        inputs.self.nixosModules.bluetooth
-        inputs.self.nixosModules.audio
+        {
+          ltp.hardware = {
+            audio.enable = true;
+            bluetooth.enable = true;
+          };
+        }
       ];
 
       vm = [
-        inputs.self.nixosModules.qemu-guest
-        inputs.self.nixosModules.audio
+        # A QEMU/KVM guest (e.g. on Proxmox): guest agent, SPICE, virtio
+        # initrd modules and a serial console.
+        {
+          ltp.hardware = {
+            guest = "qemu";
+            audio.enable = true;
+          };
+        }
       ];
 
       window-management = [
