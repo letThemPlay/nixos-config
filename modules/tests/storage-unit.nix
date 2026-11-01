@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  storage = config.flake.subsystems.storage;
+  storage = config.flake.features.storage;
 
   inherit (config.flake.nixosModules) storage-api;
 
@@ -532,7 +532,7 @@ let
     };
 
     # Plain data only; identity and user policy live in the
-    # identity subsystem.
+    # identity feature.
     testPreservationIsPlainData = {
       expr = lib.attrNames (preservationOf { });
       expected = [ "preserveAt" ];

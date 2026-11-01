@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  locale = config.flake.subsystems.locale;
+  locale = config.flake.features.locale;
 
   inherit (config.flake.nixosModules) locale-api;
 

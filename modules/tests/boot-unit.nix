@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  boot = config.flake.subsystems.boot;
+  boot = config.flake.features.boot;
 
   inherit (config.flake.nixosModules) boot-api;
 

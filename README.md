@@ -36,7 +36,7 @@ Use code with caution.modules/hosts/_common/hardware-.nix
 
 ## 💾 Step 2: Configure Storage
 
-Storage is rendered by the `ltp.storage` subsystem (part of the `base` feature). The default `erase-my-darlings` layout creates the disko partitions, Btrfs subvolumes, the initrd rollback of `/` and the preservation rules for system state. `/home` is a persistent subvolume.
+Storage is rendered by the `ltp.storage` feature (part of the `base` bundle). The default `erase-my-darlings` layout creates the disko partitions, Btrfs subvolumes, the initrd rollback of `/` and the preservation rules for system state. `/home` is a persistent subvolume.
 
 Find a stable path for the target drive with `ls -l /dev/disk/by-id` and put the host's storage settings in `modules/hosts/_hosts/_settings/<new-host>.nix`:
 
@@ -134,15 +134,15 @@ Reboot your machine when complete. Your early-boot Stage 1 systemd unit service 
 
 ---
 
-## 🧱 Subsystem Conventions
+## 🧱 Feature Conventions
 
-Host-facing configuration lives in subsystems under `modules/subsystems/<name>/` (storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets, apps). Each one follows the same shape and naming.
+Host-facing configuration lives in features under `modules/features/<name>/` (storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets, apps). Each one follows the same shape and naming.
 
 ### Layout
 
 | File | Provides |
 |---|---|
-| `core.nix` | `flake.subsystems.<name>`: the pure core, assembled from the rings below |
+| `core.nix` | `flake.features.<name>`: the pure core, assembled from the rings below |
 | `_domain/` | entity types and plain data (layouts, profiles, providers, defaults) |
 | `_usecases/` | `normalize` (settings → model), `query`, `validate` |
 | `_adapters/` | model → plain data for one target (disko, networkd, stylix, …); registries live here |
@@ -151,11 +151,11 @@ Host-facing configuration lives in subsystems under `modules/subsystems/<name>/`
 | `<target>.nix` | `nixosModules.<name>-<target>` for tool-specific rendering (`identity-home`, `theme-stylix`) |
 | `modules/tests/<name>-unit.nix` | `checks.<name>-unit` |
 
-Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `api`/`module`. The core never reads NixOS options; `module.nix` passes it plain data, including other subsystems' facts. `modules/subsystems/diagnostics.nix` and `overrides.nix` are shared by every core.
+Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `api`/`module`. The core never reads NixOS options; `module.nix` passes it plain data, including other features' facts. `modules/features/diagnostics.nix` and `overrides.nix` are shared by every core.
 
 ### Options (`ltp.<name>`)
 
-- `enable` on every subsystem (true by default, except storage).
+- `enable` on every feature (true by default, except storage).
 - Read-only results for other modules go under `facts` (`ltp.storage.facts.statePath`, `ltp.identity.facts.users`).
 - Collections are attribute sets keyed by name (`volumes`, `links`, `apps`, `binds`, `windowRules`, `gpus`).
 - Partial overrides (`storage.volumes`, `network.links`, `desktop.apps`) apply only the fields they define, so a nullable field can be set to `null` on purpose.
@@ -165,7 +165,7 @@ Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `
 
 ### Validation codes
 
-`<subsystem>.<path>.<problem>`, with a plural segment for collection-wide checks (`network.links.none`) and a singular one for items (`network.link.match.duplicate`). `<problem>` is one word:
+`<feature>.<path>.<problem>`, with a plural segment for collection-wide checks (`network.links.none`) and a singular one for items (`network.link.match.duplicate`). `<problem>` is one word:
 
 | Word | Meaning |
 |---|---|
@@ -180,9 +180,9 @@ Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `
 
 `types`, `normalize`, `query`, `validate`; registries are plural nouns of what they key (`backends`, `loaders`, `compositors`, `gpuVendors`); adapters are named after their target (`preservation`, `resolved`, `systemdUnits`). A core attribute never shares a name with an `ltp.<name>` option of a different meaning.
 
-### Adding a subsystem
+### Adding a feature
 
-1. Create `modules/subsystems/<name>/` with `core.nix`, the rings, `api.nix` and `module.nix`.
+1. Create `modules/features/<name>/` with `core.nix`, the rings, `api.nix` and `module.nix`.
 2. Add `<name>-api` and `<name>` to the `base` bundle in `modules/hosts/_bundles.nix`.
 3. Add `modules/tests/<name>-unit.nix` with a model contract test (normalize output against `types.model`).
-4. Features contribute to the subsystem's options; they don't configure its targets directly.
+4. Bundles and other features set the feature's options; they don't configure its targets directly.

@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  secrets = config.flake.subsystems.secrets;
+  secrets = config.flake.features.secrets;
 
   inherit (config.flake.nixosModules) secrets-api;
 

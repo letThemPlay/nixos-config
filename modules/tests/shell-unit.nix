@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  shell = config.flake.subsystems.shell;
+  shell = config.flake.features.shell;
 
   inherit (config.flake.nixosModules) shell-api;
 

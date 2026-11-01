@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  apps = config.flake.subsystems.apps;
+  apps = config.flake.features.apps;
 
   inherit (config.flake.nixosModules) apps-api;
 

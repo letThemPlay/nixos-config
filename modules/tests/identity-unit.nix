@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  identity = config.flake.subsystems.identity;
+  identity = config.flake.features.identity;
 
   inherit (config.flake.nixosModules) identity-api;
 

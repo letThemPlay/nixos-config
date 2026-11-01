@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  desktop = config.flake.subsystems.desktop;
+  desktop = config.flake.features.desktop;
 
   inherit (config.flake.nixosModules) desktop-api;
 
@@ -13,7 +13,7 @@ let
       ];
     }).config.ltp.desktop;
 
-  # App roles as the apps subsystem would publish them.
+  # App roles as the apps feature would publish them.
   appFacts = {
     terminal.command = [ "alacritty" ];
     launcher.command = [ "fuzzel" ];
@@ -48,10 +48,10 @@ let
     };
   };
 
-  bareValidate = import ../subsystems/desktop/_usecases/validate.nix {
+  bareValidate = import ../features/desktop/_usecases/validate.nix {
     inherit lib;
     desktop = bare;
-    inherit (config.flake.subsystems) diagnostics;
+    inherit (config.flake.features) diagnostics;
   };
 
   onBare =

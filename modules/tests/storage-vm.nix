@@ -1,6 +1,6 @@
 { config, inputs, ... }:
 let
-  storage = config.flake.subsystems.storage;
+  storage = config.flake.features.storage;
 
   inherit (config.flake.nixosModules) storage-api;
 

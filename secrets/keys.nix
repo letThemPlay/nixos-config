@@ -1,6 +1,6 @@
 #
 # Public keys by name. secrets.nix (the agenix rules) encrypts each
-# secret for a list of these; the secrets subsystem checks that a host
+# secret for a list of these; the secrets feature checks that a host
 # using a secret is among its recipients.
 #
 # Hosts: the host's /etc/ssh/ssh_host_ed25519_key.pub.

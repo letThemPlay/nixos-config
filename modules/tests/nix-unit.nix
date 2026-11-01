@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  nix = config.flake.subsystems.nix;
+  nix = config.flake.features.nix;
 
   inherit (config.flake.nixosModules) nix-api;
 

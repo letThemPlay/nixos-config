@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  network = config.flake.subsystems.network;
+  network = config.flake.features.network;
 
   inherit (config.flake.nixosModules) network-api;
 

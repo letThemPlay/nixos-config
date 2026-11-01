@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  theme = config.flake.subsystems.theme;
+  theme = config.flake.features.theme;
 
   inherit (config.flake.nixosModules) theme-api;
 
@@ -95,17 +95,17 @@ let
               polarity = "dark";
             };
           };
-          validate = import ../subsystems/theme/_usecases/validate.nix {
+          validate = import ../features/theme/_usecases/validate.nix {
             inherit lib;
             theme = broken;
-            inherit (config.flake.subsystems) diagnostics;
+            inherit (config.flake.features) diagnostics;
           };
         in
         map (d: d.code) (validate.all { users = { }; }).diagnostics;
       expected = [ "theme.wallpaper.missing" ];
     };
 
-    # The defaults are the values every host had before the subsystem.
+    # The defaults are the values every host had before the feature.
     testAppearanceDefaults = {
       expr = (evalCfg { }).appearance;
       expected = {
