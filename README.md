@@ -1,76 +1,193 @@
-# 🗺️ Guide: Provisioning a New Machine to the Fleet
+# NixOS fleet configuration
 
-This guide outlines the deterministic workflow for adding a brand-new bare-metal or virtual machine to your stateless, ephemeral **Dendritic Architecture** utilizing **Btrfs subvolumes**. By leveraging out-of-band pre-evaluation and lazy-loaded registries, provisioning a host requires zero boilerplate.
+A NixOS flake for a small fleet of machines, built with [flake-parts](https://flake.parts) and [import-tree](https://github.com/denful/import-tree): every `.nix` file under `modules/` is loaded automatically, except paths starting with `_`.
+
+- **Features** (`modules/features/<name>/`) own all host-facing configuration under `ltp.<name>`: storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets and apps. Each one validates its settings and reports problems as `ltp.<name> [code]: message`.
+- **Bundles** (`modules/hosts/_bundles.nix`) group feature modules and settings, for example `laptop` or `vm`.
+- **Hosts** are short datasheets in `modules/hosts/_hosts/` that pick bundles and users. Per-host settings live beside them.
+- **Users** are plain files in `modules/users/_users/`, enabled per host.
 
 ---
 
-## 🛠️ Step 1: Generate the Core Hardware Profile
+## 📁 Repository layout
 
-Boot your target machine using a standard **NixOS Live Installer USB**. Ensure you have an active network connection, then generate your machine's raw hardware constraints out-of-band:
+```text
+modules/
+  features/<name>/        one feature: core, options.nix, module.nix and its rings
+  hosts/
+    _bundles.nix          the bundles a datasheet can pick
+    _hosts/<host>.nix     host datasheets (found automatically)
+    _hosts/_settings/     per-host ltp.* settings
+    _hosts/_hardware/     per-host hardware profiles (loaded automatically by name)
+    iso.nix               a minimal installer image
+  users/_users/<user>.nix user files
+  factories/hosts.nix     turns a datasheet into a nixosConfiguration
+  tests/                  unit tests and the storage VM test (nix flake check)
+gpg/<user>/*.asc          users' public OpenPGP keys
+secrets/                  agenix secrets, their recipients (secrets.nix) and keys (keys.nix)
+```
+
+---
+
+## 🧩 Bundles
+
+| Bundle | What it turns on |
+|---|---|
+| `base` | Every feature except the desktop, plus eza and zoxide. Every host needs it. |
+| `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components. |
+| `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
+| `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
+| `core-apps` | git, with the users' identity, signing and the git aliases. |
+| `gaming` | Steam, GameMode and gamescope. |
+| `flashgbx` | FlashGBX, and serial access for users who list the `flashgbx` bundle. |
+| `gpg` | The users' OpenPGP keys: gpg-agent with pinentry, SSH through the agent, smartcard rules and git signing. |
+| `tailscale` | Joins the tailscale network. It needs a secret, see [After the first boot](#47-after-the-first-boot). |
+
+---
+
+## 🖥️ Adding a machine
+
+### 4.0 Choose a storage mode
+
+Storage is the one decision to make before installing.
+
+| | A. Erase on boot (default) | B. Persistent root | C. Manual partitioning |
+|---|---|---|---|
+| Partitioned by | disko, from `ltp.storage` | disko, from `ltp.storage` | you, by hand |
+| `/` on reboot | rolled back to an empty snapshot | kept | kept |
+| What survives | `/home`, `/nix`, `/persist` and the state preserved into it | everything | everything |
+| Btrfs subvolumes, snapshots, LUKS, swap | yes | yes | whatever you create |
+| User passwords | hashes in `/persist/secrets/passwords/<user>`, users immutable | `passwd`, users mutable | `passwd`, users mutable |
+| Pick it when | you want a clean system on every boot | you want disko's layout without the rollback | you need a layout disko does not cover, or are adopting an existing install |
+
+Mode A is the `erase-my-darlings` layout. It creates the subvolumes `@root`, `@blank`, `@persist`, `@nix`, `@home` and `@snapshots`. On every boot the initrd snapshots `@root` into `@snapshots`, keeping 5 of them, and restores it from `@blank`. [preservation](https://github.com/nix-community/preservation) then bind-mounts system state from `/persist`.
+
+What `/persist` keeps:
+- the layout's defaults, such as `/var/log` and systemd state
+- what features declare themselves: the SSH host key, iwd networks, tailscale state and Secure Boot keys
+- anything you add with `ltp.storage.persistence.policy`
+
+Preservation needs disko. Only the storage feature renders it, so there is no "manual partitioning with preservation".
+
+### 4.1 Boot an installer
+
+Use a NixOS installer ISO, or build this repository's own minimal one, which has git and flakes enabled:
 
 ```zsh
-nixos-generate-config --no-filesystems --dir /tmp
+nix build .#nixosConfigurations.iso.config.system.build.isoImage
 ```
 
-### ✂️ Clean and Isolate the Hardware Block
-Open `/tmp/hardware-configuration.nix`. Because your disk infrastructure is managed cleanly by **Disko**, **remove the entire `fileSystems` and `swapDevices` attribute arrays completely**
- Keep only the raw kernel modules and firmware flags:
+Boot it on the target, get a network connection, then clone the repository:
 
-```nix
-# Example of what to keep: /tmp/hardware-configuration.nix
-{ config, lib, pkgs, modulesPath, ... }: {
-  imports = [ (modulesPath + "/hardware/network/links.nix") ];
-
-  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usb_hid" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
-
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-}
+```zsh
+git clone https://github.com/letThemPlay/nixos-config.git
+cd nixos-config
 ```
 
-Move this file into your workspace tree under your common hardware paths:
-Use code with caution.modules/hosts/_common/hardware-.nix
----
+All later commands run from this checkout. New files must be `git add`ed before Nix can see them, because flakes only read files git knows about.
 
-## 💾 Step 2: Configure Storage
+### 4.2 Hardware profile
 
-Storage is rendered by the `ltp.storage` feature (part of the `base` bundle). The default `erase-my-darlings` layout creates the disko partitions, Btrfs subvolumes, the initrd rollback of `/` and the preservation rules for system state. `/home` is a persistent subvolume.
+The factory loads `modules/hosts/_hosts/_hardware/<host>.nix` automatically when it exists.
 
-Find a stable path for the target drive with `ls -l /dev/disk/by-id` and put the host's storage settings in `modules/hosts/_hosts/_settings/<new-host>.nix`:
+**Modes A and B.** disko owns the file systems, so leave them out:
+
+```zsh
+nixos-generate-config --no-filesystems --show-hardware-config \
+  > modules/hosts/_hosts/_hardware/<host>.nix
+```
+
+If the file still declares `fileSystems."/"`, the build fails with a conflicting-definition error naming both files.
+
+**Mode C.** Partition, format and mount the target under `/mnt` yourself first, including `/mnt/boot` for the EFI partition. Then keep the generated file systems:
+
+```zsh
+nixos-generate-config --root /mnt --show-hardware-config \
+  > modules/hosts/_hosts/_hardware/<host>.nix
+```
+
+Machines with a [nixos-hardware](https://github.com/NixOS/nixos-hardware) profile can add it in the datasheet's `extraModules`, as theseus does with `framework-13-7040-amd`.
+
+### 4.3 Host settings
+
+Put the host's `ltp.*` settings in `modules/hosts/_hosts/_settings/<host>.nix`. Pick the disk by a stable path (`ls -l /dev/disk/by-id`); a `/dev/sdX` or `/dev/vdX` name gives a warning.
+
+**Mode A: erase on boot.**
 
 ```nix
 _: {
   ltp.storage = {
     enable = true;
-
-    disk = "/dev/disk/by-id/nvme-Samsung_990_PRO_...";
+    disk = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X000000A";
 
     # Optional
-    encryption.enable = true;
-    swap.enable = true;
-    swap.size = "16G";
+    encryption.enable = true;   # LUKS; disko asks for the passphrase
+    swap = {
+      enable = true;            # a swapfile on its own subvolume
+      size = "32G";
+    };
 
-    # Extra state to keep across reboots
+    # Extra state to keep across reboots, on the persist volume
     persistence.policy.persist.directories = [ "/var/lib/my-service" ];
   };
 }
 ```
 
----
+**Mode B: persistent root.** These are the mode A settings, plus two lines that turn off the rollback and the layout's preserved state:
 
-## 📝 Step 3: Populate the Host Datasheet Card
+```nix
+_: {
+  ltp.storage = {
+    enable = true;
+    disk = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X000000A";
 
-Create your clean, declarative host datasheet profile sheet under **`modules/hosts/_hosts/<new-host>.nix`**. Your file contains **zero hardcoded path blocks** or relative directory walks:
+    volumes.root.rollback = false;     # keep / across reboots
+    persistence.defaultPolicy = false; # no layout state to preserve
+  };
+}
+```
 
-`bundles` picks from the bundles in `modules/hosts/_bundles.nix`; each bundle is a list of feature settings (`laptop` turns on audio, bluetooth and the wireless UI).
+Features still keep their own few state files, such as the SSH host key and machine-id, on `/persist` and mount them in place. This is harmless with a persistent root.
+
+**Mode C: manual partitioning.** Leave `ltp.storage` out entirely; storage is off by default. The file systems come from the hardware profile.
+
+**Other common settings** (all optional):
+
+```nix
+_: {
+  ltp = {
+    network = {
+      profile = "laptop";          # wired (default) or laptop (wired + wireless)
+      dns.provider = "controld";   # cloudflare (default), nextdns or controld
+    };
+
+    locale = {
+      timeZone = "Europe/London";
+      keyboard = {
+        console = "uk";            # the TTY keymap
+        session.layout = "gb";     # the desktop's XKB layout
+      };
+    };
+
+    hardware.gpus = {
+      igpu = { vendor = "amd"; integrated = true; busId = "PCI:6:0:0"; };
+      dgpu = { vendor = "nvidia"; busId = "PCI:1:0:0"; };  # PRIME offload by default
+    };
+
+    theme.appearance.cursor.size = 32;
+  };
+}
+```
+
+### 4.4 Datasheet
+
+Create `modules/hosts/_hosts/<host>.nix`. Every datasheet in that directory becomes `nixosConfigurations.<hostName>`, so `flake.nix` does not change.
 
 ```nix
 { inputs, ... }: {
   hostName = "laptop-x1";
   architecture = "x86_64-linux";
-  stateVersion = "26.05";
+  stateVersion = "26.05";   # the release you install with; never change it later
 
   bundles = [
     "base"
@@ -87,50 +204,141 @@ Create your clean, declarative host datasheet profile sheet under **`modules/hos
 }
 ```
 
----
+An unknown bundle stops the build and lists the known ones. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
 
-## 🚀 Step 4: Add the Machine to Root `flake.nix`
+Then make the new files visible to Nix:
 
-Open your root `flake.nix` file and add a public configuration binding line using your central **`mkHost`** factory generator function wrapper:
+```zsh
+git add modules/hosts
+```
+
+### 4.5 Users
+
+Users already in `modules/users/_users/` only need to be listed in the datasheet. A new user is a file named after the account:
 
 ```nix
-nixosConfigurations = {
-  vm-test = self.lib.mkHost "vm-test" "x86_64-linux";
-  laptop-x1 = self.lib.mkHost "laptop-x1" "x86_64-linux";
-};
+# modules/users/_users/alice.nix
+{
+  fullName = "Alice";
+  email = "alice@example.org";     # used for git
+  admin = true;                    # wheel; gets root through sudo-rs
+  shell = "zsh";                   # zsh or bash
+  theme = "catppuccin";            # catppuccin or tokyonight
+  extraPackages = [ "firefox" ];   # package attribute names
+  bundles = [ "flashgbx" ];        # applied on hosts that include these bundles
+
+  # Optional OpenPGP; rendered only on hosts with the gpg bundle
+  gpg = {
+    signingKey = "0x0123456789ABCDEF";
+    smartcard = true;
+  };
+}
 ```
 
-Stash your configuration updates into your index tracker immediately, or the evaluator sandbox will hide the paths from Disko:
+Public keys go in `gpg/<user>/*.asc` and are imported with ultimate trust on hosts with the `gpg` bundle.
+
+### 4.6 Install
+
+Check the configuration first, then run the steps for your storage mode.
+
 ```zsh
-git add modules/ flake.nix
+nix flake check
 ```
+
+**Modes A and B.** Partition, format and mount with disko. This erases the disk.
+
+```zsh
+sudo nix run github:nix-community/disko/latest -- \
+  --mode destroy,format,mount --flake .#<host>
+```
+
+**Mode A only.** `/etc` is erased on every boot, so passwords are declarative. Each user's hash is read from the persist volume, which is mounted in the initrd before the users are created. agenix can't be used here, because it decrypts after the users exist.
+
+```zsh
+sudo mkdir -p /mnt/persist/secrets/passwords
+mkpasswd -m yescrypt | sudo tee /mnt/persist/secrets/passwords/<user> > /dev/null
+sudo chmod 0400 /mnt/persist/secrets/passwords/<user>
+```
+
+**All modes.** Install. Root gets no password; admins use `sudo`.
+
+```zsh
+sudo nixos-install --flake .#<host> --no-root-passwd
+```
+
+**Modes B and C.** Users are mutable, so set each password once:
+
+```zsh
+sudo nixos-enter --root /mnt -c 'passwd <user>'
+```
+
+Reboot into the new system.
+
+### 4.7 After the first boot
+
+**Register the host for secrets.** agenix decrypts with the SSH host key, which the first boot created and which is preserved in mode A.
+
+1. Add the host's public key to `secrets/keys.nix` under `hosts.<host>`:
+
+   ```zsh
+   cat /etc/ssh/ssh_host_ed25519_key.pub
+   ```
+
+2. Add `keys.hosts.<host>` to the secrets this host needs in `secrets/secrets.nix`, for example `tailscale-authkey.age`.
+3. Re-encrypt them:
+
+   ```zsh
+   nix develop .#secrets
+   cd secrets && agenix -r
+   ```
+
+4. Add the bundles that use them, such as `tailscale`, to the datasheet.
+
+A host that uses a secret not encrypted for it fails with `ltp.secrets [secrets.recipient.missing]`, and a host missing from `keys.nix` fails with `secrets.host.unknown`.
+
+**Secure Boot (optional).**
+
+1. Create the keys:
+
+   ```zsh
+   sudo sbctl create-keys
+   ```
+
+   In mode A they are kept in `/var/lib/sbctl` on `/persist`.
+2. Set `ltp.boot.secureBoot.enable = true;` in the host settings and rebuild.
+3. Put the firmware into setup mode and enroll the keys:
+
+   ```zsh
+   sudo sbctl enroll-keys --microsoft
+   ```
+
+**Rebuild.** From the checkout:
+
+```zsh
+nrs   # sudo nixos-rebuild switch --flake .#<host>
+```
+
+Commit the new host, its settings, its hardware profile and the secrets changes.
+
+### 4.8 When something is wrong
+
+Features check their settings before rendering anything, and fail with a message naming the setting:
+
+```text
+ltp.storage [storage.disk.unstable]: Disk '/dev/vda' is not a stable /dev/disk/by-* path.
+ltp.identity [identity.user.bundle.unknown]: User 'alice' names unknown bundle 'flashgdx'.
+```
+
+Errors stop the build and warnings are printed. `nix flake check` runs every feature's unit tests; `nix build .#vmTests.storage` partitions a VM with disko and boots it.
 
 ---
 
-## 🔒 Step 5: Execute Remote Partitioning and Installation Passes
+## 🔁 Changing a running machine
 
-From your **NixOS Live Installer terminal window** on the target computer machine, fire off your Disko execution utility script to partition your drive remotely:
-
-```zsh
-nix run github:nix-community/disko/latest -- --mode disko --flake "github:Kelvin/my-dendritic-flake#laptop-x1"
-```
-
-Once Disko confirms your storage datasets are structured and cleanly mounted under `/mnt`, create a password hash for every user. `/etc` is wiped on every boot, so passwords are declarative and read from the persist volume (agenix cannot be used here: it decrypts after userborn creates the users):
-
-```zsh
-mkdir -p /mnt/persist/secrets/passwords
-mkpasswd -m yescrypt > /mnt/persist/secrets/passwords/kelvin
-chmod 0400 /mnt/persist/secrets/passwords/kelvin
-```
-
-Then trigger your core stateless system compilation install pass:
-
-```zsh
-# 🚀 2. INSTALL DEPLOYMENT RUN:
-sudo nixos-install --flake "github:Kelvin/my-dendritic-flake#laptop-x1"
-```
-
-Reboot your machine when complete. Your early-boot Stage 1 systemd unit service will intercept the boot process, flash-wiping your operating system root subvolume clean back to an absolute blank snapshot canvas on every power cycle 
+- **Rebuild:** `nrs` switches to the checkout's configuration, and `nrb` applies it at the next boot.
+- **Turn something on:** add a bundle to the datasheet, or set the feature's option in `_settings/<host>.nix`.
+- **Keep extra state in mode A:** add it to `ltp.storage.persistence.policy`. Anything not preserved is gone after the next reboot, and the pre-rollback snapshots in `/.snapshots` are the way back.
+- **Before pushing:** run `nix flake check`. It also runs the formatting and lint hooks used on commit.
 
 ---
 
