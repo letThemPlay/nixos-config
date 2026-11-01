@@ -6,7 +6,6 @@ let
     concatLists
     filter
     filterAttrs
-    genAttrs
     mapAttrs
     unique
     ;
@@ -15,15 +14,15 @@ in
 
 #
 # cfg is the ltp.desktop option set, or any attrset of the same shape.
-# hasPackage tells whether a pkgs attribute path exists, and keyboard
-# is the session keyboard ({ layout; variant; }, from ltp.locale), and
+# apps are the resolved app roles (ltp.apps.facts) that app binds start,
+# keyboard is the session keyboard ({ layout; variant; }, from ltp.locale), and
 # facts the host's hardware facts (ltp.hardware.facts; null: unknown,
 # nothing is filtered); the desktop module supplies them. No module
 # system is required.
 #
 {
   cfg,
-  hasPackage ? _: true,
+  apps ? { },
   keyboard ? {
     layout = "gb";
     variant = "";
@@ -32,31 +31,6 @@ in
 }:
 
 let
-  # appDefaults <- default role <- override.
-  roles = genAttrs (unique (attrNames desktop.defaultApps ++ attrNames cfg.apps)) (
-    role:
-    desktop.types.applyAppOverride (
-      desktop.types.appDefaults role // (desktop.defaultApps.${role} or { })
-    ) (cfg.apps.${role} or { })
-  );
-
-  terminal = roles.terminal or null;
-
-  # Apps that run in a terminal are started through the terminal role.
-  apps = mapAttrs (
-    _: app:
-    app
-    // {
-      known = hasPackage app.package;
-
-      command =
-        if app.inTerminal && terminal != null && terminal.execFlag != null then
-          terminal.command ++ [ terminal.execFlag ] ++ app.command
-        else
-          app.command;
-    }
-  ) roles;
-
   # Plain-data binds get the bind type's full shape.
   shape =
     bind:
@@ -103,12 +77,12 @@ in
     known = desktop.compositors ? ${name};
   }) cfg.compositors;
 
-  inherit apps;
-
   # A component or host rule replaces the default with the same name.
   windowRules = mapAttrs (_: ruleShape) (
     (if cfg.defaultWindowRules then desktop.defaultWindowRules else { }) // cfg.windowRules
   );
+
+  appRoles = attrNames apps;
 
   # A component or host bind replaces the default for its key; command
   # is the final argv of a spawn or app bind.
@@ -160,6 +134,5 @@ in
   inherit (cfg)
     services
     idle
-    dmenuConsumers
     ;
 }

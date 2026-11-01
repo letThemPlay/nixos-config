@@ -56,11 +56,9 @@ in
         ) desktop.components
       );
 
-      packageOf = path: lib.getAttrFromPath (lib.splitString "." path) pkgs;
-
       model = desktop.normalize {
         inherit cfg;
-        hasPackage = path: lib.hasAttrByPath (lib.splitString "." path) pkgs;
+        apps = config.ltp.apps.facts;
         keyboard = config.ltp.locale.keyboard.session;
         facts = config.ltp.hardware.facts;
       };
@@ -194,9 +192,6 @@ in
 
       config = mkMerge [
 
-        # Published on every host, like the other subsystems' facts.
-        { ltp.desktop.facts.apps = model.apps; }
-
         (mkIf cfg.enable (mkMerge [
 
           {
@@ -226,10 +221,6 @@ in
                   };
 
                   home-manager.sharedModules = [
-                    {
-                      home.packages = map (app: packageOf app.package) (builtins.attrValues model.apps);
-                    }
-
                     (
                       { config, osConfig, ... }:
                       {

@@ -1,7 +1,6 @@
 {
   lib,
   desktop,
-  overrides,
 }:
 let
   inherit (lib) mkOption types;
@@ -10,69 +9,6 @@ rec {
 
   # Valid compositors are the keys of the compositor registry.
   compositor = types.enum (builtins.attrNames desktop.compositors);
-
-  #
-  # App role fields, declared once. `app` is the full entity; `appOverride`
-  # is the host-facing partial form: only the fields it defines apply.
-  # normalize merges appDefaults <- default role <- override, like
-  # storage volumes.
-  #
-  appFields = {
-
-    package = {
-      type = types.str;
-      description = "Package attribute path in pkgs.";
-    };
-
-    command = {
-      type = types.listOf types.str;
-      description = "Command and arguments that start the app.";
-    };
-
-    appId = {
-      type = types.str;
-      description = "Wayland app id of its windows.";
-    };
-
-    inTerminal = {
-      type = types.bool;
-      description = "Whether the app runs inside the terminal role.";
-    };
-
-    execFlag = {
-      type = types.nullOr types.str;
-      description = "For a terminal: the flag that runs a command in it (e.g. -e).";
-    };
-
-    dmenu = {
-      type = types.nullOr (types.listOf types.str);
-      description = "For a launcher: the command that picks a line from stdin (dmenu mode).";
-    };
-
-  };
-
-  appDefaults = role: {
-    package = role;
-    command = [ role ];
-    appId = role;
-    inTerminal = false;
-    execFlag = null;
-    dmenu = null;
-  };
-
-  appOverride = overrides.type appFields;
-
-  applyAppOverride = overrides.apply appFields;
-
-  # A resolved role: command already wrapped in the terminal when needed.
-  app = types.submodule {
-    options = lib.mapAttrs (_: spec: mkOption { inherit (spec) type description; }) appFields // {
-      known = mkOption {
-        type = types.bool;
-        description = "Whether the package exists in pkgs.";
-      };
-    };
-  };
 
   #
   # A key bind runs a command, a vocabulary action or an app role,
@@ -293,9 +229,9 @@ rec {
         description = "Defaults merged with component and host binds.";
       };
 
-      apps = mkOption {
-        type = types.attrsOf app;
-        description = "App roles, resolved.";
+      appRoles = mkOption {
+        type = types.listOf types.str;
+        description = "Roles the apps subsystem resolved; app binds must name one.";
       };
 
       windowRules = mkOption {
@@ -304,10 +240,6 @@ rec {
 
       idle = mkOption {
         type = idle;
-      };
-
-      dmenuConsumers = mkOption {
-        type = types.listOf types.str;
       };
 
       requirements = mkOption {

@@ -13,7 +13,16 @@ let
       ];
     }).config.ltp.desktop;
 
-  modelOf = settings: desktop.normalize { cfg = evalCfg settings; };
+  # App roles as the apps subsystem would publish them.
+  appFacts = {
+    terminal.command = [ "alacritty" ];
+    launcher.command = [ "fuzzel" ];
+    browser.command = [ "firefox" ];
+  };
+
+  normalizeWith = args: desktop.normalize ({ apps = appFacts; } // args);
+
+  modelOf = settings: normalizeWith { cfg = evalCfg settings; };
 
   codesOf = validate: model: lib.sort lib.lessThan (map (d: d.code) (validate.all model).diagnostics);
 
@@ -108,7 +117,7 @@ let
         render =
           keyboard:
           desktop.compositors.niri.render {
-            model = desktop.normalize {
+            model = normalizeWith {
               cfg = evalCfg { };
               inherit keyboard;
             };
@@ -175,39 +184,6 @@ let
       expected = true;
     };
 
-    testInTerminalAppRunsInTerminal = {
-      expr = (modelOf { }).apps.fileManager.command;
-      expected = [
-        "alacritty"
-        "-e"
-        "yazi"
-      ];
-    };
-
-    testRoleOverrideKeepsOtherFields = {
-      expr =
-        let
-          browser =
-            (modelOf {
-              apps.browser.command = [
-                "firefox"
-                "--new-window"
-              ];
-            }).apps.browser;
-        in
-        {
-          inherit (browser) package appId command;
-        };
-      expected = {
-        package = "firefox";
-        appId = "firefox";
-        command = [
-          "firefox"
-          "--new-window"
-        ];
-      };
-    };
-
     testAppBindUsesRole = {
       expr = (modelOf { binds."Mod+B".app = "browser"; }).binds."Mod+B".command;
       expected = [ "firefox" ];
@@ -216,22 +192,6 @@ let
     testUnknownAppRole = {
       expr = codes { binds."Mod+B".app = "editor2"; };
       expected = [ "desktop.bind.app.unknown" ];
-    };
-
-    testUnknownPackage = {
-      expr = codesOf desktop.validate (
-        desktop.normalize {
-          cfg = evalCfg { };
-          hasPackage = path: path != "yazi";
-        }
-      );
-      expected = [ "desktop.app.package.unknown" ];
-    };
-
-    # execFlag is nullable, so an override can clear it.
-    testTerminalWithoutExecFlag = {
-      expr = codes { apps.terminal.execFlag = null; };
-      expected = [ "desktop.app.terminal.missing" ];
     };
 
     testUnknownCompositor = {
@@ -369,7 +329,7 @@ let
 
         withFacts =
           facts:
-          desktop.normalize {
+          normalizeWith {
             cfg = evalCfg settings;
             inherit facts;
           };
@@ -408,25 +368,10 @@ let
         };
       };
 
-    testLauncherRole = {
-      expr = {
-        bind = hasLine (niriOf { }) ''"Mod+D" { spawn "uwsm" "app" "--" "fuzzel"; }'';
-        inherit ((modelOf { }).apps.launcher) dmenu;
-        ok = codes { dmenuConsumers = [ "clipboard" ]; };
-        missing = codes {
-          dmenuConsumers = [ "clipboard" ];
-          apps.launcher.dmenu = null;
-        };
-      };
-      expected = {
-        bind = true;
-        dmenu = [
-          "fuzzel"
-          "--dmenu"
-        ];
-        ok = [ ];
-        missing = [ "desktop.app.dmenu.missing" ];
-      };
+    # Mod+D starts the launcher role published by ltp.apps.
+    testLauncherBind = {
+      expr = hasLine (niriOf { }) ''"Mod+D" { spawn "uwsm" "app" "--" "fuzzel"; }'';
+      expected = true;
     };
 
     testComponents = {

@@ -16,18 +16,16 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.subsystems) diagnostics overrides;
+  inherit (config.flake.subsystems) diagnostics;
 in
 {
   flake.subsystems.desktop = lib.fix (desktop: {
 
-    types = import ./_domain/types.nix { inherit lib desktop overrides; };
+    types = import ./_domain/types.nix { inherit lib desktop; };
 
     actions = import ./_domain/actions.nix { };
 
     defaultBinds = import ./_domain/binds.nix { };
-
-    defaultApps = import ./_domain/apps.nix { };
 
     defaultWindowRules = import ./_domain/rules.nix { };
 

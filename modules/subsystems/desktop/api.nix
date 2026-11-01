@@ -102,13 +102,6 @@ in
           '';
         };
 
-        dmenuConsumers = mkOption {
-          type = types.listOf types.str;
-          default = [ ];
-          internal = true;
-          description = "Components that pick through the launcher's dmenu mode.";
-        };
-
         defaultWindowRules = mkOption {
           type = types.bool;
           default = true;
@@ -129,35 +122,6 @@ in
           description = ''
             Window rules by name. Components add theirs; one here
             replaces the default with the same name.
-          '';
-        };
-
-        apps = mkOption {
-          type = types.attrsOf desktop.types.appOverride;
-          default = { };
-
-          example = {
-            browser = {
-              package = "chromium";
-              command = [ "chromium" ];
-              appId = "chromium-browser";
-            };
-          };
-
-          description = ''
-            App roles (terminal, browser, fileManager, ...). Only fields
-            that are set replace the default role; a new name adds a
-            role.
-          '';
-        };
-
-        facts.apps = mkOption {
-          type = types.attrsOf desktop.types.app;
-          readOnly = true;
-
-          description = ''
-            App roles resolved: commands of terminal apps already run
-            through the terminal. Components read launchers from here.
           '';
         };
 

@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  terminal = lib.concatStringsSep " " config.ltp.desktop.facts.apps.terminal.command;
+  terminal = lib.concatStringsSep " " config.ltp.apps.facts.terminal.command;
 in
 {
   config = {

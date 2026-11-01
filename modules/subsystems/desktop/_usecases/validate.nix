@@ -98,9 +98,9 @@ rec {
             key
             "app"
           ];
-          message = "Bind '${key}' starts app role '${bind.app}', which is not defined (roles: ${concatStringsSep ", " (attrNames model.apps)}).";
+          message = "Bind '${key}' starts app role '${bind.app}', which is not defined (roles: ${concatStringsSep ", " model.appRoles}).";
         }
-      ) (filterAttrs (_: bind: bind.app != null && !(model.apps ? ${bind.app})) model.binds)
+      ) (filterAttrs (_: bind: bind.app != null && !(builtins.elem bind.app model.appRoles)) model.binds)
 
       ++ concatMap (
         c:
@@ -148,49 +148,6 @@ rec {
             )
           )
       ) (known model)
-    );
-
-  #
-  # App roles: the package must exist, and a role run in a terminal
-  # needs a terminal role that can run commands.
-  #
-  apps =
-    model:
-    let
-      terminal = model.apps.terminal or null;
-
-      terminalUsable = terminal != null && terminal.execFlag != null;
-    in
-    mkResult (
-      mapAttrsToList (
-        role: app:
-        mkDiagnostic {
-          severity = "error";
-          code = "desktop.app.package.unknown";
-          target = role;
-          path = [
-            "apps"
-            role
-            "package"
-          ];
-          message = "App role '${role}' uses package '${app.package}', which is not in pkgs.";
-        }
-      ) (filterAttrs (_: app: !app.known) model.apps)
-
-      ++ mapAttrsToList (
-        role: _:
-        mkDiagnostic {
-          severity = "error";
-          code = "desktop.app.terminal.missing";
-          target = role;
-          path = [
-            "apps"
-            role
-            "inTerminal"
-          ];
-          message = "App role '${role}' runs in a terminal, but the terminal role has no execFlag.";
-        }
-      ) (filterAttrs (_: app: app.inTerminal && !terminalUsable) model.apps)
     );
 
   #
@@ -323,27 +280,6 @@ rec {
       ) droppedBinds
     );
 
-  # Pickers (clipboard, …) need a launcher that has a dmenu mode.
-  dmenu =
-    model:
-    let
-      launcher = model.apps.launcher or null;
-    in
-    mkResult (
-      optional (model.dmenuConsumers != [ ] && (launcher == null || launcher.dmenu == null))
-        (mkDiagnostic {
-          severity = "error";
-          code = "desktop.app.dmenu.missing";
-          target = "launcher";
-          path = [
-            "apps"
-            "launcher"
-            "dmenu"
-          ];
-          message = "The launcher role has no dmenu command, which ${concatStringsSep ", " model.dmenuConsumers} needs to pick entries.";
-        })
-    );
-
   components =
     model:
     mkResult (
@@ -368,14 +304,12 @@ rec {
     model:
     combine [
       (components model)
-      (dmenu model)
       (requirements model)
       (greeter model)
       (idle model)
       (windowRules model)
       (compositors model)
       (binds model)
-      (apps model)
       (bar model)
     ];
 

@@ -6,7 +6,7 @@
 }:
 let
   # The launcher role's dmenu mode; validation reports a launcher without one.
-  dmenu = config.ltp.desktop.facts.apps.launcher.dmenu or null;
+  dmenu = config.ltp.apps.facts.launcher.dmenu or null;
 
   # Pick an entry from the clipboard history and copy it back.
   picker = pkgs.writeShellScript "cliphist-picker" ''
@@ -17,10 +17,10 @@ let
   '';
 in
 {
-  ltp.desktop = {
-    binds."Mod+V".spawn = [ "${picker}" ];
+  ltp = {
+    desktop.binds."Mod+V".spawn = [ "${picker}" ];
 
-    dmenuConsumers = [ "clipboard" ];
+    apps.dmenuConsumers = [ "clipboard" ];
   };
 
   home-manager.sharedModules = [

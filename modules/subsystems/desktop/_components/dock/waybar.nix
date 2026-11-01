@@ -10,7 +10,7 @@
   ...
 }:
 let
-  inherit (config.ltp.desktop.facts) apps;
+  apps = config.ltp.apps.facts;
 
   launch = role: "uwsm app -- ${lib.escapeShellArgs apps.${role}.command}";
 in

@@ -29,7 +29,10 @@ in
     validate = import ./_usecases/validate.nix { inherit lib apps diagnostics; };
 
     # Configure modules by catalogue name; apps without one need no setup.
-    configure = { };
+    configure = {
+      alacritty = ./_configure/alacritty.nix;
+      nixvim = ./_configure/nixvim;
+    };
 
   });
 }

@@ -35,6 +35,8 @@
         inputs.self.nixosModules.theme-stylix
         inputs.self.nixosModules.secrets-api
         inputs.self.nixosModules.secrets
+        inputs.self.nixosModules.apps-api
+        inputs.self.nixosModules.apps
         inputs.self.nixosModules.shell-api
         inputs.self.nixosModules.shell
         inputs.self.nixosModules.shell-utilities
@@ -61,9 +63,7 @@
       ];
 
       core-apps = [
-        inputs.self.nixosModules.alacritty
         inputs.self.nixosModules.git
-        inputs.self.nixosModules.nixvim
       ];
     };
   };
