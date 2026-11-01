@@ -50,7 +50,6 @@ _: {
               };
             };
 
-            stylix.targets.mako.enable = true;
           })
         ];
       };

@@ -56,7 +56,6 @@ _: {
               };
             };
 
-            stylix.targets.fuzzel.enable = true;
           })
         ];
       };

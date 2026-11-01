@@ -49,6 +49,13 @@ in
         {
           home-manager.sharedModules = [
             inputs.stylix.homeModules.stylix
+
+            # Everything stylix knows is themed (autoEnable) except these.
+            {
+              stylix.targets = lib.genAttrs cfg.untargeted (_: {
+                enable = false;
+              });
+            }
           ];
         }
 

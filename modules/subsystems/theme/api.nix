@@ -38,6 +38,17 @@ in
           '';
         };
 
+        untargeted = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          example = [ "waybar" ];
+          description = ''
+            Programs that style themselves from the theme's colours, so
+            the theme backend leaves them alone. Every other program
+            the backend knows is themed automatically.
+          '';
+        };
+
         facts.users = mkOption {
           type = types.attrsOf theme.types.userTheme;
           readOnly = true;

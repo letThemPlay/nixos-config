@@ -8,7 +8,6 @@ _: {
             enable = true;
             package = pkgs.discord;
           };
-          stylix.targets.nixcord.enable = true;
         })
       ];
     };

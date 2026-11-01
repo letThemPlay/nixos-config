@@ -12,7 +12,6 @@
 
         (_: {
           programs.nixvim.nixpkgs.source = inputs.nixpkgs;
-          stylix.targets.nixvim.enable = true;
         })
       ];
     };

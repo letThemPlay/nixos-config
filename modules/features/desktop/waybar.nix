@@ -10,6 +10,9 @@ _: {
       config = {
         ltp.desktop.bar = import ./_waybar/layout.nix { inherit pkgs; };
 
+        # Styled by its own CSS from the theme colours.
+        ltp.theme.untargeted = [ "waybar" ];
+
         home-manager.sharedModules = [
           (_: {
             imports = [ ./_waybar/style.nix ];

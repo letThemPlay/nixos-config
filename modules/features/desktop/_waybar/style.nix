@@ -1,10 +1,6 @@
-# modules/features/wm/waybar.nix snippet inside home-manager module context
+# The bar's style: its own CSS on the theme's base16 colours (the
+# theme does not style waybar; see ltp.theme.untargeted).
 { config, ... }: {
-  # 👑 THE STYLIX INTERCEPT BYPASS:
-  # Prevents Stylix from applying global generic styling overrides over your Waybar elements.
-  # This unblocks our custom CSS variable bindings down below! [INDEX: 1.1.6]
-  stylix.targets.waybar.enable = false;
-
   programs.waybar.style = ''
     /* 👑 THE NATIVE STYLIX BASE16 VARIABLE INJECTION MAP:
        We explicitly pull your machine's cryptographically secure colors straight from 
