@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, identity }:
 let
   inherit (lib)
     concatMap
@@ -75,6 +75,11 @@ in
   inherit (storage) statePath;
 
   gpg = cfg.gpg.enable;
+
+  escalation = {
+    name = cfg.escalation;
+    known = cfg.escalation == null || identity.escalations ? ${cfg.escalation};
+  };
 
   known = {
     features = cfg.knownFeatures;

@@ -49,6 +49,12 @@ in
           '';
         };
 
+        escalation = mkOption {
+          type = types.nullOr types.str;
+          default = "sudo-rs";
+          description = "How admin users (wheel) get root: a registered tool (sudo, sudo-rs), or null for none.";
+        };
+
         gpg.enable = mkOption {
           type = types.bool;
           default = false;

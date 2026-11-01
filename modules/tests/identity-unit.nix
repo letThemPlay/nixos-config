@@ -63,6 +63,7 @@ let
   contractCases = [
     { }
     (withAlice { admin = true; })
+    ((withAlice { admin = true; }) // { escalation = null; })
     {
       users = {
         inherit alice;
@@ -74,6 +75,32 @@ let
   ];
 
   tests = {
+
+    # sudo-rs by default; an unknown tool is an error, none warns admins.
+    testEscalation = {
+      expr = {
+        default =
+          (modelOf (withAlice {
+            admin = true;
+          })).escalation;
+        defaultCodes = codes (withAlice {
+          admin = true;
+        });
+        unknown = codes (withAlice { } // { escalation = "doas"; });
+        noneWithAdmin = codes (withAlice { admin = true; } // { escalation = null; });
+        noneWithoutAdmin = codes (withAlice { } // { escalation = null; });
+      };
+      expected = {
+        default = {
+          name = "sudo-rs";
+          known = true;
+        };
+        defaultCodes = [ ];
+        unknown = [ "identity.escalation.unknown" ];
+        noneWithAdmin = [ "identity.escalation.none" ];
+        noneWithoutAdmin = [ ];
+      };
+    };
 
     testDerivedGroups = {
       expr =

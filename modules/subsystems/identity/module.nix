@@ -90,6 +90,16 @@ in
             users.mutableUsers = ephemeral.mutableUsers;
           })
 
+          #
+          # How admins get root. Every registered tool is set explicitly,
+          # so the chosen one replaces NixOS's default sudo.
+          #
+          (mkIf validation.ok {
+            security = mapAttrs (name: _: {
+              enable = model.escalation.name == name;
+            }) identity.escalations;
+          })
+
           # The smartcard holding users' keys needs its device rules.
           (mkIf (model.gpg && gpg.smartcard) {
             hardware.gpgSmartcards.enable = true;

@@ -20,7 +20,7 @@ in
 
     types = import ./_domain/types.nix { inherit lib; };
 
-    normalize = import ./_usecases/normalize.nix { inherit lib; };
+    normalize = import ./_usecases/normalize.nix { inherit lib identity; };
 
     query = import ./_usecases/query.nix { inherit lib; };
 
@@ -33,6 +33,16 @@ in
     home = import ./_adapters/home.nix { inherit lib; };
 
     gpg = import ./_adapters/gpg.nix { inherit lib; };
+
+    #
+    # Privilege escalation registry, keyed like ltp.identity.escalation.
+    # Each key is a NixOS security.<key> program; the chosen one is
+    # enabled and the others are turned off.
+    #
+    escalations = {
+      sudo = { };
+      sudo-rs = { };
+    };
 
   });
 }

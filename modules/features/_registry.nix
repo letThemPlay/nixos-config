@@ -25,7 +25,6 @@
         inputs.self.nixosModules.hardware
         inputs.self.nixosModules.network
         inputs.self.nixosModules.network-api
-        inputs.self.nixosModules.security
         inputs.self.nixosModules.identity-api
         inputs.self.nixosModules.identity
         inputs.self.nixosModules.identity-home

@@ -149,9 +149,41 @@ rec {
       )
     );
 
+  #
+  # The escalation tool must be registered; without one, admin users'
+  # wheel membership grants nothing.
+  #
+  escalation =
+    model:
+    let
+      inherit (model.escalation) name known;
+
+      admins = filter (user: user.admin) (builtins.attrValues model.users);
+    in
+    mkResult (
+      optional (!known) (mkDiagnostic {
+        severity = "error";
+        code = "identity.escalation.unknown";
+        target = name;
+        path = [ "escalation" ];
+        message = "Unknown escalation tool '${name}' (known: ${lib.concatStringsSep ", " (builtins.attrNames identity.escalations)}).";
+      })
+
+      ++ optional (name == null && admins != [ ]) (mkDiagnostic {
+        severity = "warning";
+        code = "identity.escalation.none";
+        target = "escalation";
+        path = [ "escalation" ];
+        message = "No escalation tool is set, so admin users (${
+          lib.concatMapStringsSep ", " (user: user.username) admins
+        }) cannot get root.";
+      })
+    );
+
   all =
     model:
     combine [
+      (escalation model)
       (gpg model)
       (packages model)
       (features model)

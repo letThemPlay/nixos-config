@@ -165,6 +165,22 @@ rec {
         description = "Users enabled on the host.";
       };
 
+      escalation = mkOption {
+        type = types.submodule {
+          options = {
+            name = mkOption {
+              type = types.nullOr types.str;
+              description = "Tool admin users get root with; null for none.";
+            };
+
+            known = mkOption {
+              type = types.bool;
+              description = "Whether the tool is registered (true for null).";
+            };
+          };
+        };
+      };
+
       gpg = mkOption {
         type = types.bool;
         description = "Whether this host renders the users' OpenPGP setup.";
