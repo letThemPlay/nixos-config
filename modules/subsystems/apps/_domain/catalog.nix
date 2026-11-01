@@ -1,7 +1,9 @@
 #
 # The app catalogue: what each app is and which roles it can fill.
 # package is a pkgs attribute path, or null when the app's configure
-# module provides the program (nixvim).
+# module provides the program (nixvim). An app with no roles is only
+# installed (ltp.apps.install). aliases are shell aliases added while
+# the app is in use.
 #
 _: {
 

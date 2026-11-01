@@ -35,9 +35,9 @@ in
       editor = model.roles.editor or null;
 
       #
-      # Every app's configure module, enabled only while the app plays a
-      # role. A configure file is a module function returning its
-      # settings (or { config = settings; }); it also receives inputs.
+      # Every app's configure module, enabled while the app plays a role
+      # or is installed. A configure file is a module function returning
+      # its settings (or { config = settings; }); it also receives inputs.
       #
       configureModules = mapAttrsToList (
         name: path:
@@ -52,7 +52,8 @@ in
         in
         {
           config = lib.mkIf (
-            config.ltp.apps.enable && builtins.elem name (attrValues config.ltp.apps.roles)
+            config.ltp.apps.enable
+            && builtins.elem name (attrValues config.ltp.apps.roles ++ config.ltp.apps.install)
           ) (configure.config or configure);
         }
       ) apps.configure;
@@ -86,16 +87,20 @@ in
           #
           (mkIf validation.ok (mkMerge [
 
-            # The role apps for every user (configure modules may add more).
+            # Role and installed apps for every user (configure modules may
+            # add more).
             {
               home-manager.sharedModules = [
                 {
-                  home.packages = map (role: lib.getAttrFromPath (packagePath role.package) pkgs) (
-                    filter (role: role.package != null) (attrValues model.roles)
+                  home.packages = map (app: lib.getAttrFromPath (packagePath app.package) pkgs) (
+                    filter (app: app.package != null) (attrValues model.roles ++ attrValues model.installed)
                   );
                 }
               ];
             }
+
+            # The aliases of the apps in use, in every shell.
+            { ltp.shell.aliases = model.aliases; }
 
             # The editor: `v` in every shell and each user's EDITOR.
             (mkIf (editor != null) {

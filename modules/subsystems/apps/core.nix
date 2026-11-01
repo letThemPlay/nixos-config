@@ -5,7 +5,8 @@
 #                default role selection
 #   _usecases/   normalize (roles -> resolved apps), validate
 #   _configure/  how an app is configured, per catalogue name (module
-#                functions, enabled when the app plays a role)
+#                functions, enabled when the app plays a role or is
+#                installed)
 #
 # api.nix and module.nix beside this file are the outer ring. The
 # desktop (binds, dock, launcher, clipboard) and the shell (editor

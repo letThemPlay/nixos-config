@@ -86,6 +86,27 @@ rec {
       ) model
     );
 
+  # Installed apps must be in the catalogue, with a package that exists.
+  installed =
+    model:
+    let
+      each = predicate: f: mapAttrsToList f (filterAttrs (_: predicate) model.installed);
+    in
+    mkResult (
+      each (app: !app.known) (
+        name: _:
+        diagnostic "apps.app.unknown" [ "install" ] name
+          "Installed app '${name}' is not in the catalogue (known: ${concatStringsSep ", " (attrNames apps.catalog)})."
+      )
+
+      ++ each (app: app.known && !app.packageKnown) (
+        name: app:
+        diagnostic "apps.package.unknown" [
+          "install"
+        ] name "Installed app '${name}' uses package '${app.package}', which is not in pkgs."
+      )
+    );
+
   # Pickers (clipboard, …) need a launcher that has a dmenu mode.
   dmenu =
     model:
@@ -103,6 +124,7 @@ rec {
     model:
     combine [
       (roles model)
+      (installed model)
       (terminal model)
       (dmenu model)
     ];

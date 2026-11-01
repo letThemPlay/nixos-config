@@ -44,6 +44,13 @@ in
           '';
         };
 
+        install = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          example = [ "git" ];
+          description = "Catalogue apps installed and configured without playing a role.";
+        };
+
         dmenuConsumers = mkOption {
           type = types.listOf types.str;
           default = [ ];

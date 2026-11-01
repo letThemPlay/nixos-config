@@ -82,12 +82,42 @@ rec {
     };
   };
 
+  # An app installed without a role: its catalogue fields as they are.
+  installed = types.submodule {
+    options = mapAttrs (_: spec: mkOption { inherit (spec) type description; }) appFields // {
+      app = mkOption {
+        type = types.str;
+        description = "Catalogue name of the app.";
+      };
+
+      known = mkOption {
+        type = types.bool;
+        description = "Whether the app is in the catalogue.";
+      };
+
+      packageKnown = mkOption {
+        type = types.bool;
+        description = "Whether the package exists (true when the configure module provides it).";
+      };
+    };
+  };
+
   model = types.submodule {
     options = {
 
       roles = mkOption {
         type = types.attrsOf role;
         description = "Roles that have an app.";
+      };
+
+      installed = mkOption {
+        type = types.attrsOf installed;
+        description = "Apps installed without a role, by catalogue name.";
+      };
+
+      aliases = mkOption {
+        type = types.attrsOf types.str;
+        description = "Shell aliases of the apps in use (roles and installed).";
       };
 
       dmenuConsumers = mkOption {

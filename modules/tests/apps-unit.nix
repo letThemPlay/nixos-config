@@ -26,6 +26,12 @@ let
       overrides.terminal.execFlag = null;
     }
     { roles.editor = "emacs"; }
+    {
+      install = [
+        "firefox"
+        "nope"
+      ];
+    }
   ];
 
   tests = {
@@ -135,6 +141,45 @@ let
         ];
         missing = [ "apps.package.unknown" ];
       };
+    };
+
+    # Any catalogue app can be installed without a role.
+    testInstall = {
+      expr =
+        let
+          model = modelOf {
+            install = [ "firefox" ];
+            roles.browser = null;
+          };
+        in
+        {
+          inherit (model.installed.firefox) app package known;
+          roles = model.roles ? browser;
+        };
+      expected = {
+        app = "firefox";
+        package = "firefox";
+        known = true;
+        roles = false;
+      };
+    };
+
+    testInstallUnknown = {
+      expr = codes { install = [ "nope" ]; };
+      expected = [ "apps.app.unknown" ];
+    };
+
+    testInstallPackageMissing = {
+      expr = codesOf (
+        apps.normalize {
+          cfg = evalCfg {
+            install = [ "firefox" ];
+            roles.browser = null;
+          };
+          hasPackage = path: path != "firefox";
+        }
+      );
+      expected = [ "apps.package.unknown" ];
     };
 
     testTerminalWithoutExecFlag = {
