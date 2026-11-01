@@ -2,17 +2,17 @@
 let
   network = config.flake.features.network;
 
-  inherit (config.flake.nixosModules) network-api;
+  inherit (config.flake.nixosModules) network-options;
 
   #
-  # Host settings are evaluated through the real API module so option
+  # Host settings are evaluated through the real options module so option
   # defaults apply exactly as they do on a host.
   #
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        network-api
+        network-options
         { ltp.network = settings; }
       ];
     }).config.ltp.network;

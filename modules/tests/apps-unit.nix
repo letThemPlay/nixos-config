@@ -2,13 +2,13 @@
 let
   apps = config.flake.features.apps;
 
-  inherit (config.flake.nixosModules) apps-api;
+  inherit (config.flake.nixosModules) apps-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        apps-api
+        apps-options
         { ltp.apps = settings; }
       ];
     }).config.ltp.apps;

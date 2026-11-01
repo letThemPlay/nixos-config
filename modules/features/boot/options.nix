@@ -3,7 +3,7 @@ _: {
   # Options only. Choosing the loader is a domain rule and happens in
   # normalize.
   #
-  flake.nixosModules.boot-api =
+  flake.nixosModules.boot-options =
     { lib, ... }:
     let
       inherit (lib)

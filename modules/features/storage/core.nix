@@ -5,7 +5,7 @@
 #   _usecases/  normalize (host settings -> model), validate, query
 #   _adapters/  model -> disko, rollback (per backend) and preservation
 #
-# api.nix (options) and module.nix (NixOS wiring) beside this file are
+# options.nix and module.nix (NixOS wiring) beside this file are
 # the outer ring: they depend on the core, never the reverse.
 #
 # The underscore directories are not flake-parts modules (import-tree

@@ -20,27 +20,27 @@
 
   base = [
     inputs.self.nixosModules.boot
-    inputs.self.nixosModules.boot-api
-    inputs.self.nixosModules.nix-api
+    inputs.self.nixosModules.boot-options
+    inputs.self.nixosModules.nix-options
     inputs.self.nixosModules.nix
-    inputs.self.nixosModules.locale-api
+    inputs.self.nixosModules.locale-options
     inputs.self.nixosModules.locale
-    inputs.self.nixosModules.hardware-api
+    inputs.self.nixosModules.hardware-options
     inputs.self.nixosModules.hardware
     inputs.self.nixosModules.network
-    inputs.self.nixosModules.network-api
-    inputs.self.nixosModules.identity-api
+    inputs.self.nixosModules.network-options
+    inputs.self.nixosModules.identity-options
     inputs.self.nixosModules.identity
     inputs.self.nixosModules.identity-home
     inputs.self.nixosModules.users
-    inputs.self.nixosModules.theme-api
+    inputs.self.nixosModules.theme-options
     inputs.self.nixosModules.theme
     inputs.self.nixosModules.theme-stylix
-    inputs.self.nixosModules.secrets-api
+    inputs.self.nixosModules.secrets-options
     inputs.self.nixosModules.secrets
-    inputs.self.nixosModules.apps-api
+    inputs.self.nixosModules.apps-options
     inputs.self.nixosModules.apps
-    inputs.self.nixosModules.shell-api
+    inputs.self.nixosModules.shell-options
     inputs.self.nixosModules.shell
     {
       ltp.apps.install = [
@@ -50,7 +50,7 @@
     }
 
     inputs.self.nixosModules.storage
-    inputs.self.nixosModules.storage-api
+    inputs.self.nixosModules.storage-options
   ];
 
   laptop = [
@@ -76,7 +76,7 @@
   ];
 
   window-management = [
-    inputs.self.nixosModules.desktop-api
+    inputs.self.nixosModules.desktop-options
     inputs.self.nixosModules.desktop
   ];
 

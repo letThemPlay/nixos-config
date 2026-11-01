@@ -5,7 +5,7 @@
 #   _usecases/  normalize (aliases + identity facts -> model), validate
 #   _adapters/  shells/<name> (registry)
 #
-# api.nix and module.nix beside this file are the outer ring. Features
+# options.nix and module.nix beside this file are the outer ring. Features
 # contribute shell-neutral aliases through ltp.shell.aliases.
 #
 { config, lib, ... }:

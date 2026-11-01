@@ -4,7 +4,7 @@ let
 in
 {
   # Options only.
-  flake.nixosModules.hardware-api =
+  flake.nixosModules.hardware-options =
     { lib, ... }:
     let
       inherit (lib) mkOption types;

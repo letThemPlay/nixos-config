@@ -2,13 +2,13 @@
 let
   shell = config.flake.features.shell;
 
-  inherit (config.flake.nixosModules) shell-api;
+  inherit (config.flake.nixosModules) shell-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        shell-api
+        shell-options
         { ltp.shell = settings; }
       ];
     }).config.ltp.shell;

@@ -2,11 +2,11 @@
 let
   storage = config.flake.features.storage;
 
-  inherit (config.flake.nixosModules) storage-api;
+  inherit (config.flake.nixosModules) storage-options;
 
   storageModule = config.flake.nixosModules.storage;
 
-  inherit (config.flake.nixosModules) identity-api;
+  inherit (config.flake.nixosModules) identity-options;
 
   identityModule = config.flake.nixosModules.identity;
 
@@ -34,7 +34,7 @@ in
       cfg =
         (lib.evalModules {
           modules = [
-            storage-api
+            storage-options
             { ltp.storage = settings; }
           ];
         }).config.ltp.storage;
@@ -60,9 +60,9 @@ in
 
         extraSystemConfig = {
           imports = [
-            storage-api
+            storage-options
             storageModule
-            identity-api
+            identity-options
             identityModule
           ];
 

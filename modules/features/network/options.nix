@@ -7,7 +7,7 @@ in
   # Options only. Merging the profile with host settings is a domain
   # rule and happens in normalize.
   #
-  flake.nixosModules.network-api =
+  flake.nixosModules.network-options =
     { lib, ... }:
     let
       inherit (lib)

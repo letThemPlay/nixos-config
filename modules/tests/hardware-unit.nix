@@ -2,13 +2,13 @@
 let
   hardware = config.flake.features.hardware;
 
-  inherit (config.flake.nixosModules) hardware-api;
+  inherit (config.flake.nixosModules) hardware-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        hardware-api
+        hardware-options
         { ltp.hardware = settings; }
       ];
     }).config.ltp.hardware;

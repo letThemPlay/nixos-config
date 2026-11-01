@@ -2,13 +2,13 @@
 let
   desktop = config.flake.features.desktop;
 
-  inherit (config.flake.nixosModules) desktop-api;
+  inherit (config.flake.nixosModules) desktop-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        desktop-api
+        desktop-options
         { ltp.desktop = settings; }
       ];
     }).config.ltp.desktop;

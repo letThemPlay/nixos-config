@@ -5,7 +5,7 @@
 #   _usecases/  normalize, validate (form only)
 #   _adapters/  model -> NixOS settings (plain data)
 #
-# api.nix and module.nix beside this file are the outer ring. The
+# options.nix and module.nix beside this file are the outer ring. The
 # desktop feature reads the session keyboard from ltp.locale.
 #
 { config, lib, ... }:

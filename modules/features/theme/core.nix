@@ -8,7 +8,7 @@
 #                 validate
 #   _adapters/    model -> per-user stylix settings
 #
-# api.nix, module.nix and stylix.nix beside this file are the outer
+# options.nix, module.nix and stylix.nix beside this file are the outer
 # ring.
 #
 # Each file is a plain function; `theme` is the assembled core.

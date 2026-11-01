@@ -7,7 +7,7 @@ in
   # Options only. Each user's shell comes from ltp.identity; resolving
   # and rendering it happens in normalize and the shell module.
   #
-  flake.nixosModules.shell-api =
+  flake.nixosModules.shell-options =
     { lib, ... }:
     let
       inherit (lib) mkOption types;

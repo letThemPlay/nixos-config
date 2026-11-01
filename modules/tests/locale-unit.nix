@@ -2,13 +2,13 @@
 let
   locale = config.flake.features.locale;
 
-  inherit (config.flake.nixosModules) locale-api;
+  inherit (config.flake.nixosModules) locale-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        locale-api
+        locale-options
         { ltp.locale = settings; }
       ];
     }).config.ltp.locale;

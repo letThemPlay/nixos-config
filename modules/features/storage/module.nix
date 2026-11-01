@@ -74,7 +74,7 @@ in
         inputs.disko.nixosModules.disko
         inputs.preservation.nixosModules.default
 
-        # Kept here rather than in storage-api: it needs NixOS assertions.
+        # Kept here rather than in storage-options: it needs NixOS assertions.
         (lib.mkRemovedOptionModule [
           "ltp"
           "storage"

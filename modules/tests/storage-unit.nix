@@ -2,17 +2,17 @@
 let
   storage = config.flake.features.storage;
 
-  inherit (config.flake.nixosModules) storage-api;
+  inherit (config.flake.nixosModules) storage-options;
 
   #
-  # Host settings are evaluated through the real API module so layout
+  # Host settings are evaluated through the real options module so layout
   # defaults merge exactly as they do on a host.
   #
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        storage-api
+        storage-options
         {
           ltp.storage = {
             enable = true;

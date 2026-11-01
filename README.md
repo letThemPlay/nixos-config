@@ -146,12 +146,12 @@ Host-facing configuration lives in features under `modules/features/<name>/` (st
 | `_domain/` | entity types and plain data (layouts, profiles, providers, defaults) |
 | `_usecases/` | `normalize` (settings → model), `query`, `validate` |
 | `_adapters/` | model → plain data for one target (disko, networkd, stylix, …); registries live here |
-| `api.nix` | `nixosModules.<name>-api`: options only, under `ltp.<name>` |
+| `options.nix` | `nixosModules.<name>-options`: options only, under `ltp.<name>` |
 | `module.nix` | `nixosModules.<name>`: assertions from validation, then rendering |
 | `<target>.nix` | `nixosModules.<name>-<target>` for tool-specific rendering (`identity-home`, `theme-stylix`) |
 | `modules/tests/<name>-unit.nix` | `checks.<name>-unit` |
 
-Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `api`/`module`. The core never reads NixOS options; `module.nix` passes it plain data, including other features' facts. `modules/features/diagnostics.nix` and `overrides.nix` are shared by every core.
+Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `options`/`module`. The core never reads NixOS options; `module.nix` passes it plain data, including other features' facts. `modules/features/diagnostics.nix` and `overrides.nix` are shared by every core.
 
 ### Options (`ltp.<name>`)
 
@@ -182,7 +182,7 @@ Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `
 
 ### Adding a feature
 
-1. Create `modules/features/<name>/` with `core.nix`, the rings, `api.nix` and `module.nix`.
-2. Add `<name>-api` and `<name>` to the `base` bundle in `modules/hosts/_bundles.nix`.
+1. Create `modules/features/<name>/` with `core.nix`, the rings, `options.nix` and `module.nix`.
+2. Add `<name>-options` and `<name>` to the `base` bundle in `modules/hosts/_bundles.nix`.
 3. Add `modules/tests/<name>-unit.nix` with a model contract test (normalize output against `types.model`).
 4. Bundles and other features set the feature's options; they don't configure its targets directly.

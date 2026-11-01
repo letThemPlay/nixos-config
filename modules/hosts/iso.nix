@@ -9,7 +9,7 @@
         system = "x86_64-linux";
         modules = [
           "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-          inputs.self.nixosModules.nix-api
+          inputs.self.nixosModules.nix-options
           inputs.self.nixosModules.nix
           ({ pkgs, ... }: {
             environment.systemPackages = with pkgs; [

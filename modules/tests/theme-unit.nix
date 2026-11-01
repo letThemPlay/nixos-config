@@ -2,13 +2,13 @@
 let
   theme = config.flake.features.theme;
 
-  inherit (config.flake.nixosModules) theme-api;
+  inherit (config.flake.nixosModules) theme-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        theme-api
+        theme-options
         { ltp.theme = settings; }
       ];
     }).config.ltp.theme;

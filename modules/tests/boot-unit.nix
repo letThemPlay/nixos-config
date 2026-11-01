@@ -2,17 +2,17 @@
 let
   boot = config.flake.features.boot;
 
-  inherit (config.flake.nixosModules) boot-api;
+  inherit (config.flake.nixosModules) boot-options;
 
   #
-  # Host settings are evaluated through the real API module so option
+  # Host settings are evaluated through the real options module so option
   # defaults apply exactly as they do on a host.
   #
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        boot-api
+        boot-options
         { ltp.boot = settings; }
       ];
     }).config.ltp.boot;

@@ -7,7 +7,7 @@ in
   # Options only. Merging binds and resolving widgets per compositor
   # happen in normalize and the adapters.
   #
-  flake.nixosModules.desktop-api =
+  flake.nixosModules.desktop-options =
     { lib, ... }:
     let
       inherit (lib) mkOption types;

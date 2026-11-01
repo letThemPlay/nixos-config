@@ -6,7 +6,7 @@
 #               validate
 #   _adapters/  model -> systemd-boot, lanzaboote, TPM2 unlock
 #
-# api.nix and module.nix beside this file are the outer ring.
+# options.nix and module.nix beside this file are the outer ring.
 #
 # Each file is a plain function; `boot` is the assembled core.
 #

@@ -8,7 +8,7 @@
 # The repository's secrets/ is core data: keys.nix (public keys by
 # name), secrets.nix (agenix rules) and the encrypted files.
 #
-# api.nix and module.nix beside this file are the outer ring.
+# options.nix and module.nix beside this file are the outer ring.
 #
 { config, lib, ... }:
 let

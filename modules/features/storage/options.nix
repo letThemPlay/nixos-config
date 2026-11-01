@@ -7,7 +7,7 @@ in
   # Options only. Merging the layout with host settings is a domain rule
   # and happens in normalize.
   #
-  flake.nixosModules.storage-api =
+  flake.nixosModules.storage-options =
     { lib, ... }:
     let
       inherit (lib)

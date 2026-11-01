@@ -2,7 +2,7 @@
 let
   identity = config.flake.features.identity;
 
-  inherit (config.flake.nixosModules) identity-api;
+  inherit (config.flake.nixosModules) identity-options;
 
   alice = {
     fullName = "Alice";
@@ -11,14 +11,14 @@ let
   };
 
   #
-  # Settings are evaluated through the real API module, so user files
+  # Settings are evaluated through the real options module, so user files
   # get the same type checks as on a host.
   #
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        identity-api
+        identity-options
         { ltp.identity = settings; }
       ];
     }).config.ltp.identity;

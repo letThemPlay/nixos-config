@@ -2,13 +2,13 @@
 let
   nix = config.flake.features.nix;
 
-  inherit (config.flake.nixosModules) nix-api;
+  inherit (config.flake.nixosModules) nix-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        nix-api
+        nix-options
         { ltp.nix = settings; }
       ];
     }).config.ltp.nix;

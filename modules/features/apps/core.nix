@@ -8,7 +8,7 @@
 #                functions, enabled when the app plays a role or is
 #                installed)
 #
-# api.nix and module.nix beside this file are the outer ring. The
+# options.nix and module.nix beside this file are the outer ring. The
 # desktop (binds, dock, launcher, clipboard) and the shell (editor
 # alias) read the resolved roles from ltp.apps.facts.
 #

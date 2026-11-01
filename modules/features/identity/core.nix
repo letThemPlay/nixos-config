@@ -7,7 +7,7 @@
 #   _adapters/  model -> accounts, ephemeral-root identity, home-manager,
 #               OpenPGP (gpg, gpg-agent, ssh)
 #
-# api.nix, module.nix and home.nix beside this file are the outer ring.
+# options.nix, module.nix and home.nix beside this file are the outer ring.
 #
 # Each file is a plain function; `identity` is the assembled core.
 #

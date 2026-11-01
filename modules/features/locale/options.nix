@@ -4,7 +4,7 @@ let
 in
 {
   # Options only.
-  flake.nixosModules.locale-api =
+  flake.nixosModules.locale-options =
     { lib, ... }:
     let
       inherit (lib) mkOption types;

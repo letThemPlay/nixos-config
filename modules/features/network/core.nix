@@ -7,7 +7,7 @@
 #   _adapters/  model -> networkd units, resolved settings, iwd,
 #               tailscale overlay
 #
-# api.nix and module.nix beside this file are the outer ring.
+# options.nix and module.nix beside this file are the outer ring.
 #
 # Each file is a plain function; `network` is the assembled core.
 #

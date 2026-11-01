@@ -6,7 +6,7 @@
 #   _adapters/  gpu-vendors/<vendor> and guests/<type> (registries);
 #               graphics, audio, bluetooth
 #
-# api.nix and module.nix beside this file are the outer ring. Generated
+# options.nix and module.nix beside this file are the outer ring. Generated
 # hardware files (nixos-generate-config) stay in hosts/_hosts/_hardware.
 #
 { config, lib, ... }:

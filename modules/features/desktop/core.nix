@@ -8,7 +8,7 @@
 #   _adapters/  compositors/<name> (registry), waybar bar config,
 #               systemd user units
 #
-# api.nix and module.nix beside this file are the outer ring.
+# options.nix and module.nix beside this file are the outer ring.
 # Components (bar, launcher, notifier, ...) are a registry in
 # _components/<role>/<name>.nix, selected per role with
 # ltp.desktop.components; they contribute binds, bar widgets and

@@ -2,13 +2,13 @@
 let
   secrets = config.flake.features.secrets;
 
-  inherit (config.flake.nixosModules) secrets-api;
+  inherit (config.flake.nixosModules) secrets-options;
 
   evalCfg =
     settings:
     (lib.evalModules {
       modules = [
-        secrets-api
+        secrets-options
         { ltp.secrets = settings; }
       ];
     }).config.ltp.secrets;

@@ -7,7 +7,7 @@ in
   # Options only. Selecting and deriving users is a domain rule and
   # happens in normalize.
   #
-  flake.nixosModules.identity-api =
+  flake.nixosModules.identity-options =
     { lib, ... }:
     let
       inherit (lib) mkOption types;

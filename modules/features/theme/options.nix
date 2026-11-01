@@ -7,7 +7,7 @@ in
   # Options only. Resolving each user's theme is a domain rule and
   # happens in normalize.
   #
-  flake.nixosModules.theme-api =
+  flake.nixosModules.theme-options =
     { lib, ... }:
     let
       inherit (lib) mkOption types;

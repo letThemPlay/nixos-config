@@ -6,7 +6,7 @@
 #   _usecases/  normalize, validate
 #   _adapters/  model -> nix settings (plain data)
 #
-# api.nix and module.nix beside this file are the outer ring.
+# options.nix and module.nix beside this file are the outer ring.
 #
 { config, lib, ... }:
 let
