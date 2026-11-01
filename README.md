@@ -41,7 +41,7 @@ secrets/                  agenix secrets, their recipients (secrets.nix) and key
 | `gaming` | Steam, GameMode and gamescope. |
 | `flashgbx` | FlashGBX, and serial access for users who list the `flashgbx` bundle. |
 | `gpg` | The users' OpenPGP keys: gpg-agent with pinentry, SSH through the agent, smartcard rules and git signing. |
-| `tailscale` | Joins the tailscale network. It needs a secret, see [After the first boot](#47-after-the-first-boot). |
+| `tailscale` | Joins the tailscale network. It needs a secret, see [After the first boot](#48-after-the-first-boot). |
 
 ---
 
@@ -237,7 +237,109 @@ Users already in `modules/users/_users/` only need to be listed in the datasheet
 
 Public keys go in `gpg/<user>/*.asc` and are imported with ultimate trust on hosts with the `gpg` bundle.
 
-### 4.6 Install
+### 4.6 Format with disko (modes A and B)
+
+Skip this section in mode C; your partitions are already mounted under `/mnt`.
+
+#### Where the disk plan comes from
+
+disko is not configured by hand. The storage feature turns the host's settings into a disko plan:
+
+| Setting | Default | Decides |
+|---|---|---|
+| `ltp.storage.layout` | `erase-my-darlings` | which volumes exist and which are rolled back |
+| `ltp.storage.backend` | `btrfs` | how volumes are rendered (btrfs subvolumes) |
+| `ltp.storage.disk` | — | the whole disk that is partitioned |
+| `ltp.storage.boot.efiSize` | `1G` | the EFI system partition |
+| `ltp.storage.encryption` | off | LUKS around the btrfs partition (`label`, default `cryptroot`) |
+| `ltp.storage.swap` | off | a swapfile of `swap.size` on its own subvolume |
+| `ltp.storage.filesystem.compression` | `zstd` | btrfs compression for every subvolume except swap |
+| `ltp.storage.volumes.<id>` | — | per-volume overrides, e.g. `home.mountpoint = "/data"`; only the fields you set change |
+
+#### What it creates
+
+A GPT partition table on `disk` with two partitions:
+
+| Partition | Size | Content |
+|---|---|---|
+| `ESP` | `boot.efiSize` | vfat, mounted at `/boot` (`umask=0077`) |
+| `root` | the rest | btrfs, or LUKS `cryptroot` holding btrfs |
+
+The btrfs partition holds one subvolume per volume of the layout:
+
+| Subvolume | Mounted at | On every boot |
+|---|---|---|
+| `@root` | `/` | rolled back from `@blank` (mode A), kept (mode B) |
+| `@blank` | not mounted | the empty template `@root` is restored from |
+| `@persist` | `/persist` | kept; preserved state is mounted from here |
+| `@nix` | `/nix` | kept |
+| `@home` | `/home` | kept |
+| `@snapshots` | `/.snapshots` | kept; holds the pre-rollback snapshots |
+| `@swap` | `/.swapvol` | kept; only with `swap.enable`, uncompressed |
+
+#### Check the plan before erasing anything
+
+Print the partitions and subvolumes disko will create for the host:
+
+```zsh
+nix eval .#nixosConfigurations.<host>.config.disko.devices.disk --apply 'd: builtins.mapAttrs (_: disk: {
+  inherit (disk) device;
+  partitions = builtins.mapAttrs (_: p: {
+    inherit (p) size;
+    content = p.content.type;
+    subvolumes = builtins.mapAttrs (_: v: v.mountpoint or null)
+      (p.content.subvolumes or p.content.content.subvolumes or { });
+  }) disk.content.partitions;
+}) d'
+```
+
+Check that `device` is the disk you mean to erase. `nix flake check` also runs the storage checks: an unknown layout (`storage.layout.unknown`), a missing required volume, or a disk name that may change between boots.
+
+#### Run it
+
+Build and run the host's own script. It uses the disko version pinned in `flake.lock`, so it matches what the system will mount:
+
+```zsh
+sudo "$(nix build --no-link --print-out-paths \
+  .#nixosConfigurations.<host>.config.system.build.destroyFormatMount)/bin/disko-destroy-format-mount"
+```
+
+It lists the disks it will wipe and waits for you to type `yes`. With encryption it asks for the LUKS passphrase twice, unless `ltp.storage.encryption.passwordFile` points at a file holding it. The file is only read while formatting.
+
+The disko CLI works too, with the latest disko instead of the pinned one:
+
+```zsh
+sudo nix run github:nix-community/disko/latest -- \
+  --mode destroy,format,mount --flake .#<host>
+```
+
+#### Check the result
+
+```zsh
+findmnt -R /mnt                     # /mnt, /mnt/boot, /mnt/persist, /mnt/nix, /mnt/home, /mnt/.snapshots
+sudo btrfs subvolume list /mnt      # @root @blank @persist @nix @home @snapshots (and @swap)
+```
+
+To mount an existing install again without formatting, for a rescue or a second `nixos-install`, use the host's mount script:
+
+```zsh
+sudo "$(nix build --no-link --print-out-paths \
+  .#nixosConfigurations.<host>.config.system.build.mount)/bin/disko-mount"
+```
+
+#### The snapshot template (mode A)
+
+There is nothing to snapshot by hand. disko creates `@blank` empty. On every boot, the first one included, the initrd's `storage-rollback` service:
+
+1. saves the current `@root` as a read-only snapshot in `/.snapshots/rollback/root/<timestamp>`, keeping the last 5 (`ltp.storage.rollback.keepSnapshots`);
+2. deletes `@root`;
+3. creates a new `@root` as a snapshot of `@blank`.
+
+If `@blank` is missing, the service stops without deleting anything.
+
+So, during the install, anything written to `/mnt` outside `/mnt/persist`, `/mnt/home`, `/mnt/nix` and `/mnt/boot` is gone after the first boot. That includes `/etc/shadow`, which is why mode A passwords are files on `/persist` (next section). Anything else to keep goes under `/mnt/persist`, and only the paths in the persistence policy are mounted back into place. If something was lost, the root as `nixos-install` left it is in `/.snapshots/rollback/root/`.
+
+### 4.7 Install
 
 Check the configuration first, then run the steps for your storage mode.
 
@@ -245,14 +347,9 @@ Check the configuration first, then run the steps for your storage mode.
 nix flake check
 ```
 
-**Modes A and B.** Partition, format and mount with disko. This erases the disk.
+**Modes A and B.** The disk is formatted and mounted under `/mnt` ([4.6](#46-format-with-disko-modes-a-and-b)). **Mode C:** your own partitions are mounted under `/mnt`.
 
-```zsh
-sudo nix run github:nix-community/disko/latest -- \
-  --mode destroy,format,mount --flake .#<host>
-```
-
-**Mode A only.** `/etc` is erased on every boot, so passwords are declarative. Each user's hash is read from the persist volume, which is mounted in the initrd before the users are created. agenix can't be used here, because it decrypts after the users exist.
+**Mode A only.** `/etc` lives on `@root`, which is erased on every boot, so passwords are declarative. Each user's hash is read from the persist volume, which is mounted in the initrd before the users are created. agenix can't be used here, because it decrypts after the users exist.
 
 ```zsh
 sudo mkdir -p /mnt/persist/secrets/passwords
@@ -274,7 +371,7 @@ sudo nixos-enter --root /mnt -c 'passwd <user>'
 
 Reboot into the new system.
 
-### 4.7 After the first boot
+### 4.8 After the first boot
 
 **Register the host for secrets.** agenix decrypts with the SSH host key, which the first boot created and which is preserved in mode A.
 
@@ -320,7 +417,7 @@ nrs   # sudo nixos-rebuild switch --flake .#<host>
 
 Commit the new host, its settings, its hardware profile and the secrets changes.
 
-### 4.8 When something is wrong
+### 4.9 When something is wrong
 
 Features check their settings before rendering anything, and fail with a message naming the setting:
 
