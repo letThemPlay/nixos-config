@@ -134,7 +134,7 @@ Reboot your machine when complete. Your early-boot Stage 1 systemd unit service 
 
 ## 🧱 Subsystem Conventions
 
-Host-facing configuration lives in subsystems under `modules/subsystems/<name>/` (storage, network, boot, identity, theme, desktop, shell, locale, hardware). Each one follows the same shape and naming.
+Host-facing configuration lives in subsystems under `modules/subsystems/<name>/` (storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix). Each one follows the same shape and naming.
 
 ### Layout
 
