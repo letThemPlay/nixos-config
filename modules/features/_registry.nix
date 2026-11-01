@@ -33,6 +33,7 @@
         inputs.self.nixosModules.theme-api
         inputs.self.nixosModules.theme
         inputs.self.nixosModules.theme-stylix
+        inputs.self.nixosModules.secrets-api
         inputs.self.nixosModules.secrets
         inputs.self.nixosModules.shell-api
         inputs.self.nixosModules.shell

@@ -74,14 +74,11 @@ in
 
             inherit (overlay) interfaceName useRoutingFeatures extraUpFlags;
 
-            authKeyFile = config.age.secrets.${overlay.secret}.path;
+            authKeyFile = config.ltp.secrets.facts.paths.${overlay.secret};
           };
 
-          age.secrets.${overlay.secret} = {
-            file = network.secretsDir + "/${overlay.secret}.age";
-            mode = "0400";
-            owner = "root";
-          };
+          # Root-only, as agenix's defaults (owner root, mode 0400).
+          ltp.secrets.files.${overlay.secret} = { };
         };
       };
 

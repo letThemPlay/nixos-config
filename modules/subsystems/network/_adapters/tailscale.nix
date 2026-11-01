@@ -2,7 +2,7 @@ _:
 
 #
 # The tailscale overlay as plain data; the network module maps it to
-# services.tailscale and the agenix secret.
+# services.tailscale and an ltp.secrets file.
 #
 { model }:
 

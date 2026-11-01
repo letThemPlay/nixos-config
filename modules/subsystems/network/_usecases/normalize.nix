@@ -95,8 +95,6 @@ in
 
     authKey = {
       inherit (cfg.overlay.authKey) secret;
-
-      available = builtins.pathExists (network.secretsDir + "/${cfg.overlay.authKey.secret}.age");
     };
   };
 

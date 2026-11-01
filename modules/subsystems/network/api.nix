@@ -94,9 +94,9 @@ in
           };
 
           description = ''
-            Mesh VPN overlay (tailscale). The auth key is the agenix
-            secret secrets/<authKey.secret>.age, which must be encrypted
-            for this host's SSH host key.
+            Mesh VPN overlay (tailscale). The auth key is the
+            ltp.secrets file authKey.secret (secrets/<name>.age), which
+            the secrets subsystem checks is encrypted for this host.
           '';
         };
 

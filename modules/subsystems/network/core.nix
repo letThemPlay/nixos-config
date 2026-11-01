@@ -59,9 +59,6 @@ in
       tailscale = import ./_adapters/tailscale.nix { };
     };
 
-    # Where agenix secrets live in the repository.
-    secretsDir = ../../../secrets;
-
     # Backend-agnostic resolver adapter.
     resolved = import ./_adapters/resolved.nix { };
 

@@ -182,8 +182,8 @@ rec {
     );
 
   #
-  # The overlay owns its interface, needs a known backend and an auth
-  # key in the repository, and advertises well-formed tags. Checked
+  # The overlay owns its interface, needs a known backend and advertises
+  # well-formed tags; its auth key is checked by ltp.secrets. Checked
   # only when the overlay is enabled.
   #
   overlay =
@@ -225,11 +225,6 @@ rec {
             "tags"
           ] "Overlay tag '${tag}' must be lowercase letters, digits and dashes, without the tag: prefix."
         ) badTags
-
-        ++ optional (!overlay.authKey.available) (
-          diagnostic "network.overlay.authKey.missing" overlay.authKey.secret [ "authKey" "secret" ]
-            "Overlay auth key secret '${overlay.authKey.secret}' has no secrets/${overlay.authKey.secret}.age in the repository."
-        )
       )
     );
 

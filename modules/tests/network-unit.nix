@@ -152,16 +152,6 @@ let
       expected = [ "network.overlay.tag.invalid" ];
     };
 
-    testOverlayMissingSecret = {
-      expr = codes {
-        overlay = {
-          enable = true;
-          authKey.secret = "nope";
-        };
-      };
-      expected = [ "network.overlay.authKey.missing" ];
-    };
-
     testDisabledOverlayIsNotChecked = {
       expr = codes {
         links.all = {

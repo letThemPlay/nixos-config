@@ -56,7 +56,7 @@ rec {
       authKey.secret = mkOption {
         type = types.str;
         default = "tailscale-authkey";
-        description = "agenix secret holding the auth key: secrets/<name>.age in the repository.";
+        description = "ltp.secrets file holding the auth key (secrets/<name>.age).";
       };
 
     };
@@ -321,10 +321,6 @@ rec {
             acceptDns = mkOption { type = types.bool; };
             authKey = {
               secret = mkOption { type = types.str; };
-              available = mkOption {
-                type = types.bool;
-                description = "Whether secrets/<secret>.age exists in the repository.";
-              };
             };
           };
         };
