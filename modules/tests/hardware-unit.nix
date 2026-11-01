@@ -218,6 +218,37 @@ let
       };
     };
 
+    testAudioAndBluetooth = {
+      expr = {
+        off = {
+          inherit (modelOf { }) audio bluetooth;
+          audio_ = (hardware.audio { model = modelOf { }; }).active;
+        };
+        on =
+          let
+            model = modelOf {
+              audio.enable = true;
+              bluetooth.enable = true;
+            };
+          in
+          {
+            audio = (hardware.audio { inherit model; }).pipewire.alsa.support32Bit;
+            bluetooth = (hardware.bluetooth { inherit model; }).state.directories;
+          };
+      };
+      expected = {
+        off = {
+          audio = false;
+          bluetooth = false;
+          audio_ = false;
+        };
+        on = {
+          audio = true;
+          bluetooth = [ "/var/lib/bluetooth" ];
+        };
+      };
+    };
+
     testModelContract = {
       expr = map (
         settings:

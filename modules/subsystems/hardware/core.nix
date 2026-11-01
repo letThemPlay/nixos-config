@@ -4,7 +4,7 @@
 #   _domain/    entities: GPU, PRIME mode, model
 #   _usecases/  normalize, query, validate
 #   _adapters/  gpu-vendors/<vendor> and guests/<type> (registries);
-#               graphics
+#               graphics, audio, bluetooth
 #
 # api.nix and module.nix beside this file are the outer ring. Generated
 # hardware files (nixos-generate-config) stay in hosts/_hosts/_hardware.
@@ -39,6 +39,10 @@ in
     };
 
     graphics = import ./_adapters/graphics.nix { inherit lib hardware; };
+
+    audio = import ./_adapters/audio.nix { };
+
+    bluetooth = import ./_adapters/bluetooth.nix { };
 
   });
 }

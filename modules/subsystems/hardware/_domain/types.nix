@@ -62,6 +62,14 @@ rec {
         };
       };
 
+      audio = mkOption {
+        type = types.bool;
+      };
+
+      bluetooth = mkOption {
+        type = types.bool;
+      };
+
       guest = mkOption {
         type = types.submodule {
           options = {

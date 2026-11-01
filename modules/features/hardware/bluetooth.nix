@@ -1,18 +1,6 @@
 _: {
-  flake.nixosModules.bluetooth =
-    { config, lib, ... }:
-    {
-      config = {
-        services.blueman.enable = true;
-        hardware.bluetooth = {
-          enable = true;
-          powerOnBoot = true;
-        };
-
-        # Paired devices and adapter settings.
-        ltp.storage.persistence.state.directories = lib.mkIf config.ltp.storage.enable [
-          "/var/lib/bluetooth"
-        ];
-      };
-    };
+  # Bluetooth through BlueZ and blueman; see ltp.hardware.bluetooth.
+  flake.nixosModules.bluetooth = _: {
+    ltp.hardware.bluetooth.enable = true;
+  };
 }

@@ -22,6 +22,10 @@ in
 
       graphics = hardware.graphics { inherit model; };
 
+      audio = hardware.audio { inherit model; };
+
+      bluetooth = hardware.bluetooth { inherit model; };
+
       #
       # Every registered guest renders behind mkIf (guest == name), so
       # the module's shape does not depend on config.
@@ -47,48 +51,78 @@ in
       }) validation.errors;
     in
     {
-      config = mkIf cfg.enable (mkMerge [
+      config = mkMerge [
 
+        # Published on every host, like the other subsystems' facts.
         {
-          assertions = errors;
-
-          warnings = map format validation.warnings;
+          ltp.hardware.facts = {
+            inherit (model) audio bluetooth;
+          };
         }
 
-        #
-        # Rendering only runs on a valid model; invalid models stop at
-        # the assertions above with a readable diagnostic.
-        #
-        (mkIf validation.ok (
-          mkMerge (
-            [
-              (mkIf graphics.enable {
-                hardware.graphics = {
-                  enable = true;
-                  enable32Bit = true;
-                };
+        (mkIf cfg.enable (mkMerge [
 
-                services.xserver.videoDrivers = graphics.videoDrivers;
-              })
+          {
+            assertions = errors;
 
-              (mkIf (graphics.nvidia != null) {
-                # The module system reads the attribute names of an mkIf's
-                # content even when it is false, so the content must be a set.
-                hardware.nvidia = lib.optionalAttrs (graphics.nvidia != null) (
-                  graphics.nvidia
-                  // {
-                    package = config.boot.kernelPackages.nvidiaPackages.stable;
-                  }
-                );
-              })
+            warnings = map format validation.warnings;
+          }
 
-              { environment.variables = graphics.environment; }
-            ]
+          (mkIf audio.active {
+            services.pulseaudio.enable = false;
+            security.rtkit.enable = true;
+            services.pipewire = audio.pipewire;
+          })
 
-            ++ mapAttrsToList renderGuest hardware.guests
-          )
-        ))
+          (mkIf bluetooth.active {
+            hardware.bluetooth = {
+              enable = true;
+              inherit (bluetooth) powerOnBoot;
+            };
 
-      ]);
+            services.blueman.enable = true;
+
+            # Reads only hardware options, so safe in persistence.state.
+            ltp.storage.persistence.state.directories =
+              mkIf config.ltp.storage.enable bluetooth.state.directories;
+          })
+
+          #
+          # Rendering only runs on a valid model; invalid models stop at
+          # the assertions above with a readable diagnostic.
+          #
+          (mkIf validation.ok (
+            mkMerge (
+              [
+                (mkIf graphics.enable {
+                  hardware.graphics = {
+                    enable = true;
+                    enable32Bit = true;
+                  };
+
+                  services.xserver.videoDrivers = graphics.videoDrivers;
+                })
+
+                (mkIf (graphics.nvidia != null) {
+                  # The module system reads the attribute names of an mkIf's
+                  # content even when it is false, so the content must be a set.
+                  hardware.nvidia = lib.optionalAttrs (graphics.nvidia != null) (
+                    graphics.nvidia
+                    // {
+                      package = config.boot.kernelPackages.nvidiaPackages.stable;
+                    }
+                  );
+                })
+
+                { environment.variables = graphics.environment; }
+              ]
+
+              ++ mapAttrsToList renderGuest hardware.guests
+            )
+          ))
+
+        ]))
+
+      ];
     };
 }

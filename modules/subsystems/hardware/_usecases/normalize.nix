@@ -25,6 +25,10 @@ in
     active = cfg.prime != "none" && hasNvidia && hasIntegrated;
   };
 
+  audio = cfg.audio.enable;
+
+  bluetooth = cfg.bluetooth.enable;
+
   guest = {
     name = cfg.guest;
 

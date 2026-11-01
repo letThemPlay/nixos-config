@@ -50,6 +50,32 @@ in
           '';
         };
 
+        audio.enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the host has sound (PipeWire).";
+        };
+
+        bluetooth.enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the host has Bluetooth (BlueZ, blueman).";
+        };
+
+        facts = {
+          audio = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether the host has sound; the desktop binds media keys only then.";
+          };
+
+          bluetooth = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether the host has Bluetooth; the bar shows it only then.";
+          };
+        };
+
         guest = mkOption {
           type = types.nullOr types.str;
           default = null;
