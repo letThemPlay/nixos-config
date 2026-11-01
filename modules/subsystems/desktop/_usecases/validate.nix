@@ -344,9 +344,30 @@ rec {
         })
     );
 
+  components =
+    model:
+    mkResult (
+      mapAttrsToList (
+        role: component:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.component.unknown";
+          target = "${role}.${component.name}";
+          path = [
+            "components"
+            role
+          ];
+          message = "Unknown ${role} component '${component.name}' (known: ${
+            concatStringsSep ", " (attrNames (desktop.components.${role} or { }))
+          }).";
+        }
+      ) (filterAttrs (_: component: !component.known) model.components)
+    );
+
   all =
     model:
     combine [
+      (components model)
       (dmenu model)
       (requirements model)
       (greeter model)

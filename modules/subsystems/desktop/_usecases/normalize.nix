@@ -147,6 +147,11 @@ in
 
   inherit keyboard;
 
+  components = mapAttrs (role: name: {
+    inherit name;
+    known = name == null || (desktop.components.${role} or { }) ? ${name};
+  }) cfg.components;
+
   greeter = {
     name = cfg.greeter;
     known = cfg.greeter == null || desktop.greeters ? ${cfg.greeter};

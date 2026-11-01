@@ -9,8 +9,10 @@
 #               systemd user units
 #
 # api.nix and module.nix beside this file are the outer ring.
-# Components (bar, launcher, notifier, ...) are features that
-# contribute binds, bar widgets and services to ltp.desktop.
+# Components (bar, launcher, notifier, ...) are a registry in
+# _components/<role>/<name>.nix, selected per role with
+# ltp.desktop.components; they contribute binds, bar widgets and
+# services to ltp.desktop like any feature.
 #
 { config, lib, ... }:
 let
@@ -58,6 +60,38 @@ in
     #
     greeters = {
       tuigreet = import ./_adapters/greeters/tuigreet.nix { };
+    };
+
+    #
+    # Component registry: role -> name -> NixOS module function
+    # ({ config, lib, pkgs, ... } -> settings). The desktop module
+    # imports every one and enables the one ltp.desktop.components
+    # selects for each role. Components contribute to ltp.desktop
+    # (binds, bar, services, rules) like any feature.
+    #
+    components = {
+      bar.waybar = ./_components/bar/waybar.nix;
+      dock.waybar = ./_components/dock/waybar.nix;
+      launcher.fuzzel = ./_components/launcher/fuzzel.nix;
+      notifier.mako = ./_components/notifier/mako.nix;
+      locker.hyprlock = ./_components/locker/hyprlock.nix;
+      clipboard.cliphist = ./_components/clipboard/cliphist.nix;
+      screenshot.grim = ./_components/screenshot/grim.nix;
+      wallpaper.swaybg = ./_components/wallpaper/swaybg.nix;
+      media.playerctl = ./_components/media/playerctl.nix;
+    };
+
+    # The selection when a host sets nothing.
+    defaultComponents = {
+      bar = "waybar";
+      dock = "waybar";
+      launcher = "fuzzel";
+      notifier = "mako";
+      locker = "hyprlock";
+      clipboard = "cliphist";
+      screenshot = "grim";
+      wallpaper = "swaybg";
+      media = "playerctl";
     };
 
     # Spawned commands run as session applications.

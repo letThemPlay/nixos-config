@@ -323,6 +323,18 @@ rec {
         };
       };
 
+      components = mkOption {
+        type = types.attrsOf (
+          types.submodule {
+            options = {
+              name = mkOption { type = types.nullOr types.str; };
+              known = mkOption { type = types.bool; };
+            };
+          }
+        );
+        description = "Selected component per role.";
+      };
+
       greeter = mkOption {
         type = types.submodule {
           options = {

@@ -429,6 +429,24 @@ let
       };
     };
 
+    testComponents = {
+      expr = {
+        defaults = codes { };
+        unknown = codes { components.bar = "eww"; };
+        none = codes { components.bar = null; };
+        # Every default names a registered component.
+        registered = lib.all (role: desktop.components.${role} ? ${desktop.defaultComponents.${role}}) (
+          lib.attrNames desktop.defaultComponents
+        );
+      };
+      expected = {
+        defaults = [ ];
+        unknown = [ "desktop.component.unknown" ];
+        none = [ ];
+        registered = true;
+      };
+    };
+
     testGreeter = {
       expr = {
         inherit

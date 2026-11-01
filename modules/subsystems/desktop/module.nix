@@ -27,6 +27,35 @@ in
 
       cfg = config.ltp.desktop;
 
+      #
+      # Every registered component, each enabled only when selected for
+      # its role. A component file is a module function returning its
+      # settings (or { config = settings; }).
+      #
+      componentModules = lib.concatLists (
+        mapAttrsToList (
+          role: implementations:
+          mapAttrsToList (
+            name: path:
+            {
+              config,
+              lib,
+              pkgs,
+              ...
+            }@args:
+            let
+              # The module system passes pkgs only to functions naming it.
+              component = import path (args // { inherit pkgs; });
+            in
+            {
+              config = lib.mkIf (config.ltp.desktop.enable && config.ltp.desktop.components.${role} == name) (
+                component.config or component
+              );
+            }
+          ) implementations
+        ) desktop.components
+      );
+
       packageOf = path: lib.getAttrFromPath (lib.splitString "." path) pkgs;
 
       model = desktop.normalize {
@@ -161,6 +190,8 @@ in
       }) validation.errors;
     in
     {
+      imports = componentModules;
+
       config = mkMerge [
 
         # Published on every host, like the other subsystems' facts.

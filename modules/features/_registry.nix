@@ -58,15 +58,6 @@
       window-management = [
         inputs.self.nixosModules.desktop-api
         inputs.self.nixosModules.desktop
-        inputs.self.nixosModules.waybar
-        inputs.self.nixosModules.dock
-        inputs.self.nixosModules.fuzzel
-        inputs.self.nixosModules.mako
-        inputs.self.nixosModules.locker
-        inputs.self.nixosModules.clipboard-manager
-        inputs.self.nixosModules.screenshot
-        inputs.self.nixosModules.media
-        inputs.self.nixosModules.wallpaper
       ];
 
       core-apps = [

@@ -25,6 +25,15 @@ in
           '';
         };
 
+        components = lib.mapAttrs (
+          role: default:
+          mkOption {
+            type = types.nullOr types.str;
+            inherit default;
+            description = "${role} component, from the component registry; null for none.";
+          }
+        ) desktop.defaultComponents;
+
         greeter = mkOption {
           type = types.nullOr types.str;
           default = "tuigreet";
