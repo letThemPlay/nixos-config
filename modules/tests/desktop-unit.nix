@@ -144,6 +144,7 @@ let
         spawn = [ "foo" ];
         action = null;
         app = null;
+        requires = [ ];
         command = [ "foo" ];
       };
     };
@@ -348,6 +349,64 @@ let
         suspendAfter = 900;
       };
     };
+
+    # Binds and widgets that need hardware the host lacks are left out.
+    testHardwareRequirements =
+      let
+        settings = {
+          binds."XF86AudioMute" = {
+            spawn = [ "wpctl" ];
+            requires = [ "audio" ];
+          };
+          bar = {
+            right = [
+              "clock"
+              "bluetooth"
+            ];
+            requires.bluetooth = [ "bluetooth" ];
+          };
+        };
+
+        withFacts =
+          facts:
+          desktop.normalize {
+            cfg = evalCfg settings;
+            inherit facts;
+          };
+
+        bare = withFacts {
+          audio = false;
+          bluetooth = false;
+        };
+
+        full = withFacts {
+          audio = true;
+          bluetooth = true;
+        };
+      in
+      {
+        expr = {
+          bareBind = bare.binds ? "XF86AudioMute";
+          bareBar = bare.bar.right;
+          bareCodes = codesOf desktop.validate bare;
+          fullBind = full.binds ? "XF86AudioMute";
+          fullBar = full.bar.right;
+          unknown = codesOf desktop.validate (withFacts {
+            audio = true;
+          });
+        };
+        expected = {
+          bareBind = false;
+          bareBar = [ "clock" ];
+          bareCodes = [ "desktop.bind.requirement.missing" ];
+          fullBind = true;
+          fullBar = [
+            "clock"
+            "bluetooth"
+          ];
+          unknown = [ "desktop.requirement.unknown" ];
+        };
+      };
 
     testGreeter = {
       expr = {

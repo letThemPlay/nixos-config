@@ -284,9 +284,49 @@ rec {
       })
     );
 
+  #
+  # Requirements name hardware facts. A bind left out for missing
+  # hardware is reported, since its key does nothing; a bar widget is
+  # left out silently.
+  #
+  requirements =
+    model:
+    let
+      inherit (model.requirements) known used droppedBinds;
+    in
+    mkResult (
+      lib.optionals (known != null) (
+        map (
+          fact:
+          mkDiagnostic {
+            severity = "error";
+            code = "desktop.requirement.unknown";
+            target = fact;
+            path = [ "binds" ];
+            message = "Unknown hardware fact '${fact}' in a requirement (known: ${concatStringsSep ", " known}).";
+          }
+        ) (filter (fact: !builtins.elem fact known) used)
+      )
+
+      ++ mapAttrsToList (
+        key: requires:
+        mkDiagnostic {
+          severity = "warning";
+          code = "desktop.bind.requirement.missing";
+          target = key;
+          path = [
+            "binds"
+            key
+          ];
+          message = "Bind '${key}' is left out: the host lacks ${concatStringsSep ", " requires}.";
+        }
+      ) droppedBinds
+    );
+
   all =
     model:
     combine [
+      (requirements model)
       (greeter model)
       (idle model)
       (windowRules model)

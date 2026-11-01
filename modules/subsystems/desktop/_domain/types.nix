@@ -93,6 +93,12 @@ rec {
       description = "App role to start, e.g. \"terminal\".";
     };
 
+    requires = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "Hardware facts (ltp.hardware.facts) the bind needs, e.g. \"audio\".";
+    };
+
   };
 
   bind = types.submodule { options = bindFields; };
@@ -250,6 +256,15 @@ rec {
         description = "Bar and module settings, keyed like waybar's config.";
       };
 
+      requires = mkOption {
+        type = types.attrsOf (types.listOf types.str);
+        default = { };
+        example = {
+          bluetooth = [ "bluetooth" ];
+        };
+        description = "Hardware facts each widget needs; widgets without them are left out.";
+      };
+
     };
   };
 
@@ -283,6 +298,19 @@ rec {
 
       idle = mkOption {
         type = idle;
+      };
+
+      requirements = mkOption {
+        type = types.submodule {
+          options = {
+            known = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              description = "Hardware fact names; null when none were given.";
+            };
+            used = mkOption { type = types.listOf types.str; };
+            droppedBinds = mkOption { type = types.attrsOf (types.listOf types.str); };
+          };
+        };
       };
 
       greeter = mkOption {

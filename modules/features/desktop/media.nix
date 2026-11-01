@@ -1,11 +1,14 @@
 _: {
   #
-  # Volume and media keys.
+  # Volume keys (need sound, ltp.hardware.audio) and media player keys.
   #
   flake.nixosModules.media =
     { pkgs, ... }:
     let
-      wpctl = args: { spawn = [ "${pkgs.wireplumber}/bin/wpctl" ] ++ args; };
+      wpctl = args: {
+        spawn = [ "${pkgs.wireplumber}/bin/wpctl" ] ++ args;
+        requires = [ "audio" ];
+      };
 
       playerctl = command: {
         spawn = [

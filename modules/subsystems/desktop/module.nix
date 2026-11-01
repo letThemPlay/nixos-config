@@ -33,6 +33,7 @@ in
         inherit cfg;
         hasPackage = path: lib.hasAttrByPath (lib.splitString "." path) pkgs;
         keyboard = config.ltp.locale.keyboard.session;
+        facts = config.ltp.hardware.facts;
       };
 
       validation = desktop.validate.all model;

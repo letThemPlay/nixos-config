@@ -21,6 +21,9 @@
     "battery"
   ];
 
+  # The bluetooth widget only where the host has bluetooth.
+  requires.bluetooth = [ "bluetooth" ];
+
   settings = {
     layer = "top";
     position = "top";
