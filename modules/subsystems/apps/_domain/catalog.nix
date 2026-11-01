@@ -90,4 +90,15 @@ _: {
     package = null;
   };
 
+  eza = {
+    roles = [ ];
+    package = null;
+    aliases.lt = "eza --tree --level=2";
+  };
+
+  zoxide = {
+    roles = [ ];
+    package = null;
+  };
+
 }

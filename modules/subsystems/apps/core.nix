@@ -37,6 +37,8 @@ in
       discord = ./_configure/discord.nix;
       steam = ./_configure/steam.nix;
       flashgbx = ./_configure/flashgbx.nix;
+      eza = ./_configure/eza.nix;
+      zoxide = ./_configure/zoxide.nix;
     };
 
   });

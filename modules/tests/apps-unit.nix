@@ -168,14 +168,21 @@ let
     testInstalledAliases = {
       expr =
         let
-          model = modelOf { install = [ "git" ]; };
+          model = modelOf {
+            install = [
+              "git"
+              "eza"
+            ];
+          };
         in
         {
           gs = model.aliases.gs or null;
+          lt = model.aliases.lt or null;
           valid = codesOf model;
         };
       expected = {
         gs = "git status -sb";
+        lt = "eza --tree --level=2";
         valid = [ ];
       };
     };

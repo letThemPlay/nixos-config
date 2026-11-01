@@ -39,7 +39,12 @@
         inputs.self.nixosModules.apps
         inputs.self.nixosModules.shell-api
         inputs.self.nixosModules.shell
-        inputs.self.nixosModules.shell-utilities
+        {
+          ltp.apps.install = [
+            "eza"
+            "zoxide"
+          ];
+        }
 
         inputs.self.nixosModules.storage
         inputs.self.nixosModules.storage-api
