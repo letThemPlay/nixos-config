@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  hardware = config.flake.features.hardware;
+  hardware = config.ltp.features.hardware;
 in
 {
   flake.nixosModules.hardware =

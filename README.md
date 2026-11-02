@@ -3,9 +3,11 @@
 A NixOS flake for a small fleet of machines, built with [flake-parts](https://flake.parts) and [import-tree](https://github.com/denful/import-tree): every `.nix` file under `modules/` is loaded automatically, except paths starting with `_`.
 
 - **Features** (`modules/features/<name>/`) own all host-facing configuration under `ltp.<name>`: storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets and apps. Each one validates its settings and reports problems as `ltp.<name> [code]: message`.
-- **Bundles** (`flake.bundles`, defined in `modules/hosts/bundles.nix`) are named sets of feature settings, for example `laptop` or `vm`. Every feature is present on every host; a bundle only decides what it does.
-- **Hosts** are flake-parts modules in `modules/hosts/<host>/` defining `flake.hosts.<host>`: the bundles and users they pick, and their own settings and hardware profile.
-- **Users** are flake-parts modules in `modules/users/<name>/` defining `flake.users.<name>`, enabled per host.
+- **Bundles** (`ltp.bundles`, defined in `modules/hosts/bundles.nix`) are named sets of feature settings, for example `laptop` or `vm`. Every feature is present on every host; a bundle only decides what it does.
+- **Hosts** are flake-parts modules in `modules/hosts/<host>/` defining `ltp.hosts.<host>`: the bundles and users they pick, and their own settings and hardware profile.
+- **Users** are flake-parts modules in `modules/users/<name>/` defining `ltp.users.<name>`, enabled per host.
+
+`ltp` names two things. In the flake-parts modules under `modules/`, `ltp.features`, `ltp.bundles`, `ltp.hosts` and `ltp.users` are the fleet's own state, kept off the flake outputs. Inside a host's NixOS configuration, `ltp.<feature>` (`ltp.storage`, `ltp.network`, …) are the feature options.
 
 ---
 
@@ -15,12 +17,12 @@ A NixOS flake for a small fleet of machines, built with [flake-parts](https://fl
 modules/
   features/<name>/        one feature: core, options.nix, module.nix and its rings
   hosts/
-    bundles.nix           the bundles a host can pick (flake.bundles)
-    <host>/default.nix    a host (flake.hosts.<host>), with its settings
+    bundles.nix           the bundles a host can pick (ltp.bundles)
+    <host>/default.nix    a host (ltp.hosts.<host>), with its settings
     <host>/_hardware.nix  its hardware profile
     iso.nix               a minimal installer image
-  users/<name>/           a user: default.nix (flake.users.<name>) and gpg/*.asc keys
-  factories/hosts.nix     turns a flake.hosts entry into a nixosConfiguration
+  users/<name>/           a user: default.nix (ltp.users.<name>) and gpg/*.asc keys
+  factories/hosts.nix     turns an ltp.hosts entry into a nixosConfiguration
   tests/                  unit tests and the storage VM test (nix flake check)
 secrets/                  agenix secrets, their recipients (secrets.nix) and keys (keys.nix)
 ```
@@ -29,7 +31,7 @@ secrets/                  agenix secrets, their recipients (secrets.nix) and key
 
 ## 🧩 Bundles
 
-Bundles are defined in `modules/hosts/bundles.nix` as `flake.bundles.<name> = { description; module; }`. A bundle holds settings only, and bundles merge, so another file can add to one.
+Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { description; module; }`. A bundle holds settings only, and bundles merge, so another file can add to one.
 
 | Bundle | What it turns on |
 |---|---|
@@ -179,12 +181,12 @@ module.ltp = {
 
 ### 4.4 Host module
 
-Create `modules/hosts/<host>/default.nix`. It's a flake-parts module defining `flake.hosts.<host>`, and every host becomes `nixosConfigurations.<host>`, so `flake.nix` does not change.
+Create `modules/hosts/<host>/default.nix`. It's a flake-parts module defining `ltp.hosts.<host>`, and every host becomes `nixosConfigurations.<host>`, so `flake.nix` does not change.
 
 ```nix
 { inputs, ... }:
 {
-  flake.hosts.laptop-x1 = {
+  ltp.hosts.laptop-x1 = {
     system = "x86_64-linux";
     stateVersion = "26.05";   # the release you install with; never change it later
 
@@ -214,7 +216,7 @@ Create `modules/hosts/<host>/default.nix`. It's a flake-parts module defining `f
 ```
 
 - **Bundles:** an unknown bundle stops the build and lists the known ones. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
-- **Merging:** hosts merge, so another file can add to one, for example `flake.hosts.laptop-x1.module.ltp.locale.timeZone = "Europe/Paris";`.
+- **Merging:** hosts merge, so another file can add to one, for example `ltp.hosts.laptop-x1.module.ltp.locale.timeZone = "Europe/Paris";`.
 - **Shared settings:** settings several hosts share can be an aspect, `flake.modules.nixos.<name>`, imported in each host's `module`. The test VMs share `spice-display` this way (`modules/hosts/spice-display.nix`).
 
 Then make the new files visible to Nix:
@@ -225,12 +227,12 @@ git add modules/hosts
 
 ### 4.5 Users
 
-Users already in `modules/users/` only need to be listed in the host'"'"'s `users`. A new user is a folder named after the account, holding a flake-parts module that defines `flake.users.<name>`:
+Users already in `modules/users/` only need to be listed in the host'"'"'s `users`. A new user is a folder named after the account, holding a flake-parts module that defines `ltp.users.<name>`:
 
 ```nix
 # modules/users/alice/default.nix
 _: {
-  flake.users.alice = {
+  ltp.users.alice = {
     fullName = "Alice";
     email = "alice@example.org";     # used for git
     admin = true;                    # wheel; gets root through sudo-rs
@@ -255,7 +257,7 @@ _: {
 
 - **Field checks:** the identity feature checks every field except `home`, so a misspelt field fails the build.
 - **`home`:** a home-manager module applied only on hosts that enable the user.
-- **Merging:** users merge, so another file can add to one, for example `flake.users.alice.home = { … };`.
+- **Merging:** users merge, so another file can add to one, for example `ltp.users.alice.home = { … };`.
 - **Public keys:** they go in `modules/users/<name>/gpg/*.asc` and are imported with ultimate trust on hosts with the `gpg` bundle.
 
 ### 4.6 Format with disko (modes A and B)
@@ -561,7 +563,7 @@ Host-facing configuration lives in features under `modules/features/<name>/` (st
 
 | File | Provides |
 |---|---|
-| `core.nix` | `flake.features.<name>`: the pure core, assembled from the rings below |
+| `core.nix` | `ltp.features.<name>`: the pure core, assembled from the rings below |
 | `_domain/` | entity types and plain data (layouts, profiles, providers, defaults) |
 | `_usecases/` | `normalize` (settings → model), `query`, `validate` |
 | `_adapters/` | model → plain data for one target (disko, networkd, stylix, …); registries live here |

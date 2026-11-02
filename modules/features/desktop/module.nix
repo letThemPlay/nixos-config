@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  desktop = config.flake.features.desktop;
+  desktop = config.ltp.features.desktop;
 in
 {
   flake.nixosModules.desktop =

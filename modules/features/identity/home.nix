@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  identity = config.flake.features.identity;
+  identity = config.ltp.features.identity;
 in
 {
   #

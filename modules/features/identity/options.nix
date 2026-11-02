@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  identity = config.flake.features.identity;
+  identity = config.ltp.features.identity;
 in
 {
   #
@@ -29,7 +29,7 @@ in
           default = { };
 
           description = ''
-            User catalogue from flake.users (modules/users/<name>/).
+            User catalogue from ltp.users (modules/users/<name>/).
             Hosts enable the users they have.
           '';
         };

@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  secrets = config.flake.features.secrets;
+  secrets = config.ltp.features.secrets;
 in
 {
   # Options only.

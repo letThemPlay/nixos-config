@@ -1,5 +1,5 @@
 _: {
-  flake.users.kelvin = {
+  ltp.users.kelvin = {
     fullName = "Kelvin";
     email = "kelvin.d.morris@gmail.com";
     admin = true;

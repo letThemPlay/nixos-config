@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   # Framework 13 (AMD 7040) laptop.
-  flake.hosts.theseus = {
+  ltp.hosts.theseus = {
     system = "x86_64-linux";
     stateVersion = "22.11";
 

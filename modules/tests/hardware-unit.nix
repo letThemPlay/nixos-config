@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  hardware = config.flake.features.hardware;
+  hardware = config.ltp.features.hardware;
 
   inherit (config.flake.nixosModules) hardware-options;
 

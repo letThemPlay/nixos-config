@@ -17,7 +17,7 @@ let
     ;
 in
 {
-  flake.features.diagnostics = rec {
+  ltp.features.diagnostics = rec {
 
     mkDiagnostic =
       {

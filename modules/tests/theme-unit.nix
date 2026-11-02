@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  theme = config.flake.features.theme;
+  theme = config.ltp.features.theme;
 
   inherit (config.flake.nixosModules) theme-options;
 
@@ -98,7 +98,7 @@ let
           validate = import ../features/theme/_usecases/validate.nix {
             inherit lib;
             theme = broken;
-            inherit (config.flake.features) diagnostics;
+            inherit (config.ltp.features) diagnostics;
           };
         in
         map (d: d.code) (validate.all { users = { }; }).diagnostics;

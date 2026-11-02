@@ -1,6 +1,8 @@
 { config, inputs, ... }:
 let
-  apps = config.flake.features.apps;
+  inherit (config.ltp) features;
+
+  inherit (features) apps;
 in
 {
   flake.nixosModules.apps =
@@ -37,7 +39,7 @@ in
       #
       # Every app's configure module, enabled while the app plays a role
       # or is installed. A configure file is a module function returning
-      # its settings (or { config = settings; }); it also receives inputs.
+      # its settings (or { config = settings; }); it also receives inputs and the feature cores.
       #
       configureModules = mapAttrsToList (
         name: path:
@@ -48,7 +50,7 @@ in
           ...
         }@args:
         let
-          configure = import path (args // { inherit pkgs inputs; });
+          configure = import path (args // { inherit pkgs inputs features; });
         in
         {
           config = lib.mkIf (

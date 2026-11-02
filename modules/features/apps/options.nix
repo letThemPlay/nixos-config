@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  apps = config.flake.features.apps;
+  apps = config.ltp.features.apps;
 in
 {
   # Options only.

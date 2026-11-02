@@ -20,10 +20,10 @@
   ...
 }:
 let
-  inherit (config.flake.features) diagnostics;
+  inherit (config.ltp.features) diagnostics;
 in
 {
-  flake.features.theme = lib.fix (theme: {
+  ltp.features.theme = lib.fix (theme: {
 
     types = import ./_domain/types.nix { inherit lib; };
 

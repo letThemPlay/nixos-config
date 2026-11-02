@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  apps = config.flake.features.apps;
+  apps = config.ltp.features.apps;
 
   inherit (config.flake.nixosModules) apps-options;
 

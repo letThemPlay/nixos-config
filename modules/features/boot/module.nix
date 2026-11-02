@@ -1,6 +1,6 @@
 { config, inputs, ... }:
 let
-  boot = config.flake.features.boot;
+  boot = config.ltp.features.boot;
 in
 {
   flake.nixosModules.boot =

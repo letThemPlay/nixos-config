@@ -1,6 +1,6 @@
 { config, inputs, ... }:
 let
-  secrets = config.flake.features.secrets;
+  secrets = config.ltp.features.secrets;
 in
 {
   flake.nixosModules.secrets =

@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  shell = config.flake.features.shell;
+  shell = config.ltp.features.shell;
 in
 {
   flake.nixosModules.shell =

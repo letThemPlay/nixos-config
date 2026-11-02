@@ -1,10 +1,10 @@
 { config, findFilesWithExt, ... }:
 let
-  inherit (config.flake) users;
+  inherit (config.ltp) users;
 in
 {
   #
-  # Renders the user catalogue (flake.users) on every host: the
+  # Renders the user catalogue (ltp.users) on every host: the
   # identity data for ltp.identity, whose user type checks it, and each
   # user's home module for the users the host enables. A user's public
   # OpenPGP keys are the .asc files in modules/users/<name>/gpg/.

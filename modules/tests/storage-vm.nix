@@ -1,6 +1,6 @@
 { config, inputs, ... }:
 let
-  storage = config.flake.features.storage;
+  storage = config.ltp.features.storage;
 
   inherit (config.flake.nixosModules) storage-options;
 

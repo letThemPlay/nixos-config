@@ -25,7 +25,7 @@ let
   nullable = spec: spec.type.check null;
 in
 {
-  flake.features.overrides = {
+  ltp.features.overrides = {
 
     type =
       fields:

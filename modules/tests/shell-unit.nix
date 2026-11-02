@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  shell = config.flake.features.shell;
+  shell = config.ltp.features.shell;
 
   inherit (config.flake.nixosModules) shell-options;
 

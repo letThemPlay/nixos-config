@@ -1,6 +1,6 @@
 { config, inputs, ... }:
 let
-  storage = config.flake.features.storage;
+  storage = config.ltp.features.storage;
 in
 {
   flake.nixosModules.storage =

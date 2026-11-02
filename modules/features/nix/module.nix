@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  nix = config.flake.features.nix;
+  nix = config.ltp.features.nix;
 in
 {
   flake.nixosModules.nix =

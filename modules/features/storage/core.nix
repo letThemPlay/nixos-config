@@ -15,10 +15,10 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.features) diagnostics overrides;
+  inherit (config.ltp.features) diagnostics overrides;
 in
 {
-  flake.features.storage = lib.fix (storage: {
+  ltp.features.storage = lib.fix (storage: {
 
     types = import ./_domain/types.nix { inherit lib overrides; };
 

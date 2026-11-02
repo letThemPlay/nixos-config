@@ -13,10 +13,10 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.features) diagnostics overrides;
+  inherit (config.ltp.features) diagnostics overrides;
 in
 {
-  flake.features.network = lib.fix (network: {
+  ltp.features.network = lib.fix (network: {
 
     types = import ./_domain/types.nix { inherit lib overrides; };
 

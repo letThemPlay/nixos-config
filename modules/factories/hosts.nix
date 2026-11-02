@@ -6,13 +6,13 @@
 }:
 {
   #
-  # Turns one flake.hosts entry into a nixosConfiguration: every
+  # Turns one ltp.hosts entry into a nixosConfiguration: every
   # feature, the chosen bundles' settings, then the host's own module.
   #
-  config.flake.factory.host =
+  config.ltp.factory.host =
     hostName: host:
     let
-      bundleRegistry = config.flake.bundles;
+      bundleRegistry = config.ltp.bundles;
 
       unknownBundles = lib.subtractLists (builtins.attrNames bundleRegistry) host.bundles;
 

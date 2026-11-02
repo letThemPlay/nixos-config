@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  storage = config.flake.features.storage;
+  storage = config.ltp.features.storage;
 in
 {
   #
@@ -148,7 +148,7 @@ in
 
           description = ''
             Storage backend that renders the volumes (see
-            flake.features.storage.backends).
+            ltp.features.storage.backends).
           '';
         };
 

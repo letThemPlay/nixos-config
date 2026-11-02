@@ -14,10 +14,10 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.features) diagnostics overrides;
+  inherit (config.ltp.features) diagnostics overrides;
 in
 {
-  flake.features.apps = lib.fix (apps: {
+  ltp.features.apps = lib.fix (apps: {
 
     types = import ./_domain/types.nix { inherit lib overrides; };
 

@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  identity = config.flake.features.identity;
+  identity = config.ltp.features.identity;
 
   inherit (config.flake.nixosModules) identity-options;
 

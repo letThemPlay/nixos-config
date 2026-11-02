@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  network = config.flake.features.network;
+  network = config.ltp.features.network;
 in
 {
   #

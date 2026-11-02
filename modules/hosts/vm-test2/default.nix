@@ -1,7 +1,7 @@
 { config, ... }:
 {
   # QEMU/KVM test VM with the erase-on-boot storage layout.
-  flake.hosts.vm-test2 = {
+  ltp.hosts.vm-test2 = {
     system = "x86_64-linux";
     stateVersion = "26.05";
 

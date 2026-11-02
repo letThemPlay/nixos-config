@@ -1,6 +1,6 @@
 { config, inputs, ... }:
 let
-  theme = config.flake.features.theme;
+  theme = config.ltp.features.theme;
 in
 {
   #

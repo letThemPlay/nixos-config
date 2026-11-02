@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  locale = config.flake.features.locale;
+  locale = config.ltp.features.locale;
 in
 {
   # Options only.

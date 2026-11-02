@@ -7,7 +7,7 @@ in
   # The user catalogue: one flake-parts module per user under
   # modules/users/<name>/. Users merge, so any file may add to one.
   #
-  options.flake.users = mkOption {
+  options.ltp.users = mkOption {
     type = types.attrsOf (
       types.submodule {
         # Identity fields; ltp.identity checks them with its user type.

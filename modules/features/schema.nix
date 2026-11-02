@@ -3,7 +3,7 @@
   # flake.modules.<class>.<aspect>: deferred modules that files merge into.
   imports = [ inputs.flake-parts.flakeModules.modules ];
 
-  options.flake.features = lib.mkOption {
+  options.ltp.features = lib.mkOption {
     #
     # raw: values are stored untouched. `anything` would wrap functions
     # and merge their results, resolving mkIf/mkMerge returned by

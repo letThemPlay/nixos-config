@@ -3,7 +3,7 @@ let
   inherit (lib) mkOption types;
 in
 {
-  options.flake = {
+  options.ltp = {
 
     factory = mkOption {
       type = types.attrsOf types.unspecified;
@@ -32,13 +32,13 @@ in
             bundles = mkOption {
               type = types.listOf types.str;
               default = [ ];
-              description = "Bundles (flake.bundles) applied to the host.";
+              description = "Bundles (ltp.bundles) applied to the host.";
             };
 
             users = mkOption {
               type = types.listOf types.str;
               default = [ ];
-              description = "Users (flake.users) enabled on the host.";
+              description = "Users (ltp.users) enabled on the host.";
             };
 
             module = mkOption {

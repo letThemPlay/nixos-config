@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  network = config.flake.features.network;
+  network = config.ltp.features.network;
 
   inherit (config.flake.nixosModules) network-options;
 

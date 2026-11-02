@@ -11,10 +11,10 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.features) diagnostics;
+  inherit (config.ltp.features) diagnostics;
 in
 {
-  flake.features.hardware = lib.fix (hardware: {
+  ltp.features.hardware = lib.fix (hardware: {
 
     types = import ./_domain/types.nix { inherit lib; };
 

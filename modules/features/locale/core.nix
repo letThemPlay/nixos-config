@@ -10,10 +10,10 @@
 #
 { config, lib, ... }:
 let
-  inherit (config.flake.features) diagnostics;
+  inherit (config.ltp.features) diagnostics;
 in
 {
-  flake.features.locale = {
+  ltp.features.locale = {
 
     types = import ./_domain/types.nix { inherit lib; };
 

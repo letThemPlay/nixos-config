@@ -4,13 +4,13 @@
 #
 {
   config,
-  inputs,
+  features,
   lib,
   pkgs,
   ...
 }:
 let
-  flashgbxUsers = inputs.self.features.identity.query.withBundle config.ltp.identity.facts.users "flashgbx";
+  flashgbxUsers = features.identity.query.withBundle config.ltp.identity.facts.users "flashgbx";
 in
 {
   users.users = lib.mapAttrs (_: _: {

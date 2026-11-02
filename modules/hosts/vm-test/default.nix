@@ -1,7 +1,7 @@
 { config, ... }:
 {
   # QEMU/KVM test VM without managed storage.
-  flake.hosts.vm-test = {
+  ltp.hosts.vm-test = {
     system = "x86_64-linux";
     stateVersion = "26.05";
 

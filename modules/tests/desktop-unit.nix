@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  desktop = config.flake.features.desktop;
+  desktop = config.ltp.features.desktop;
 
   inherit (config.flake.nixosModules) desktop-options;
 
@@ -51,7 +51,7 @@ let
   bareValidate = import ../features/desktop/_usecases/validate.nix {
     inherit lib;
     desktop = bare;
-    inherit (config.flake.features) diagnostics;
+    inherit (config.ltp.features) diagnostics;
   };
 
   onBare =

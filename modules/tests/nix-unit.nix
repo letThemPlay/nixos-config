@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  nix = config.flake.features.nix;
+  nix = config.ltp.features.nix;
 
   inherit (config.flake.nixosModules) nix-options;
 

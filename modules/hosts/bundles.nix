@@ -3,7 +3,7 @@
 # feature is present on every host; a bundle decides what it does.
 #
 _: {
-  flake.bundles = {
+  ltp.bundles = {
 
     base = {
       description = "Every host's defaults: eza and zoxide.";
