@@ -27,35 +27,28 @@
 
       modules = [
         inputs.home-manager.nixosModules.home-manager
-        (_: {
-          nixpkgs.config.allowUnfreePredicate = _: true;
-        })
       ]
       # Every feature, then the settings of the chosen bundles.
       ++ [ config.flake.modules.nixos.features ]
       ++ resolvedBundles
       ++ [
-        (
-          { pkgs, ... }:
-          {
-            system.stateVersion = host.stateVersion;
-            networking.hostName = hostName;
-            networking.hostId = "deadbeef";
+        (_: {
+          system.stateVersion = host.stateVersion;
+          networking.hostName = hostName;
+          networking.hostId = host.hostId;
 
-            nixpkgs.hostPlatform = lib.mkDefault host.system;
+          nixpkgs.hostPlatform = lib.mkDefault host.system;
 
-            ltp.identity = {
-              users = lib.genAttrs host.users (_: {
-                enable = true;
-              });
+          ltp.identity = {
+            users = lib.genAttrs host.users (_: {
+              enable = true;
+            });
 
-              # User bundles are checked against every bundle name.
-              knownBundles = builtins.attrNames bundleRegistry;
-            };
+            # User bundles are checked against every bundle name.
+            knownBundles = builtins.attrNames bundleRegistry;
+          };
 
-            environment.systemPackages = [ pkgs.curl ];
-          }
-        )
+        })
         host.module
       ];
     };

@@ -1,16 +1,24 @@
 #
-# Host bundles: settings a datasheet's `bundles` list applies. Every
+# Host bundles: settings a host's `bundles` list applies. Every
 # feature is present on every host; a bundle decides what it does.
 #
 _: {
   ltp.bundles = {
 
     base = {
-      description = "Every host's defaults: eza and zoxide.";
-      module.ltp.apps.install = [
-        "eza"
-        "zoxide"
-      ];
+      description = "Every host's defaults: unfree packages allowed, curl, eza and zoxide.";
+      module =
+        { pkgs, ... }:
+        {
+          nixpkgs.config.allowUnfreePredicate = _: true;
+
+          environment.systemPackages = [ pkgs.curl ];
+
+          ltp.apps.install = [
+            "eza"
+            "zoxide"
+          ];
+        };
     };
 
     window-management = {

@@ -5,6 +5,9 @@
     system = "x86_64-linux";
     stateVersion = "26.05";
 
+    # Kept from before per-host IDs; change only together with ZFS pools.
+    hostId = "deadbeef";
+
     bundles = [
       "base"
       "vm"

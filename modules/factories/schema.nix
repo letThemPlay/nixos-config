@@ -17,44 +17,54 @@ in
     #
     hosts = mkOption {
       type = types.attrsOf (
-        types.submodule {
-          options = {
-            system = mkOption {
-              type = types.str;
-              example = "x86_64-linux";
-            };
+        types.submodule (
+          { name, ... }:
+          {
+            options = {
+              system = mkOption {
+                type = types.str;
+                example = "x86_64-linux";
+              };
 
-            stateVersion = mkOption {
-              type = types.str;
-              description = "The release the host was installed with; never change it later.";
-            };
+              hostId = mkOption {
+                type = types.strMatching "[0-9a-f]{8}";
+                default = builtins.substring 0 8 (builtins.hashString "sha256" name);
+                defaultText = lib.literalExpression "first 8 hex digits of sha256(host name)";
+                description = "networking.hostId: 8 hex digits, unique per machine.";
+              };
 
-            bundles = mkOption {
-              type = types.listOf types.str;
-              default = [ ];
-              description = "Bundles (ltp.bundles) applied to the host.";
-            };
+              stateVersion = mkOption {
+                type = types.str;
+                description = "The release the host was installed with; never change it later.";
+              };
 
-            users = mkOption {
-              type = types.listOf types.str;
-              default = [ ];
-              description = "Users (ltp.users) enabled on the host.";
-            };
+              bundles = mkOption {
+                type = types.listOf types.str;
+                default = [ ];
+                description = "Bundles (ltp.bundles) applied to the host.";
+              };
 
-            module = mkOption {
-              type = types.deferredModule;
-              default = { };
-              description = "The host's own NixOS settings: hardware profile and ltp.* options.";
+              users = mkOption {
+                type = types.listOf types.str;
+                default = [ ];
+                description = "Users (ltp.users) enabled on the host.";
+              };
+
+              module = mkOption {
+                type = types.deferredModule;
+                default = { };
+                description = "The host's own NixOS settings: hardware profile and ltp.* options.";
+              };
             };
-          };
-        }
+          }
+        )
       );
       default = { };
       description = "Hosts by host name.";
     };
 
     #
-    # The composition root: what a datasheet's `bundles` list picks
+    # The composition root: what a host's `bundles` list picks
     # from. Every feature is present on every host
     # (flake.modules.nixos.features); a bundle only holds settings.
     # Bundles merge, so any file may add to one.

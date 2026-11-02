@@ -35,7 +35,7 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 
 | Bundle | What it turns on |
 |---|---|
-| `base` | Every host's defaults: eza and zoxide. Every host needs it. |
+| `base` | Every host's defaults: unfree packages allowed, curl, eza and zoxide. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components. |
 | `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
@@ -215,6 +215,7 @@ Create `modules/hosts/<host>/default.nix`. It's a flake-parts module defining `l
 }
 ```
 
+- **`hostId`:** `networking.hostId` defaults to the first 8 hex digits of the host name's sha256. Set it only to keep an existing machine's ID.
 - **Bundles:** an unknown bundle stops the build and lists the known ones. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
 - **Merging:** hosts merge, so another file can add to one, for example `ltp.hosts.laptop-x1.module.ltp.locale.timeZone = "Europe/Paris";`.
 - **Shared settings:** settings several hosts share can be an aspect, `flake.modules.nixos.<name>`, imported in each host's `module`. The test VMs share `spice-display` this way (`modules/hosts/spice-display.nix`).
