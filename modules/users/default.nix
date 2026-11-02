@@ -1,26 +1,32 @@
 { config, findFilesWithExt, ... }:
+let
+  inherit (config.flake) users;
+in
 {
   #
-  # The user catalogue: each file in _users defines
-  # ltp.identity.users.<file name>. Hosts enable the users they have.
-  # A user's public OpenPGP keys are the .asc files in gpg/<user>/.
+  # Renders the user catalogue (flake.users) on every host: the
+  # identity data for ltp.identity, whose user type checks it, and each
+  # user's home module for the users the host enables. A user's public
+  # OpenPGP keys are the .asc files in modules/users/<name>/gpg/.
   #
   flake.nixosModules.users =
-    { lib, ... }:
+    { config, lib, ... }:
+    let
+      enabled = config.ltp.identity.facts.users;
+    in
     {
-      config.ltp.identity.users = lib.listToAttrs (
-        map (
-          file:
-          let
-            name = lib.removeSuffix ".nix" (baseNameOf file);
-          in
-          lib.nameValuePair name (
-            lib.mkMerge [
-              (import file)
-              { gpg.keys = findFilesWithExt "asc" (../../gpg + "/${name}"); }
-            ]
-          )
-        ) (findFilesWithExt "nix" ./_users)
+      ltp.identity.users = lib.mapAttrs (
+        name: user:
+        removeAttrs user [ "home" ]
+        // {
+          gpg = (user.gpg or { }) // {
+            keys = findFilesWithExt "asc" (./. + "/${name}/gpg");
+          };
+        }
+      ) users;
+
+      home-manager.users = lib.mapAttrs (_: user: { imports = [ user.home ]; }) (
+        lib.filterAttrs (name: _: enabled ? ${name}) users
       );
     };
 

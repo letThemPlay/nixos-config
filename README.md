@@ -5,7 +5,7 @@ A NixOS flake for a small fleet of machines, built with [flake-parts](https://fl
 - **Features** (`modules/features/<name>/`) own all host-facing configuration under `ltp.<name>`: storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets and apps. Each one validates its settings and reports problems as `ltp.<name> [code]: message`.
 - **Bundles** (`flake.bundles`, defined in `modules/hosts/bundles.nix`) are named sets of feature settings, for example `laptop` or `vm`. Every feature is present on every host; a bundle only decides what it does.
 - **Hosts** are short datasheets in `modules/hosts/_hosts/` that pick bundles and users. Per-host settings live beside them.
-- **Users** are plain files in `modules/users/_users/`, enabled per host.
+- **Users** are flake-parts modules in `modules/users/<name>/` defining `flake.users.<name>`, enabled per host.
 
 ---
 
@@ -20,10 +20,9 @@ modules/
     _hosts/_settings/     per-host ltp.* settings
     _hosts/_hardware/     per-host hardware profiles (loaded automatically by name)
     iso.nix               a minimal installer image
-  users/_users/<user>.nix user files
+  users/<name>/           a user: default.nix (flake.users.<name>) and gpg/*.asc keys
   factories/hosts.nix     turns a datasheet into a nixosConfiguration
   tests/                  unit tests and the storage VM test (nix flake check)
-gpg/<user>/*.asc          users' public OpenPGP keys
 secrets/                  agenix secrets, their recipients (secrets.nix) and keys (keys.nix)
 ```
 
@@ -216,28 +215,38 @@ git add modules/hosts
 
 ### 4.5 Users
 
-Users already in `modules/users/_users/` only need to be listed in the datasheet. A new user is a file named after the account:
+Users already in `modules/users/` only need to be listed in the datasheet. A new user is a folder named after the account, holding a flake-parts module that defines `flake.users.<name>`:
 
 ```nix
-# modules/users/_users/alice.nix
-{
-  fullName = "Alice";
-  email = "alice@example.org";     # used for git
-  admin = true;                    # wheel; gets root through sudo-rs
-  shell = "zsh";                   # zsh or bash
-  theme = "catppuccin";            # catppuccin or tokyonight
-  extraPackages = [ "firefox" ];   # package attribute names
-  bundles = [ "flashgbx" ];        # applied on hosts that include these bundles
+# modules/users/alice/default.nix
+_: {
+  flake.users.alice = {
+    fullName = "Alice";
+    email = "alice@example.org";     # used for git
+    admin = true;                    # wheel; gets root through sudo-rs
+    shell = "zsh";                   # zsh or bash
+    theme = "catppuccin";            # catppuccin or tokyonight
+    extraPackages = [ "firefox" ];   # package attribute names
+    bundles = [ "flashgbx" ];        # applied on hosts that include these bundles
 
-  # Optional OpenPGP; rendered only on hosts with the gpg bundle
-  gpg = {
-    signingKey = "0x0123456789ABCDEF";
-    smartcard = true;
+    # Optional OpenPGP; rendered only on hosts with the gpg bundle
+    gpg = {
+      signingKey = "0x0123456789ABCDEF";
+      smartcard = true;
+    };
+
+    # Optional home-manager settings for this user only
+    home = {
+      programs.git.settings.pull.rebase = true;
+    };
   };
 }
 ```
 
-Public keys go in `gpg/<user>/*.asc` and are imported with ultimate trust on hosts with the `gpg` bundle.
+- **Field checks:** the identity feature checks every field except `home`, so a misspelt field fails the build.
+- **`home`:** a home-manager module applied only on hosts that enable the user.
+- **Merging:** users merge, so another file can add to one, for example `flake.users.alice.home = { … };`.
+- **Public keys:** they go in `modules/users/<name>/gpg/*.asc` and are imported with ultimate trust on hosts with the `gpg` bundle.
 
 ### 4.6 Format with disko (modes A and B)
 

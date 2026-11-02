@@ -29,7 +29,7 @@ in
           default = { };
 
           description = ''
-            User catalogue, one entry per file in modules/users/_users.
+            User catalogue from flake.users (modules/users/<name>/).
             Hosts enable the users they have.
           '';
         };
