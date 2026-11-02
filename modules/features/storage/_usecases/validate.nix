@@ -25,15 +25,6 @@ let
     subtractLists
     ;
 
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
-
   requiredRoles =
     model:
 
@@ -308,5 +299,20 @@ rec {
     in
 
     combine validations;
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    requiredRoles
+    uniqueRoles
+    uniqueMountpoints
+    backend
+    layout
+    persistence
+    rollback
+    disk
+    state
+    all
+    ;
 }

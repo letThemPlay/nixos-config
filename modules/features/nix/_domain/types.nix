@@ -1,8 +1,6 @@
 { lib }:
 let
   inherit (lib) mkOption types;
-in
-rec {
 
   cache = types.submodule {
     options = {
@@ -77,5 +75,11 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    cache
+    gc
+    model
+    ;
 }

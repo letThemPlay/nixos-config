@@ -16,14 +16,6 @@ let
     filterAttrs
     mapAttrsToList
     ;
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   users =
     model:
@@ -45,5 +37,12 @@ rec {
     );
 
   all = model: combine [ (users model) ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    users
+    all
+    ;
 }

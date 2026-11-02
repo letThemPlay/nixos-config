@@ -32,14 +32,6 @@ let
         message
         ;
     };
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   busIds =
     model:
@@ -103,5 +95,14 @@ rec {
       (gpus model)
       (guest model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    busIds
+    gpus
+    guest
+    all
+    ;
 }

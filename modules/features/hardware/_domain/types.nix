@@ -1,8 +1,6 @@
 { lib }:
 let
   inherit (lib) mkOption types;
-in
-rec {
 
   vendor = types.enum [
     "amd"
@@ -81,5 +79,12 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    vendor
+    prime
+    gpu
+    model
+    ;
 }

@@ -33,14 +33,6 @@ let
   each =
     predicate: f: model:
     mapAttrsToList f (filterAttrs (_: predicate) model.roles);
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   roles =
     model:
@@ -128,5 +120,15 @@ rec {
       (terminal model)
       (dmenu model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    roles
+    terminal
+    installed
+    dmenu
+    all
+    ;
 }

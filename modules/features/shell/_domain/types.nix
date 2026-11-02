@@ -1,8 +1,6 @@
 { lib }:
 let
   inherit (lib) mkOption types;
-in
-rec {
 
   # A user's shell, resolved against the registry.
   userShell = types.submodule {
@@ -40,5 +38,10 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    userShell
+    model
+    ;
 }

@@ -1,8 +1,6 @@
 { lib }:
 let
   inherit (lib) mkOption types;
-in
-rec {
 
   #
   # The two keyboards are configured separately on purpose: the console
@@ -56,5 +54,11 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    sessionKeyboard
+    keyboard
+    model
+    ;
 }

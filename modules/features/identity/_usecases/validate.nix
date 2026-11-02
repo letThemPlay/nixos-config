@@ -51,14 +51,6 @@ let
           }
         ) (filter (value: !builtins.elem value known) (values user))
       ) (query.all model);
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   packages =
     model:
@@ -189,5 +181,16 @@ rec {
       (bundles model)
       (users model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    packages
+    bundles
+    users
+    gpg
+    escalation
+    all
+    ;
 }

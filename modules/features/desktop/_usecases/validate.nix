@@ -38,14 +38,6 @@ let
       (bind.action != null)
       (bind.app != null)
     ];
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   compositors =
     model:
@@ -312,5 +304,19 @@ rec {
       (binds model)
       (bar model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    compositors
+    binds
+    bar
+    windowRules
+    idle
+    greeter
+    requirements
+    components
+    all
+    ;
 }

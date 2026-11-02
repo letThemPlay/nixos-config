@@ -11,8 +11,6 @@ let
   kdlString = value: "\"${escape [ "\\" "\"" ] value}\"";
 
   kdlArgs = concatMapStringsSep " " kdlString;
-in
-rec {
 
   session = "niri";
 
@@ -185,5 +183,16 @@ rec {
       )}
       }
     '';
-
+in
+{
+  inherit
+    session
+    configFile
+    actions
+    widgets
+    ruleProperties
+    uwsm
+    system
+    render
+    ;
 }

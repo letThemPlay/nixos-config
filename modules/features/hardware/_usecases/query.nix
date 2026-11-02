@@ -3,8 +3,6 @@ let
   inherit (lib) attrValues filter;
 
   first = list: if list == [ ] then null else builtins.head list;
-in
-rec {
 
   all = model: attrValues model.gpus;
 
@@ -19,5 +17,14 @@ rec {
 
   # True when nvidia renders the display (no offload to an iGPU).
   nvidiaPrimary = model: nvidia model != [ ] && (model.prime.mode == "sync" || !model.prime.active);
-
+in
+{
+  inherit
+    all
+    integrated
+    nvidia
+    integratedGpu
+    nvidiaGpu
+    nvidiaPrimary
+    ;
 }

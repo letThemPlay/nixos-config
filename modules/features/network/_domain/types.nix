@@ -1,8 +1,6 @@
 { lib, overrides }:
 let
   inherit (lib) mapAttrs mkOption types;
-in
-rec {
 
   routing = types.enum [
     "none"
@@ -382,5 +380,19 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    routing
+    overlay
+    dnsOverTls
+    linkFields
+    linkDefaults
+    link
+    linkOverride
+    applyLinkOverride
+    profile
+    provider
+    model
+    ;
 }

@@ -38,14 +38,6 @@ let
   official = "https://cache.nixos.org";
 
   normalizeUrl = removeSuffix "/";
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   experimentalFeatures =
     model:
@@ -119,5 +111,15 @@ rec {
       (package model)
       (gc model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    experimentalFeatures
+    caches
+    package
+    gc
+    all
+    ;
 }

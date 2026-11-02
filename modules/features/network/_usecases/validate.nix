@@ -23,14 +23,6 @@ let
     ;
 
   supportedText = registry: concatStringsSep ", " (builtins.attrNames registry);
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   profile =
     model:
@@ -249,5 +241,16 @@ rec {
       (dns model)
       (overlay model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    profile
+    backend
+    links
+    dns
+    overlay
+    all
+    ;
 }

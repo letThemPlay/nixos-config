@@ -29,14 +29,6 @@ let
     mapAttrsToList (name: file: diagnostic code [ "files" name ] name (message name file)) (
       filterAttrs (_: predicate) model.files
     );
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   files =
     model:
@@ -81,5 +73,13 @@ rec {
       (files model)
       (host model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    files
+    host
+    all
+    ;
 }

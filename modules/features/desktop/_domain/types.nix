@@ -4,8 +4,6 @@
 }:
 let
   inherit (lib) mkOption types;
-in
-rec {
 
   # Valid compositors are the keys of the compositor registry.
   compositor = types.enum (builtins.attrNames desktop.compositors);
@@ -292,5 +290,18 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    compositor
+    bindFields
+    bind
+    modelBind
+    windowRule
+    idle
+    ruleProperties
+    service
+    bar
+    model
+    ;
 }

@@ -1,8 +1,6 @@
 { lib, overrides }:
 let
   inherit (lib) mapAttrs mkOption types;
-in
-rec {
 
   #
   # App fields, declared once. Catalogue entries set them; overrides
@@ -126,5 +124,15 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    appFields
+    appDefaults
+    override
+    applyOverride
+    role
+    installed
+    model
+    ;
 }

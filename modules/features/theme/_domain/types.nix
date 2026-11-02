@@ -41,10 +41,6 @@ let
       };
       default = { };
     };
-in
-rec {
-
-  inherit polarity;
 
   # A catalogue entry, one file per theme in _domain/themes.
   theme = types.submodule {
@@ -143,5 +139,13 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    polarity
+    theme
+    appearance
+    userTheme
+    model
+    ;
 }

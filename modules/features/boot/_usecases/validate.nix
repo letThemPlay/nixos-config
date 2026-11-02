@@ -13,14 +13,6 @@ let
   inherit (lib) concatStringsSep optional;
 
   supportedText = concatStringsSep ", " (builtins.attrNames boot.loaders);
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   loader =
     model:
@@ -78,5 +70,14 @@ rec {
       (secureBoot model)
       (tpmUnlock model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    loader
+    secureBoot
+    tpmUnlock
+    all
+    ;
 }

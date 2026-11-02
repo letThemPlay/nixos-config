@@ -1,8 +1,6 @@
 { lib }:
 let
   inherit (lib) mapAttrs mkOption types;
-in
-rec {
 
   #
   # User fields, declared once. `user` is the catalogue entry a user
@@ -221,5 +219,14 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    userFields
+    gpg
+    fieldOptions
+    user
+    modelUser
+    model
+    ;
 }

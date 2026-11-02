@@ -15,64 +15,69 @@ let
     groupBy
     mapAttrsToList
     ;
+
+  mkDiagnostic =
+    {
+      severity,
+      code,
+      target,
+      path ? [ ],
+      message,
+    }:
+    {
+      inherit
+        severity
+        code
+        target
+        path
+        message
+        ;
+    };
+
+  mkResult =
+    diagnostics:
+
+    let
+      errors = filter (d: d.severity == "error") diagnostics;
+
+      warnings = filter (d: d.severity == "warning") diagnostics;
+    in
+    {
+      ok = errors == [ ];
+
+      inherit
+        diagnostics
+        errors
+        warnings
+        ;
+
+      errorCount = builtins.length errors;
+      warningCount = builtins.length warnings;
+    };
+
+  # One result holding the diagnostics of several.
+  combine = results: mkResult (concatMap (result: result.diagnostics) results);
+
+  # Values that occur more than once.
+  duplicateStrings =
+    values:
+
+    assert builtins.all builtins.isString values;
+
+    let
+      grouped = groupBy (x: x) values;
+    in
+    flatten (
+      mapAttrsToList (value: members: if builtins.length members > 1 then [ value ] else [ ]) grouped
+    );
 in
 {
-  ltp.features.diagnostics = rec {
-
-    mkDiagnostic =
-      {
-        severity,
-        code,
-        target,
-        path ? [ ],
-        message,
-      }:
-      {
-        inherit
-          severity
-          code
-          target
-          path
-          message
-          ;
-      };
-
-    mkResult =
-      diagnostics:
-
-      let
-        errors = filter (d: d.severity == "error") diagnostics;
-
-        warnings = filter (d: d.severity == "warning") diagnostics;
-      in
-      {
-        ok = errors == [ ];
-
-        inherit
-          diagnostics
-          errors
-          warnings
-          ;
-
-        errorCount = builtins.length errors;
-        warningCount = builtins.length warnings;
-      };
-
-    # One result holding the diagnostics of several.
-    combine = results: mkResult (concatMap (result: result.diagnostics) results);
-
-    # Values that occur more than once.
-    duplicateStrings =
-      values:
-
-      assert builtins.all builtins.isString values;
-
-      let
-        grouped = groupBy (x: x) values;
-      in
-      flatten (
-        mapAttrsToList (value: members: if builtins.length members > 1 then [ value ] else [ ]) grouped
-      );
-
+  ltp.features.diagnostics = {
+    inherit
+      mkDiagnostic
+      mkResult
+      combine
+      duplicateStrings
+      ;
   };
 }

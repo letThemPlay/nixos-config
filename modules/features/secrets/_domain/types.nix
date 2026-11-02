@@ -1,8 +1,6 @@
 { lib }:
 let
   inherit (lib) mkOption types;
-in
-rec {
 
   file = types.submodule {
     options = {
@@ -87,5 +85,11 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    file
+    modelFile
+    model
+    ;
 }

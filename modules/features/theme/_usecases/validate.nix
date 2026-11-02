@@ -18,14 +18,6 @@ let
     ;
 
   knownText = concatStringsSep ", " (attrNames theme.themes);
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   users =
     model:
@@ -75,5 +67,13 @@ rec {
       (users model)
       (wallpapers model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    users
+    wallpapers
+    all
+    ;
 }

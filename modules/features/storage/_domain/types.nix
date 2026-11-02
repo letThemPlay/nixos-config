@@ -1,8 +1,7 @@
 { lib, overrides }:
 let
   inherit (lib) mapAttrs mkOption types;
-in
-rec {
+
   severity = types.enum [
     "error"
     "warning"
@@ -453,5 +452,18 @@ rec {
 
     };
   };
-
+in
+{
+  inherit
+    severity
+    volumeFields
+    volumeDefaults
+    volume
+    volumeOverride
+    applyVolumeOverride
+    persistenceEntry
+    persistence
+    layout
+    model
+    ;
 }

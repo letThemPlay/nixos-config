@@ -26,14 +26,6 @@ let
         message
         ;
     };
-in
-
-rec {
-
-  inherit
-    mkDiagnostic
-    mkResult
-    ;
 
   timeZone =
     model:
@@ -81,5 +73,14 @@ rec {
       (language model)
       (keyboard model)
     ];
-
+in
+{
+  inherit
+    mkDiagnostic
+    mkResult
+    timeZone
+    language
+    keyboard
+    all
+    ;
 }

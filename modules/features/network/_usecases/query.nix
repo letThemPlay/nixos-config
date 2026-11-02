@@ -8,9 +8,6 @@ let
     ;
 
   links = model: attrValues model.links;
-in
-
-rec {
 
   #
   # Primitive Queries
@@ -82,5 +79,20 @@ rec {
 
   # Name of the backend unit for a link.
   unitName = link: "${toString link.priority}-${link.id}";
-
+in
+{
+  inherit
+    all
+    ids
+    has
+    get
+    filter
+    enabled
+    byKind
+    wired
+    wireless
+    hasWireless
+    matchesGlob
+    unitName
+    ;
 }

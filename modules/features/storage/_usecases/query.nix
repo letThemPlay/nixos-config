@@ -14,10 +14,6 @@ let
   #
   volumes = model: attrValues model.volumes;
 
-in
-
-rec {
-
   #
   # Primitive Queries
   #
@@ -119,5 +115,27 @@ rec {
       inherit (model.platform) encryption;
     in
     if encryption.enable then encryption.label else null;
-
+in
+{
+  inherit
+    all
+    ids
+    count
+    has
+    get
+    filter
+    roles
+    byRole
+    byCategory
+    mountable
+    neededForBoot
+    snapshots
+    rollback
+    persistent
+    stateVolume
+    template
+    snapshotVolume
+    ephemeralRoot
+    luksName
+    ;
 }
