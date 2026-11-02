@@ -132,8 +132,6 @@ in
                     )
                   );
 
-                  boot.initrd.systemd.enable = true;
-
                   preservation = {
                     enable = preservation.preserveAt != { };
 

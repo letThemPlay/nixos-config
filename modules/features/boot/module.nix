@@ -96,8 +96,8 @@ in
 
           warnings = map format validation.warnings;
 
-          # Needed for TPM2 unlock and the storage rollback.
-          boot.initrd.systemd.enable = true;
+          # TPM2 unlock and the storage rollback rely on the systemd
+          # initrd, which NixOS now always uses.
         }
 
         #

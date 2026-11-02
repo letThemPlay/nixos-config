@@ -42,6 +42,13 @@ in
         { stylix.enable = false; }
 
         #
+        # rofi is not used, and stylix's rofi target still sets
+        # programs.rofi.font, which home-manager renamed (a warning on
+        # every user). Drop this once stylix catches up.
+        #
+        { ltp.theme.untargeted = [ "rofi" ]; }
+
+        #
         # Every user gets the stylix home module, themed or not: features
         # set stylix.targets.* for all users, and a user left without it
         # would turn a theme error into a missing-option crash.

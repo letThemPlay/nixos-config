@@ -40,6 +40,34 @@ in
         }).config.ltp.storage;
 
       disko = storage.backends.btrfs.disko { model = storage.normalize cfg; };
+
+      #
+      # disko's test library still reads boot.initrd.systemd.enable,
+      # which nixpkgs removed with the scripted initrd (systemd initrd is
+      # the only one). Patched until disko catches up; --replace-fail
+      # breaks the build once upstream changes these lines, as a
+      # reminder to drop this.
+      #
+      diskoPatched = pkgs.applyPatches {
+        name = "disko-systemd-initrd";
+        src = inputs.disko;
+        postPatch = ''
+          substituteInPlace lib/tests.nix \
+            --replace-fail 'lib.mkIf (!config.boot.initrd.systemd.enable)' 'lib.mkIf false' \
+            --replace-fail 'lib.mkIf config.boot.initrd.systemd.enable' 'lib.mkIf true' \
+            --replace-fail '../module.nix' '${inputs.disko}/module.nix'
+        '';
+      };
+
+      inherit
+        (import (diskoPatched + "/lib") {
+          inherit lib;
+          makeTest = import (inputs.nixpkgs + "/nixos/tests/make-test-python.nix");
+          eval-config = import (inputs.nixpkgs + "/nixos/lib/eval-config.nix");
+          qemu-common = import (inputs.nixpkgs + "/nixos/lib/qemu-common.nix");
+        })
+        testLib
+        ;
     in
     {
       #
@@ -49,7 +77,7 @@ in
       # Kept out of `checks` because it takes several minutes; run with
       #   nix build .#vmTests.storage
       #
-      legacyPackages.vmTests.storage = inputs.disko.lib.testLib.makeDiskoTest {
+      legacyPackages.vmTests.storage = testLib.makeDiskoTest {
         inherit pkgs;
 
         name = "storage";
