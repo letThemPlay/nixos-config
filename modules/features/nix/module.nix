@@ -26,7 +26,7 @@ in
 
       validation = nix.validate.all model;
 
-      rendered = nix.settings { inherit model; };
+      rendered = nix.nixConf { inherit model; };
 
       inherit (config.networking) hostName;
 

@@ -17,12 +17,15 @@ A NixOS flake for a small fleet of machines, built with [flake-parts](https://fl
 modules/
   features/<name>/        one feature: core, options.nix, module.nix and its rings
   hosts/
+    schema.nix            the ltp.hosts and ltp.bundles options
+    factory.nix           turns an ltp.hosts entry into a nixosConfiguration
+    configurations.nix    one nixosConfiguration per ltp.hosts entry
     bundles.nix           the bundles a host can pick (ltp.bundles)
+    shared/               aspects several hosts import (spice-display)
     <host>/default.nix    a host (ltp.hosts.<host>), with its settings
     <host>/_hardware.nix  its hardware profile
     iso.nix               a minimal installer image
   users/<name>/           a user: default.nix (ltp.users.<name>) and gpg/*.asc keys
-  factories/hosts.nix     turns an ltp.hosts entry into a nixosConfiguration
   tests/                  unit tests and the storage VM test (nix flake check)
 secrets/                  agenix secrets, their recipients (secrets.nix) and keys (keys.nix)
 ```
@@ -218,7 +221,7 @@ Create `modules/hosts/<host>/default.nix`. It's a flake-parts module defining `l
 - **`hostId`:** `networking.hostId` defaults to the first 8 hex digits of the host name's sha256. Set it only to keep an existing machine's ID.
 - **Bundles:** an unknown bundle stops the build and lists the known ones. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
 - **Merging:** hosts merge, so another file can add to one, for example `ltp.hosts.laptop-x1.module.ltp.locale.timeZone = "Europe/Paris";`.
-- **Shared settings:** settings several hosts share can be an aspect, `flake.modules.nixos.<name>`, imported in each host's `module`. The test VMs share `spice-display` this way (`modules/hosts/spice-display.nix`).
+- **Shared settings:** settings several hosts share can be an aspect, `flake.modules.nixos.<name>`, imported in each host's `module`. The test VMs share `spice-display` this way (`modules/hosts/shared/spice-display.nix`).
 
 Then make the new files visible to Nix:
 

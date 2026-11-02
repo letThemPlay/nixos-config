@@ -5,8 +5,9 @@
 #               vocabulary; default window-management binds
 #   _usecases/  normalize (host and component settings -> model),
 #               validate
-#   _adapters/  compositors/<name> (registry), waybar bar config,
-#               systemd user units
+#   _adapters/  compositors/<name> (registry), waybar-config (a bar's
+#               waybar config for one compositor), systemd user
+#               units
 #
 # options.nix and module.nix beside this file are the outer ring.
 # Components (bar, launcher, notifier, ...) are a registry in
@@ -25,9 +26,9 @@ in
 
     actions = import ./_domain/actions.nix { };
 
-    defaultBinds = import ./_domain/binds.nix { };
+    defaultBinds = import ./_domain/default-binds.nix { };
 
-    defaultWindowRules = import ./_domain/rules.nix { };
+    defaultWindowRules = import ./_domain/default-window-rules.nix { };
 
     normalize = import ./_usecases/normalize.nix { inherit lib desktop; };
 
@@ -99,7 +100,7 @@ in
       "--"
     ];
 
-    waybar = import ./_adapters/waybar.nix { inherit lib; };
+    waybarConfig = import ./_adapters/waybar-config.nix { inherit lib; };
 
     systemdUnits = import ./_adapters/systemd-units.nix { inherit lib desktop; };
 

@@ -18,7 +18,7 @@ let
   codes =
     settings: lib.sort lib.lessThan (map (d: d.code) (nix.validate.all (modelOf settings)).diagnostics);
 
-  settingsOf = settings: nix.settings { model = modelOf settings; };
+  settingsOf = settings: nix.nixConf { model = modelOf settings; };
 
   contractCases = [
     { }

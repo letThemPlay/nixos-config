@@ -15,7 +15,7 @@ in
 
       validation = locale.validate.all model;
 
-      settings = locale.nixos { inherit model; };
+      settings = locale.i18n { inherit model; };
 
       format = diagnostic: "ltp.locale [${diagnostic.code}]: ${diagnostic.message}";
 

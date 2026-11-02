@@ -5,7 +5,8 @@
 #               nix-ld libraries; the experimental features this
 #               repository needs
 #   _usecases/  normalize, validate
-#   _adapters/  model -> nix settings (plain data)
+#   _adapters/  nix-conf: model -> nix.conf, gc and nix-ld settings
+#               (plain data)
 #
 # options.nix and module.nix beside this file are the outer ring.
 #
@@ -22,13 +23,13 @@ in
 
     defaultLdLibraries = import ./_domain/ld-libraries.nix { };
 
-    requiredFeatures = import ./_domain/features.nix { };
+    requiredFeatures = import ./_domain/required-features.nix { };
 
     normalize = import ./_usecases/normalize.nix { inherit lib nix; };
 
     validate = import ./_usecases/validate.nix { inherit lib nix diagnostics; };
 
-    settings = import ./_adapters/settings.nix { inherit lib; };
+    nixConf = import ./_adapters/nix-conf.nix { inherit lib; };
 
   });
 

@@ -3,7 +3,8 @@
 #
 #   _domain/    entities: console and session keyboards, model
 #   _usecases/  normalize, validate (form only)
-#   _adapters/  model -> NixOS settings (plain data)
+#   _adapters/  i18n: model -> time, i18n, console and xkb settings
+#               (plain data)
 #
 # options.nix and module.nix beside this file are the outer ring. The
 # desktop feature reads the session keyboard from ltp.locale.
@@ -21,7 +22,7 @@ in
 
     validate = import ./_usecases/validate.nix { inherit lib diagnostics; };
 
-    nixos = import ./_adapters/nixos.nix { };
+    i18n = import ./_adapters/i18n.nix { };
 
   };
 

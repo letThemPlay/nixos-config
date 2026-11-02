@@ -422,7 +422,7 @@ let
     };
 
     testWaybarResolvesWidgets = {
-      expr = desktop.waybar {
+      expr = desktop.waybarConfig {
         model = modelOf {
           bar = {
             left = [

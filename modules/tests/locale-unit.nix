@@ -83,7 +83,7 @@ let
 
     # The console keymap and the session layout stay separate.
     testAdapter = {
-      expr = locale.nixos { model = modelOf { keyboard.session.variant = "extd"; }; };
+      expr = locale.i18n { model = modelOf { keyboard.session.variant = "extd"; }; };
       expected = {
         time.timeZone = "Europe/London";
         i18n.defaultLocale = "en_GB.UTF-8";

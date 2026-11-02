@@ -148,7 +148,7 @@ in
 
                   "waybar/${name}.json" = mkIf (barModules != [ ]) {
                     text = builtins.toJSON (
-                      desktop.waybar {
+                      desktop.waybarConfig {
                         inherit model;
                         compositor = entry;
                       }

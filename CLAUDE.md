@@ -17,7 +17,7 @@ A NixOS fleet flake in the dendritic flake-parts pattern, with clean-architectur
   - Other features are read only through `ltp.<x>.facts`.
 - **Composition:**
   - Every host imports every feature (`flake.modules.nixos.features`).
-  - Bundles (`modules/hosts/bundles.nix`, `ltp.bundles.<name> = { description; module; }`) hold settings only. Host policy goes in a bundle, never in the factory (`modules/factories/`).
+  - Bundles (`modules/hosts/bundles.nix`, `ltp.bundles.<name> = { description; module; }`) hold settings only. Host policy goes in a bundle, never in the factory (`modules/hosts/factory.nix`). Settings several hosts share are aspects in `modules/hosts/shared/` (`flake.modules.nixos.<name>`).
   - Hosts live in `modules/hosts/<host>/default.nix` as `ltp.hosts.<host> = { system; stateVersion; hostId; bundles; users; module; }`, with `_hardware.nix` beside it.
   - Users live in `modules/users/<name>/default.nix` as `ltp.users.<name>`. The `home` module holds home-manager settings, and `gpg/*.asc` holds public keys.
 - **Choosing an implementation:** a string checked against the core's registry (`backend`, `loader`, `compositors`, …), never an `enum`. Diagnostics read `ltp.<x> [<feature>.<path>.<problem>]: message`.
