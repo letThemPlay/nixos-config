@@ -602,6 +602,10 @@ Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `
 
 `types`, `normalize`, `query`, `validate`; registries are plural nouns of what they key (`backends`, `loaders`, `compositors`, `gpuVendors`); adapters are named after their target (`preservation`, `resolved`, `systemdUnits`). A core attribute never shares a name with an `ltp.<name>` option of a different meaning.
 
+### Style
+
+No `rec`. Define the members in a `let` and return them with `let … in { inherit …; }`; a core ties itself together with `lib.fix (<name>: { … })`, passing the named self to its rings. The `no-rec` pre-commit hook (also run by `nix flake check`) rejects `rec { … }`.
+
 ### Adding a feature
 
 1. Create `modules/features/<name>/` with `core.nix`, the rings, `options.nix` and `module.nix`.
