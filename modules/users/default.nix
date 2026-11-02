@@ -1,6 +1,7 @@
-{ config, findFilesWithExt, ... }:
+{ config, ... }:
 let
   inherit (config.ltp) users;
+  inherit (config.ltp.lib) findFilesWithExt;
 in
 {
   #

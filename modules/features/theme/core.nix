@@ -16,11 +16,11 @@
 {
   config,
   lib,
-  findFilesWithExt,
   ...
 }:
 let
   inherit (config.ltp.features) diagnostics;
+  inherit (config.ltp.lib) findFilesWithExt;
 in
 {
   ltp.features.theme = lib.fix (theme: {

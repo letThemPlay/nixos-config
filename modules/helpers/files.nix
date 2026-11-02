@@ -1,10 +1,17 @@
 #
-# Repository plumbing passed to every flake-parts module as an argument.
-# Not related to nixpkgs `lib`.
+# Repository plumbing shared by the flake-parts modules, as
+# config.ltp.lib. Not related to nixpkgs `lib`.
 #
 { lib, ... }:
-let
-  findFilesWithExt =
+{
+  options.ltp.lib = lib.mkOption {
+    type = lib.types.lazyAttrsOf lib.types.raw;
+    default = { };
+    description = "Helper functions for the flake-parts modules.";
+  };
+
+  # The files with extension `ext` directly in `dir`; empty if `dir` does not exist.
+  config.ltp.lib.findFilesWithExt =
     ext: dir:
     let
       suffix = ".${ext}";
@@ -16,9 +23,4 @@ let
       |> lib.mapAttrsToList (name: _: dir + "/${name}")
     else
       [ ];
-in
-{
-  _module.args = {
-    inherit findFilesWithExt;
-  };
 }
