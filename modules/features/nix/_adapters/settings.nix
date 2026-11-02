@@ -28,4 +28,11 @@ in
 
     options = "--delete-older-than ${model.gc.olderThan}";
   };
+
+  # Library paths; the module resolves them against pkgs.
+  ld = {
+    inherit (model.ld) enable;
+
+    libraries = map (library: library.path) model.ld.libraries;
+  };
 }

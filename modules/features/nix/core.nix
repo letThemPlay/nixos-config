@@ -1,8 +1,9 @@
 #
 # The nix core, laid out like the storage core:
 #
-#   _domain/    cache, gc and model types; default caches; the
-#               experimental features this repository needs
+#   _domain/    cache, gc, ld and model types; default caches and
+#               nix-ld libraries; the experimental features this
+#               repository needs
 #   _usecases/  normalize, validate
 #   _adapters/  model -> nix settings (plain data)
 #
@@ -19,9 +20,11 @@ in
 
     defaultCaches = import ./_domain/caches.nix { };
 
+    defaultLdLibraries = import ./_domain/ld-libraries.nix { };
+
     requiredFeatures = import ./_domain/features.nix { };
 
-    normalize = import ./_usecases/normalize.nix { inherit nix; };
+    normalize = import ./_usecases/normalize.nix { inherit lib nix; };
 
     validate = import ./_usecases/validate.nix { inherit lib nix diagnostics; };
 

@@ -61,6 +61,13 @@ in
 
           # The CLI for the cachix caches.
           environment.systemPackages = [ pkgs.cachix ];
+
+          # Added to NixOS's own base libraries.
+          programs.nix-ld = mkIf rendered.ld.enable {
+            enable = true;
+
+            libraries = map (path: lib.getAttrFromPath (packagePath path) pkgs) rendered.ld.libraries;
+          };
         })
 
         #

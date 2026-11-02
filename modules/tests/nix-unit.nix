@@ -32,6 +32,14 @@ let
         key = "example.cachix.org-1:AAAA=";
       };
     }
+    { ld.enable = true; }
+    {
+      ld = {
+        enable = true;
+        defaultLibraries = false;
+        libraries = [ "openal" ];
+      };
+    }
   ];
 
   tests = {
@@ -57,7 +65,67 @@ let
           dates = "weekly";
           options = "--delete-older-than 30d";
         };
+        ld = {
+          enable = false;
+          libraries = nix.defaultLdLibraries;
+        };
       };
+    };
+
+    # Added libraries follow the defaults, each once.
+    testLdLibraries = {
+      expr = {
+        added = (settingsOf { ld.libraries = [ "openal" ]; }).ld.libraries;
+        only =
+          (settingsOf {
+            ld = {
+              defaultLibraries = false;
+              libraries = [
+                "SDL2"
+                "openal"
+                "SDL2"
+              ];
+            };
+          }).ld.libraries;
+      };
+      expected = {
+        added = nix.defaultLdLibraries ++ [ "openal" ];
+        only = [
+          "SDL2"
+          "openal"
+        ];
+      };
+    };
+
+    # Unknown libraries are reported only when nix-ld is on.
+    testLdUnknown = {
+      expr =
+        map
+          (
+            enable:
+            map (d: d.code)
+              (nix.validate.all (
+                nix.normalize {
+                  cfg = evalCfg {
+                    package = "nix";
+                    ld = {
+                      inherit enable;
+                      defaultLibraries = false;
+                      libraries = [ "no-such-lib" ];
+                    };
+                  };
+                  hasPackage = path: path != "no-such-lib";
+                }
+              )).diagnostics
+          )
+          [
+            true
+            false
+          ];
+      expected = [
+        [ "nix.ld.library.unknown" ]
+        [ ]
+      ];
     };
 
     testDefaultsAreValid = {

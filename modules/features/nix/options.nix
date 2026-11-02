@@ -60,6 +60,12 @@ in
           description = "Periodic garbage collection.";
         };
 
+        ld = mkOption {
+          type = nix.types.ld;
+          default = { };
+          description = "nix-ld: run unpatched dynamically linked binaries.";
+        };
+
       };
     };
 }

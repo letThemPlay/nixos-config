@@ -44,6 +44,35 @@ let
     };
   };
 
+  ld = types.submodule {
+    options = {
+
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether nix-ld runs unpatched dynamically linked binaries.";
+      };
+
+      defaultLibraries = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Whether the default libraries (CLI and desktop) are offered.";
+      };
+
+      libraries = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        example = [ "openal" ];
+        description = ''
+          Further libraries, as pkgs attribute paths. NixOS's own base
+          set (zlib, openssl, curl, libstdc++, systemd, …) is always
+          offered.
+        '';
+      };
+
+    };
+  };
+
   model = types.submodule {
     options = {
 
@@ -73,6 +102,26 @@ let
         type = gc;
       };
 
+      ld = mkOption {
+        type = types.submodule {
+          options = {
+            enable = mkOption { type = types.bool; };
+
+            libraries = mkOption {
+              type = types.listOf (
+                types.submodule {
+                  options = {
+                    path = mkOption { type = types.str; };
+                    known = mkOption { type = types.bool; };
+                  };
+                }
+              );
+              description = "Defaults and added libraries, each once.";
+            };
+          };
+        };
+      };
+
     };
   };
 in
@@ -80,6 +129,7 @@ in
   inherit
     cache
     gc
+    ld
     model
     ;
 }

@@ -6,7 +6,7 @@ _: {
   ltp.bundles = {
 
     base = {
-      description = "Every host's defaults: unfree packages allowed, curl, eza and zoxide.";
+      description = "Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld.";
       module =
         { pkgs, ... }:
         {
@@ -14,10 +14,14 @@ _: {
 
           environment.systemPackages = [ pkgs.curl ];
 
-          ltp.apps.install = [
-            "eza"
-            "zoxide"
-          ];
+          ltp = {
+            nix.ld.enable = true;
+
+            apps.install = [
+              "eza"
+              "zoxide"
+            ];
+          };
         };
     };
 

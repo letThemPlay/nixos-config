@@ -103,6 +103,18 @@ let
       )
     );
 
+  ld =
+    model:
+    mkResult (
+      map (
+        library:
+        diagnostic "nix.ld.library.unknown" [
+          "ld"
+          "libraries"
+        ] library.path "nix-ld library '${library.path}' is not in pkgs."
+      ) (lib.filter (library: model.ld.enable && !library.known) model.ld.libraries)
+    );
+
   all =
     model:
     combine [
@@ -110,6 +122,7 @@ let
       (caches model)
       (package model)
       (gc model)
+      (ld model)
     ];
 in
 {
@@ -120,6 +133,7 @@ in
     caches
     package
     gc
+    ld
     all
     ;
 }

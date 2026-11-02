@@ -35,7 +35,7 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 
 | Bundle | What it turns on |
 |---|---|
-| `base` | Every host's defaults: unfree packages allowed, curl, eza and zoxide. Every host needs it. |
+| `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components. |
 | `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
@@ -228,7 +228,7 @@ git add modules/hosts
 
 ### 4.5 Users
 
-Users already in `modules/users/` only need to be listed in the host'"'"'s `users`. A new user is a folder named after the account, holding a flake-parts module that defines `ltp.users.<name>`:
+Users already in `modules/users/` only need to be listed in the host's `users`. A new user is a folder named after the account, holding a flake-parts module that defines `ltp.users.<name>`:
 
 ```nix
 # modules/users/alice/default.nix
@@ -451,8 +451,9 @@ Errors stop the build and warnings are printed. `nix flake check` runs every fea
 ## 🔁 Changing a running machine
 
 - **Rebuild:** `nrs` switches to the checkout's configuration, and `nrb` applies it at the next boot.
-- **Turn something on:** add a bundle to the host's `bundles`, or set the feature'"'"'s option in its `module`.
+- **Turn something on:** add a bundle to the host's `bundles`, or set the feature's option in its `module`.
 - **Keep extra state in mode A:** add it to `ltp.storage.persistence.policy`. Anything not preserved is gone after the next reboot, and the pre-rollback snapshots in `/.snapshots` are the way back.
+- **Run a prebuilt binary:** the base bundle turns on nix-ld, offering NixOS's base libraries plus common CLI and desktop ones (GTK, GL/Vulkan, X11/Wayland, audio, SDL2). Add more with `ltp.nix.ld.libraries = [ "openal" ];` (pkgs attribute paths); `ltp.nix.ld.defaultLibraries = false` keeps only NixOS's set. A missing library shows up as `error while loading shared libraries: <lib>.so`.
 - **Before pushing:** run `nix flake check`. It also runs the formatting and lint hooks used on commit.
 
 ---
@@ -470,7 +471,7 @@ On an erase-on-boot host `/etc` is rebuilt on every boot, so passwords set with 
 
 ### Set the initial password
 
-Every user listed in the host'"'"'s `users` needs a hash file **before the first boot**. Without one the user has no password and can't log in, and nothing warns about it at build time.
+Every user listed in the host's `users` needs a hash file **before the first boot**. Without one the user has no password and can't log in, and nothing warns about it at build time.
 
 **When:** during the install, after disko has mounted the disk under `/mnt` ([4.6](#46-format-with-disko-modes-a-and-b)) and before `nixos-install` ([4.7](#47-install)). The persist volume is then mounted at `/mnt/persist`.
 
@@ -478,7 +479,7 @@ Every user listed in the host'"'"'s `users` needs a hash file **before the first
 
 ```zsh
 sudo install -d -m 0700 /mnt/persist/secrets/passwords
-for user in kelvin; do            # every user in the host'"'"'s users
+for user in kelvin; do            # every user in the host's users
   mkpasswd -m yescrypt | sudo tee /mnt/persist/secrets/passwords/$user > /dev/null
   sudo chmod 0400 /mnt/persist/secrets/passwords/$user
 done
@@ -510,7 +511,7 @@ If a file was missed, follow [Locked out](#locked-out). For users added after th
 
 ### Add a user to an existing host
 
-1. Create the user file ([4.5](#45-users)) and add the user to the host'"'"'s `users` ([4.4](#44-host-module)).
+1. Create the user file ([4.5](#45-users)) and add the user to the host's `users` ([4.4](#44-host-module)).
 2. Write the hash **before** rebuilding. A user without a file has no password, and nothing warns about it at build time.
 
    ```zsh
@@ -535,7 +536,7 @@ sudo systemctl restart userborn   # or reboot
 
 ### Remove a user
 
-Take the user out of the host'"'"'s `users`, rebuild, then delete `/persist/secrets/passwords/<user>`. Their home in `/home/<user>` stays until you remove it.
+Take the user out of the host's `users`, rebuild, then delete `/persist/secrets/passwords/<user>`. Their home in `/home/<user>` stays until you remove it.
 
 ### Keep the hashes elsewhere
 
