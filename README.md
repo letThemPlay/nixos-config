@@ -3,7 +3,7 @@
 A NixOS flake for a small fleet of machines, built with [flake-parts](https://flake.parts) and [import-tree](https://github.com/denful/import-tree): every `.nix` file under `modules/` is loaded automatically, except paths starting with `_`.
 
 - **Features** (`modules/features/<name>/`) own all host-facing configuration under `ltp.<name>`: storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets and apps. Each one validates its settings and reports problems as `ltp.<name> [code]: message`.
-- **Bundles** (`modules/hosts/_bundles.nix`) group feature modules and settings, for example `laptop` or `vm`.
+- **Bundles** (`flake.bundles`, defined in `modules/hosts/bundles.nix`) are named sets of feature settings, for example `laptop` or `vm`. Every feature is present on every host; a bundle only decides what it does.
 - **Hosts** are short datasheets in `modules/hosts/_hosts/` that pick bundles and users. Per-host settings live beside them.
 - **Users** are plain files in `modules/users/_users/`, enabled per host.
 
@@ -15,7 +15,7 @@ A NixOS flake for a small fleet of machines, built with [flake-parts](https://fl
 modules/
   features/<name>/        one feature: core, options.nix, module.nix and its rings
   hosts/
-    _bundles.nix          the bundles a datasheet can pick
+    bundles.nix           the bundles a datasheet can pick (flake.bundles)
     _hosts/<host>.nix     host datasheets (found automatically)
     _hosts/_settings/     per-host ltp.* settings
     _hosts/_hardware/     per-host hardware profiles (loaded automatically by name)
@@ -31,9 +31,11 @@ secrets/                  agenix secrets, their recipients (secrets.nix) and key
 
 ## 🧩 Bundles
 
+Bundles are defined in `modules/hosts/bundles.nix` as `flake.bundles.<name> = { description; module; }`. A bundle holds settings only, and bundles merge, so another file can add to one.
+
 | Bundle | What it turns on |
 |---|---|
-| `base` | Every feature except the desktop, plus eza and zoxide. Every host needs it. |
+| `base` | Every host's defaults: eza and zoxide. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components. |
 | `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
@@ -581,6 +583,6 @@ Dependencies point inwards only: `_domain` ← `_usecases` ← `_adapters` ← `
 ### Adding a feature
 
 1. Create `modules/features/<name>/` with `core.nix`, the rings, `options.nix` and `module.nix`.
-2. Add `<name>-options` and `<name>` to the `base` bundle in `modules/hosts/_bundles.nix`.
+2. In its `core.nix`, add `<name>-options` and `<name>` to `flake.modules.nixos.features.imports`, so every host imports it. No bundle changes are needed.
 3. Add `modules/tests/<name>-unit.nix` with a model contract test (normalize output against `types.model`).
 4. Bundles and other features set the feature's options; they don't configure its targets directly.

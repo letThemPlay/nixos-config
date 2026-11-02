@@ -15,7 +15,7 @@
       extraModules ? [ ],
     }:
     let
-      bundleRegistry = import (inputs.self + "/modules/hosts/_bundles.nix") { };
+      bundleRegistry = config.flake.bundles;
 
       unknownBundles = lib.subtractLists (builtins.attrNames bundleRegistry) bundles;
 
@@ -23,7 +23,7 @@
         if unknownBundles != [ ] then
           throw "host '${hostName}': unknown bundles ${lib.concatStringsSep ", " unknownBundles} (known: ${lib.concatStringsSep ", " (builtins.attrNames bundleRegistry)})"
         else
-          bundles |> map (name: bundleRegistry.${name}) |> lib.flatten;
+          map (name: bundleRegistry.${name}.module) bundles;
 
       hardwarePath = inputs.self + "/modules/hosts/_hosts/_hardware/${hostName}.nix";
 
