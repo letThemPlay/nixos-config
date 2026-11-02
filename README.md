@@ -4,7 +4,7 @@ A NixOS flake for a small fleet of machines, built with [flake-parts](https://fl
 
 - **Features** (`modules/features/<name>/`) own all host-facing configuration under `ltp.<name>`: storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets and apps. Each one validates its settings and reports problems as `ltp.<name> [code]: message`.
 - **Bundles** (`flake.bundles`, defined in `modules/hosts/bundles.nix`) are named sets of feature settings, for example `laptop` or `vm`. Every feature is present on every host; a bundle only decides what it does.
-- **Hosts** are short datasheets in `modules/hosts/_hosts/` that pick bundles and users. Per-host settings live beside them.
+- **Hosts** are flake-parts modules in `modules/hosts/<host>/` defining `flake.hosts.<host>`: the bundles and users they pick, and their own settings and hardware profile.
 - **Users** are flake-parts modules in `modules/users/<name>/` defining `flake.users.<name>`, enabled per host.
 
 ---
@@ -15,13 +15,12 @@ A NixOS flake for a small fleet of machines, built with [flake-parts](https://fl
 modules/
   features/<name>/        one feature: core, options.nix, module.nix and its rings
   hosts/
-    bundles.nix           the bundles a datasheet can pick (flake.bundles)
-    _hosts/<host>.nix     host datasheets (found automatically)
-    _hosts/_settings/     per-host ltp.* settings
-    _hosts/_hardware/     per-host hardware profiles (loaded automatically by name)
+    bundles.nix           the bundles a host can pick (flake.bundles)
+    <host>/default.nix    a host (flake.hosts.<host>), with its settings
+    <host>/_hardware.nix  its hardware profile
     iso.nix               a minimal installer image
   users/<name>/           a user: default.nix (flake.users.<name>) and gpg/*.asc keys
-  factories/hosts.nix     turns a datasheet into a nixosConfiguration
+  factories/hosts.nix     turns a flake.hosts entry into a nixosConfiguration
   tests/                  unit tests and the storage VM test (nix flake check)
 secrets/                  agenix secrets, their recipients (secrets.nix) and keys (keys.nix)
 ```
@@ -89,13 +88,17 @@ All later commands run from this checkout. New files must be `git add`ed before 
 
 ### 4.2 Hardware profile
 
-The factory loads `modules/hosts/_hosts/_hardware/<host>.nix` automatically when it exists.
+Each host is a folder, `modules/hosts/<host>/`. The hardware profile goes in it as `_hardware.nix`. The leading `_` keeps import-tree from loading it as a flake-parts module, and the host module imports it (4.4).
+
+```zsh
+mkdir -p modules/hosts/<host>
+```
 
 **Modes A and B.** disko owns the file systems, so leave them out:
 
 ```zsh
 nixos-generate-config --no-filesystems --show-hardware-config \
-  > modules/hosts/_hosts/_hardware/<host>.nix
+  > modules/hosts/<host>/_hardware.nix
 ```
 
 If the file still declares `fileSystems."/"`, the build fails with a conflicting-definition error naming both files.
@@ -104,48 +107,44 @@ If the file still declares `fileSystems."/"`, the build fails with a conflicting
 
 ```zsh
 nixos-generate-config --root /mnt --show-hardware-config \
-  > modules/hosts/_hosts/_hardware/<host>.nix
+  > modules/hosts/<host>/_hardware.nix
 ```
 
-Machines with a [nixos-hardware](https://github.com/NixOS/nixos-hardware) profile can add it in the datasheet's `extraModules`, as theseus does with `framework-13-7040-amd`.
+Machines with a [nixos-hardware](https://github.com/NixOS/nixos-hardware) profile import it in the host module too, as theseus does with `framework-13-7040-amd`.
 
 ### 4.3 Host settings
 
-Put the host's `ltp.*` settings in `modules/hosts/_hosts/_settings/<host>.nix`. Pick the disk by a stable path (`ls -l /dev/disk/by-id`); a `/dev/sdX` or `/dev/vdX` name gives a warning.
+The host's `ltp.*` settings go in the `module` of its host module (4.4). The examples below show only that part. Pick the disk by a stable path (`ls -l /dev/disk/by-id`); a `/dev/sdX` or `/dev/vdX` name gives a warning.
 
 **Mode A: erase on boot.**
 
 ```nix
-_: {
-  ltp.storage = {
-    enable = true;
-    disk = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X000000A";
+module.ltp.storage = {
+  enable = true;
+  disk = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X000000A";
 
-    # Optional
-    encryption.enable = true;   # LUKS; disko asks for the passphrase
-    swap = {
-      enable = true;            # a swapfile on its own subvolume
-      size = "32G";
-    };
-
-    # Extra state to keep across reboots, on the persist volume
-    persistence.policy.persist.directories = [ "/var/lib/my-service" ];
+  # Optional
+  encryption.enable = true;   # LUKS; disko asks for the passphrase
+  swap = {
+    enable = true;            # a swapfile on its own subvolume
+    size = "32G";
   };
-}
+
+  # Extra state to keep across reboots, on the persist volume
+  persistence.policy.persist.directories = [ "/var/lib/my-service" ];
+};
 ```
 
 **Mode B: persistent root.** These are the mode A settings, plus two lines that turn off the rollback and the layout's preserved state:
 
 ```nix
-_: {
-  ltp.storage = {
-    enable = true;
-    disk = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X000000A";
+module.ltp.storage = {
+  enable = true;
+  disk = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X000000A";
 
-    volumes.root.rollback = false;     # keep / across reboots
-    persistence.defaultPolicy = false; # no layout state to preserve
-  };
-}
+  volumes.root.rollback = false;     # keep / across reboots
+  persistence.defaultPolicy = false; # no layout state to preserve
+};
 ```
 
 Features still keep their own few state files, such as the SSH host key and machine-id, on `/persist` and mount them in place. This is harmless with a persistent root.
@@ -155,57 +154,68 @@ Features still keep their own few state files, such as the SSH host key and mach
 **Other common settings** (all optional):
 
 ```nix
-_: {
-  ltp = {
-    network = {
-      profile = "laptop";          # wired (default) or laptop (wired + wireless)
-      dns.provider = "controld";   # cloudflare (default), nextdns or controld
-    };
+module.ltp = {
+  network = {
+    profile = "laptop";          # wired (default) or laptop (wired + wireless)
+    dns.provider = "controld";   # cloudflare (default), nextdns or controld
+  };
 
-    locale = {
-      timeZone = "Europe/London";
-      keyboard = {
-        console = "uk";            # the TTY keymap
-        session.layout = "gb";     # the desktop's XKB layout
+  locale = {
+    timeZone = "Europe/London";
+    keyboard = {
+      console = "uk";            # the TTY keymap
+      session.layout = "gb";     # the desktop's XKB layout
+    };
+  };
+
+  hardware.gpus = {
+    igpu = { vendor = "amd"; integrated = true; busId = "PCI:6:0:0"; };
+    dgpu = { vendor = "nvidia"; busId = "PCI:1:0:0"; };  # PRIME offload by default
+  };
+
+  theme.appearance.cursor.size = 32;
+};
+```
+
+### 4.4 Host module
+
+Create `modules/hosts/<host>/default.nix`. It's a flake-parts module defining `flake.hosts.<host>`, and every host becomes `nixosConfigurations.<host>`, so `flake.nix` does not change.
+
+```nix
+{ inputs, ... }:
+{
+  flake.hosts.laptop-x1 = {
+    system = "x86_64-linux";
+    stateVersion = "26.05";   # the release you install with; never change it later
+
+    bundles = [
+      "base"
+      "laptop"
+      "window-management"
+      "core-apps"
+    ];
+
+    users = [ "kelvin" ];
+
+    # The host's own NixOS settings: its hardware profile and ltp.* options (4.3)
+    module = {
+      imports = [
+        ./_hardware.nix
+        # inputs.nixos-hardware.nixosModules.<profile>
+      ];
+
+      ltp.storage = {
+        enable = true;
+        disk = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X000000A";
       };
     };
-
-    hardware.gpus = {
-      igpu = { vendor = "amd"; integrated = true; busId = "PCI:6:0:0"; };
-      dgpu = { vendor = "nvidia"; busId = "PCI:1:0:0"; };  # PRIME offload by default
-    };
-
-    theme.appearance.cursor.size = 32;
   };
 }
 ```
 
-### 4.4 Datasheet
-
-Create `modules/hosts/_hosts/<host>.nix`. Every datasheet in that directory becomes `nixosConfigurations.<hostName>`, so `flake.nix` does not change.
-
-```nix
-{ inputs, ... }: {
-  hostName = "laptop-x1";
-  architecture = "x86_64-linux";
-  stateVersion = "26.05";   # the release you install with; never change it later
-
-  bundles = [
-    "base"
-    "laptop"
-    "window-management"
-    "core-apps"
-  ];
-
-  users = [ "kelvin" ];
-
-  extraModules = [
-    (inputs.self + "/modules/hosts/_hosts/_settings/laptop-x1.nix")
-  ];
-}
-```
-
-An unknown bundle stops the build and lists the known ones. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
+- **Bundles:** an unknown bundle stops the build and lists the known ones. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
+- **Merging:** hosts merge, so another file can add to one, for example `flake.hosts.laptop-x1.module.ltp.locale.timeZone = "Europe/Paris";`.
+- **Shared settings:** settings several hosts share can be an aspect, `flake.modules.nixos.<name>`, imported in each host's `module`. The test VMs share `spice-display` this way (`modules/hosts/spice-display.nix`).
 
 Then make the new files visible to Nix:
 
@@ -215,7 +225,7 @@ git add modules/hosts
 
 ### 4.5 Users
 
-Users already in `modules/users/` only need to be listed in the datasheet. A new user is a folder named after the account, holding a flake-parts module that defines `flake.users.<name>`:
+Users already in `modules/users/` only need to be listed in the host'"'"'s `users`. A new user is a folder named after the account, holding a flake-parts module that defines `flake.users.<name>`:
 
 ```nix
 # modules/users/alice/default.nix
@@ -394,7 +404,7 @@ Reboot into the new system.
    cd secrets && agenix -r
    ```
 
-4. Add the bundles that use them, such as `tailscale`, to the datasheet.
+4. Add the bundles that use them, such as `tailscale`, to the host's `bundles`.
 
 A host that uses a secret not encrypted for it fails with `ltp.secrets [secrets.recipient.missing]`, and a host missing from `keys.nix` fails with `secrets.host.unknown`.
 
@@ -438,7 +448,7 @@ Errors stop the build and warnings are printed. `nix flake check` runs every fea
 ## 🔁 Changing a running machine
 
 - **Rebuild:** `nrs` switches to the checkout's configuration, and `nrb` applies it at the next boot.
-- **Turn something on:** add a bundle to the datasheet, or set the feature's option in `_settings/<host>.nix`.
+- **Turn something on:** add a bundle to the host's `bundles`, or set the feature'"'"'s option in its `module`.
 - **Keep extra state in mode A:** add it to `ltp.storage.persistence.policy`. Anything not preserved is gone after the next reboot, and the pre-rollback snapshots in `/.snapshots` are the way back.
 - **Before pushing:** run `nix flake check`. It also runs the formatting and lint hooks used on commit.
 
@@ -457,7 +467,7 @@ On an erase-on-boot host `/etc` is rebuilt on every boot, so passwords set with 
 
 ### Set the initial password
 
-Every user listed in the datasheet needs a hash file **before the first boot**. Without one the user has no password and can't log in, and nothing warns about it at build time.
+Every user listed in the host'"'"'s `users` needs a hash file **before the first boot**. Without one the user has no password and can't log in, and nothing warns about it at build time.
 
 **When:** during the install, after disko has mounted the disk under `/mnt` ([4.6](#46-format-with-disko-modes-a-and-b)) and before `nixos-install` ([4.7](#47-install)). The persist volume is then mounted at `/mnt/persist`.
 
@@ -465,7 +475,7 @@ Every user listed in the datasheet needs a hash file **before the first boot**. 
 
 ```zsh
 sudo install -d -m 0700 /mnt/persist/secrets/passwords
-for user in kelvin; do            # every user in the datasheet
+for user in kelvin; do            # every user in the host'"'"'s users
   mkpasswd -m yescrypt | sudo tee /mnt/persist/secrets/passwords/$user > /dev/null
   sudo chmod 0400 /mnt/persist/secrets/passwords/$user
 done
@@ -497,7 +507,7 @@ If a file was missed, follow [Locked out](#locked-out). For users added after th
 
 ### Add a user to an existing host
 
-1. Create the user file ([4.5](#45-users)) and add the user to the datasheet's `users` ([4.4](#44-datasheet)).
+1. Create the user file ([4.5](#45-users)) and add the user to the host'"'"'s `users` ([4.4](#44-host-module)).
 2. Write the hash **before** rebuilding. A user without a file has no password, and nothing warns about it at build time.
 
    ```zsh
@@ -522,7 +532,7 @@ sudo systemctl restart userborn   # or reboot
 
 ### Remove a user
 
-Take the user out of the datasheet, rebuild, then delete `/persist/secrets/passwords/<user>`. Their home in `/home/<user>` stays until you remove it.
+Take the user out of the host'"'"'s `users`, rebuild, then delete `/persist/secrets/passwords/<user>`. Their home in `/home/<user>` stays until you remove it.
 
 ### Keep the hashes elsewhere
 

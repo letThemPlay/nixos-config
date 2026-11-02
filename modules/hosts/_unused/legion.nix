@@ -1,3 +1,7 @@
+#
+# Hardware profile of a Lenovo Legion that has no host yet. Kept for
+# when it joins: move it to modules/hosts/<name>/_hardware.nix.
+#
 {
   config,
   lib,

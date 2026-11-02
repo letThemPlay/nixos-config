@@ -1,16 +1,17 @@
 {
+  config,
   inputs,
   ...
 }:
 {
-  flake = _: {
+  flake = {
     nixosConfigurations = {
       iso = inputs.nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-          inputs.self.nixosModules.nix-options
-          inputs.self.nixosModules.nix
+          config.flake.nixosModules.nix-options
+          config.flake.nixosModules.nix
           ({ pkgs, ... }: {
             environment.systemPackages = with pkgs; [
               git

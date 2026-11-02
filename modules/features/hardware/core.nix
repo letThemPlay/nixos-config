@@ -7,7 +7,7 @@
 #               graphics, audio, bluetooth
 #
 # options.nix and module.nix beside this file are the outer ring. Generated
-# hardware files (nixos-generate-config) stay in hosts/_hosts/_hardware.
+# hardware files (nixos-generate-config) stay in hosts/<name>/_hardware.nix.
 #
 { config, lib, ... }:
 let

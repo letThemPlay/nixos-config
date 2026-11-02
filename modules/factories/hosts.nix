@@ -5,33 +5,26 @@
   ...
 }:
 {
+  #
+  # Turns one flake.hosts entry into a nixosConfiguration: every
+  # feature, the chosen bundles' settings, then the host's own module.
+  #
   config.flake.factory.host =
-    {
-      hostName,
-      architecture,
-      stateVersion,
-      bundles ? [ ],
-      users ? [ ],
-      extraModules ? [ ],
-    }:
+    hostName: host:
     let
       bundleRegistry = config.flake.bundles;
 
-      unknownBundles = lib.subtractLists (builtins.attrNames bundleRegistry) bundles;
+      unknownBundles = lib.subtractLists (builtins.attrNames bundleRegistry) host.bundles;
 
       resolvedBundles =
         if unknownBundles != [ ] then
           throw "host '${hostName}': unknown bundles ${lib.concatStringsSep ", " unknownBundles} (known: ${lib.concatStringsSep ", " (builtins.attrNames bundleRegistry)})"
         else
-          map (name: bundleRegistry.${name}.module) bundles;
-
-      hardwarePath = inputs.self + "/modules/hosts/_hosts/_hardware/${hostName}.nix";
-
-      resolvedHardware = if builtins.pathExists hardwarePath then import hardwarePath else { };
-
+          map (name: bundleRegistry.${name}.module) host.bundles;
     in
     inputs.nixpkgs.lib.nixosSystem {
-      system = architecture;
+      inherit (host) system;
+
       modules = [
         inputs.home-manager.nixosModules.home-manager
         (_: {
@@ -42,26 +35,28 @@
       ++ [ config.flake.modules.nixos.features ]
       ++ resolvedBundles
       ++ [
-        resolvedHardware
-        ({ pkgs, ... }: {
-          system.stateVersion = stateVersion;
-          networking.hostName = hostName;
-          networking.hostId = "deadbeef";
+        (
+          { pkgs, ... }:
+          {
+            system.stateVersion = host.stateVersion;
+            networking.hostName = hostName;
+            networking.hostId = "deadbeef";
 
-          nixpkgs.hostPlatform = lib.mkDefault architecture;
+            nixpkgs.hostPlatform = lib.mkDefault host.system;
 
-          ltp.identity = {
-            users = lib.genAttrs users (_: {
-              enable = true;
-            });
+            ltp.identity = {
+              users = lib.genAttrs host.users (_: {
+                enable = true;
+              });
 
-            # User bundles are checked against every bundle name.
-            knownBundles = builtins.attrNames bundleRegistry;
-          };
+              # User bundles are checked against every bundle name.
+              knownBundles = builtins.attrNames bundleRegistry;
+            };
 
-          environment.systemPackages = [ pkgs.curl ];
-        })
-      ]
-      ++ extraModules;
+            environment.systemPackages = [ pkgs.curl ];
+          }
+        )
+        host.module
+      ];
     };
 }
