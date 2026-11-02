@@ -63,4 +63,10 @@ in
     resolved = import ./_adapters/resolved.nix { };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.network-options
+    config.flake.nixosModules.network
+  ];
 }

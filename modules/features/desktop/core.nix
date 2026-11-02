@@ -104,4 +104,10 @@ in
     systemdUnits = import ./_adapters/systemd-units.nix { inherit lib desktop; };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.desktop-options
+    config.flake.nixosModules.desktop
+  ];
 }

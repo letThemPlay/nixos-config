@@ -48,4 +48,10 @@ in
     preservation = import ./_adapters/preservation.nix { inherit lib; };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.storage-options
+    config.flake.nixosModules.storage
+  ];
 }

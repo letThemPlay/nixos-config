@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   lib,
   ...
@@ -14,7 +15,7 @@
       extraModules ? [ ],
     }:
     let
-      bundleRegistry = import (inputs.self + "/modules/hosts/_bundles.nix") { inherit inputs; };
+      bundleRegistry = import (inputs.self + "/modules/hosts/_bundles.nix") { };
 
       unknownBundles = lib.subtractLists (builtins.attrNames bundleRegistry) bundles;
 
@@ -37,6 +38,8 @@
           nixpkgs.config.allowUnfreePredicate = _: true;
         })
       ]
+      # Every feature, then the settings of the chosen bundles.
+      ++ [ config.flake.modules.nixos.features ]
       ++ resolvedBundles
       ++ [
         resolvedHardware

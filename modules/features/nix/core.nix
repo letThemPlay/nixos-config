@@ -28,4 +28,10 @@ in
     settings = import ./_adapters/settings.nix { inherit lib; };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.nix-options
+    config.flake.nixosModules.nix
+  ];
 }

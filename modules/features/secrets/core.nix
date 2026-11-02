@@ -32,4 +32,10 @@ in
     agenix = import ./_adapters/agenix.nix { inherit lib; };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.secrets-options
+    config.flake.nixosModules.secrets
+  ];
 }

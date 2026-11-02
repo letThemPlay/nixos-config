@@ -43,4 +43,11 @@ in
     stylix = import ./_adapters/stylix.nix { inherit lib; };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.theme-options
+    config.flake.nixosModules.theme
+    config.flake.nixosModules.theme-stylix
+  ];
 }

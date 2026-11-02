@@ -1,4 +1,4 @@
-{ findFilesWithExt, ... }:
+{ config, findFilesWithExt, ... }:
 {
   #
   # The user catalogue: each file in _users defines
@@ -23,4 +23,7 @@
         ) (findFilesWithExt "nix" ./_users)
       );
     };
+
+  # Present on every host; the datasheet enables the users it has.
+  flake.modules.nixos.features.imports = [ config.flake.nixosModules.users ];
 }

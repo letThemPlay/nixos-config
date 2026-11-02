@@ -45,4 +45,10 @@ in
     bluetooth = import ./_adapters/bluetooth.nix { };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.hardware-options
+    config.flake.nixosModules.hardware
+  ];
 }

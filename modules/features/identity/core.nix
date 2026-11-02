@@ -45,4 +45,11 @@ in
     };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.identity-options
+    config.flake.nixosModules.identity
+    config.flake.nixosModules.identity-home
+  ];
 }

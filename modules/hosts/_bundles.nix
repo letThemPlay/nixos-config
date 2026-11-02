@@ -1,10 +1,9 @@
 #
 # Host bundles: what a datasheet's `bundles` list picks from. Each
-# bundle is a list of modules, mostly feature settings; base and
-# window-management import the feature modules themselves.
+# bundle is a list of feature settings. Every feature is present on
+# every host (flake.modules.nixos.features).
 #
-{ inputs }:
-{
+_: {
   # Joins the overlay; its tags, routing and auth key secret are
   # ltp.network.overlay options.
   tailscale = [ { ltp.network.overlay.enable = true; } ];
@@ -19,29 +18,6 @@
   flashgbx = [ { ltp.apps.install = [ "flashgbx" ]; } ];
 
   base = [
-    inputs.self.nixosModules.boot
-    inputs.self.nixosModules.boot-options
-    inputs.self.nixosModules.nix-options
-    inputs.self.nixosModules.nix
-    inputs.self.nixosModules.locale-options
-    inputs.self.nixosModules.locale
-    inputs.self.nixosModules.hardware-options
-    inputs.self.nixosModules.hardware
-    inputs.self.nixosModules.network
-    inputs.self.nixosModules.network-options
-    inputs.self.nixosModules.identity-options
-    inputs.self.nixosModules.identity
-    inputs.self.nixosModules.identity-home
-    inputs.self.nixosModules.users
-    inputs.self.nixosModules.theme-options
-    inputs.self.nixosModules.theme
-    inputs.self.nixosModules.theme-stylix
-    inputs.self.nixosModules.secrets-options
-    inputs.self.nixosModules.secrets
-    inputs.self.nixosModules.apps-options
-    inputs.self.nixosModules.apps
-    inputs.self.nixosModules.shell-options
-    inputs.self.nixosModules.shell
     {
       ltp.apps.install = [
         "eza"
@@ -49,8 +25,6 @@
       ];
     }
 
-    inputs.self.nixosModules.storage
-    inputs.self.nixosModules.storage-options
   ];
 
   laptop = [
@@ -76,8 +50,7 @@
   ];
 
   window-management = [
-    inputs.self.nixosModules.desktop-options
-    inputs.self.nixosModules.desktop
+    { ltp.desktop.enable = true; }
   ];
 
   core-apps = [

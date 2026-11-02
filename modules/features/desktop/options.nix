@@ -17,11 +17,12 @@ in
 
         enable = mkOption {
           type = types.bool;
-          default = true;
+          default = false;
 
           description = ''
             Whether the desktop feature configures the graphical
-            session.
+            session. Off by default; the window-management bundle
+            turns it on.
           '';
         };
 

@@ -46,4 +46,10 @@ in
     tpm = import ./_adapters/tpm.nix { };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.boot-options
+    config.flake.nixosModules.boot
+  ];
 }

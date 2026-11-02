@@ -1,5 +1,8 @@
-{ lib, ... }:
+{ inputs, lib, ... }:
 {
+  # flake.modules.<class>.<aspect>: deferred modules that files merge into.
+  imports = [ inputs.flake-parts.flakeModules.modules ];
+
   options.flake.features = lib.mkOption {
     #
     # raw: values are stored untouched. `anything` would wrap functions

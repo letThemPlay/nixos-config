@@ -24,4 +24,10 @@ in
     nixos = import ./_adapters/nixos.nix { };
 
   };
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.locale-options
+    config.flake.nixosModules.locale
+  ];
 }

@@ -37,4 +37,10 @@ in
     };
 
   });
+
+  # Present on every host; bundles and host settings decide what it does.
+  flake.modules.nixos.features.imports = [
+    config.flake.nixosModules.shell-options
+    config.flake.nixosModules.shell
+  ];
 }
