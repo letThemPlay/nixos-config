@@ -69,4 +69,4 @@ The hosts are `theseus`, `vm-test` and `vm-test2`, plus `iso`.
   - `ltp.theme.untargeted = [ "rofi" ]` in `modules/features/theme/stylix.nix`.
 - **Hardware profile:** `modules/hosts/_unused/legion.nix` is kept on purpose.
 - **`hostId`:** existing hosts pin `hostId = "deadbeef"`; new hosts derive it from their name.
-- **Pushing:** only on request: `git push origin nvidia`.
+- **Pushing:** only on request: `git push origin`.
