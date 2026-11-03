@@ -16,12 +16,17 @@ let
   supportedLayoutVersions = [ 1 ];
 
   inherit (lib)
+    attrNames
     concatLists
     filter
+    filterAttrs
     map
     hasPrefix
     mapAttrsToList
     optional
+    optionalAttrs
+    optionals
+    stringLength
     subtractLists
     ;
 
@@ -249,8 +254,12 @@ let
       device = model.platform.disk;
     in
 
+    #
+    # With labels the installed system never reads the disk path; only
+    # disko does, while formatting.
+    #
     mkResult (
-      optional (!hasPrefix "/dev/disk/by-" device) (mkDiagnostic {
+      optional (!model.platform.labels.enable && !hasPrefix "/dev/disk/by-" device) (mkDiagnostic {
         severity = "warning";
         code = "storage.disk.unstable";
         target = device;
@@ -260,6 +269,56 @@ let
         ];
         message = "Disk '${device}' is not a stable /dev/disk/by-* path.";
       })
+    );
+
+  #
+  # vfat labels hold at most 11 characters, and an empty label leaves
+  # nothing under /dev/disk/by-label to mount.
+  #
+  labels =
+    model:
+
+    let
+      inherit (model.platform) encryption;
+
+      inherit (model.platform.labels) enable boot root;
+
+      named = {
+        inherit boot root;
+      }
+      // optionalAttrs encryption.enable { encryption = encryption.label; };
+
+      empty = attrNames (filterAttrs (_: label: label == "") named);
+    in
+
+    mkResult (
+      optional (enable && stringLength boot > 11) (mkDiagnostic {
+        severity = "error";
+        code = "storage.labels.boot.length";
+        target = boot;
+        path = [
+          "platform"
+          "labels"
+          "boot"
+        ];
+        message = "Boot label '${boot}' is longer than vfat's 11 characters.";
+      })
+      ++ optionals enable (
+        map (
+          name:
+          mkDiagnostic {
+            severity = "error";
+            code = "storage.labels.empty";
+            target = name;
+            path = [
+              "platform"
+              "labels"
+              name
+            ];
+            message = "The ${name} label is empty.";
+          }
+        ) empty
+      )
     );
 
   #
@@ -294,6 +353,7 @@ let
         (persistence model)
         (rollback model)
         (disk model)
+        (labels model)
         (state model)
       ];
     in
@@ -312,6 +372,7 @@ in
     persistence
     rollback
     disk
+    labels
     state
     all
     ;

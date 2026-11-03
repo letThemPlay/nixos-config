@@ -82,7 +82,13 @@ let
       volumes.persist.role = "other";
       persistence.state.directories = [ "/var/lib/feature" ];
     }
+    labelled
   ];
+
+  labelled = {
+    labels.enable = true;
+    encryption.enable = true;
+  };
 
   tests = pkgs: {
 
@@ -393,6 +399,102 @@ let
           disk = lib.mkForce "/dev/vda";
         })).warnings != [ ];
       expected = true;
+    };
+
+    #
+    # labels
+    #
+
+    testLabelsOffByDefault = {
+      expr =
+        let
+          disko = diskoOf { };
+        in
+        {
+          inherit (disko) mounts luksDevice;
+          inherit ((modelOf { }).platform.labels) enable;
+        };
+      expected = {
+        mounts = { };
+        luksDevice = null;
+        enable = false;
+      };
+    };
+
+    testLabelsInDisko = {
+      expr =
+        let
+          disko = diskoOf labelled;
+
+          partitions = disko.devices.disk.main.content.partitions;
+
+          luks = partitions.root.content;
+        in
+        {
+          esp = partitions.ESP.content.extraArgs;
+          luks = luks.extraFormatArgs;
+          btrfs = luks.content.extraArgs;
+          inherit (disko) rootDevice luksDevice;
+          root = disko.mounts."/";
+          boot = disko.mounts."/boot";
+        };
+      expected = {
+        esp = [
+          "-n"
+          "BOOT"
+        ];
+        luks = [
+          "--label"
+          "cryptroot"
+        ];
+        btrfs = [
+          "-f"
+          "-L"
+          "nixos"
+        ];
+        rootDevice = "/dev/disk/by-label/nixos";
+        luksDevice = "/dev/disk/by-label/cryptroot";
+        root = "/dev/disk/by-label/nixos";
+        boot = "/dev/disk/by-label/BOOT";
+      };
+    };
+
+    testLabelsMountEveryMountedVolume = {
+      expr = lib.sort lib.lessThan (builtins.attrNames (diskoOf labelled).mounts);
+      expected = lib.sort lib.lessThan (
+        [ "/boot" ]
+        ++ map (subvolume: subvolume.mountpoint) (
+          builtins.filter (subvolume: subvolume ? mountpoint) (builtins.attrValues (subvolumesOf labelled))
+        )
+      );
+    };
+
+    testLabelsUnencryptedNoLuksDevice = {
+      expr = (diskoOf { labels.enable = true; }).luksDevice;
+      expected = null;
+    };
+
+    testBootLabelTooLong = {
+      expr = codes (lib.recursiveUpdate labelled { labels.boot = "MUCHTOOLONGLABEL"; });
+      expected = [ "storage.labels.boot.length" ];
+    };
+
+    testEmptyLabels = {
+      expr = codes (
+        lib.recursiveUpdate labelled {
+          labels.root = "";
+          encryption.label = "";
+        }
+      );
+      expected = [
+        "storage.labels.empty"
+        "storage.labels.empty"
+      ];
+    };
+
+    testLabelsSilenceUnstableDisk = {
+      expr = codes (labelled // { disk = lib.mkForce "/dev/nvme0n1"; });
+      expected = [ ];
     };
 
     testUnknownLayout = {

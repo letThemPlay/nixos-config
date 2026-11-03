@@ -446,7 +446,7 @@ let
 
         description = ''
           Device-level settings consumed by renderers:
-          disk, boot, swap, encryption and filesystem.
+          disk, boot, swap, encryption, labels and filesystem.
         '';
       };
 

@@ -85,6 +85,39 @@ in
         };
 
         #
+        # Labels decouple the installed system from the disk's name:
+        # disko writes them while formatting and every mount, the LUKS
+        # unlock and the rollback then find their device by label. The
+        # disk path is then only read by disko, so a plain /dev/nvme0n1
+        # is fine.
+        #
+        labels = {
+
+          enable = mkEnableOption "filesystem labels written by disko and used for mounting";
+
+          boot = mkOption {
+            type = types.str;
+            default = "BOOT";
+
+            description = ''
+              Label of the EFI system partition's vfat filesystem, at
+              most 11 characters.
+            '';
+          };
+
+          root = mkOption {
+            type = types.str;
+            default = "nixos";
+
+            description = ''
+              Label of the btrfs filesystem. The LUKS header, when
+              encrypted, is labelled with encryption.label.
+            '';
+          };
+
+        };
+
+        #
         # Read-only facts derived from the model, published for other
         # features. They depend only on volumes and platform settings,
         # never on persistence, so features may use them in conditions

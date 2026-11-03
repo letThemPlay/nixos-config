@@ -16,7 +16,9 @@ in
       inherit (lib)
         filter
         listToAttrs
+        mapAttrs
         mapAttrsToList
+        mkForce
         mkIf
         mkMerge
         nameValuePair
@@ -48,6 +50,17 @@ in
         in
         mkIf (model.backend == name) {
           disko.devices = disko.devices;
+
+          #
+          # Mounting by label: disko's generated devices are the
+          # partlabels it formats through, so the label paths replace
+          # them here. Both are empty without labels.
+          #
+          fileSystems = mapAttrs (_: device: { device = mkForce device; }) disko.mounts;
+
+          boot.initrd.luks.devices = mkIf (disko.luksDevice != null) {
+            ${model.platform.encryption.label}.device = mkForce disko.luksDevice;
+          };
 
           boot.initrd.systemd = {
             storePaths = mkIf rollback.active [ rollback.script ];

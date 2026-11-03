@@ -140,6 +140,17 @@ module.ltp.storage = {
 };
 ```
 
+**Mounting by label** (modes A and B, optional). With `labels.enable = true`, disko labels the filesystems while formatting: the ESP `BOOT` (`labels.boot`, at most 11 characters), the btrfs filesystem `nixos` (`labels.root`) and the LUKS header `encryption.label`. The installed system then mounts, unlocks and rolls back through `/dev/disk/by-label/…`, so `disk` is only read while formatting and a plain `/dev/nvme0n1` is fine. Check the result with `nix eval --json .#nixosConfigurations.<host>.config.fileSystems --apply 'builtins.mapAttrs (_: f: f.device)'`.
+
+```nix
+module.ltp.storage = {
+  enable = true;
+  disk = "/dev/nvme0n1";      # only read by disko
+  labels.enable = true;
+  encryption.enable = true;
+};
+```
+
 **Mode B: persistent root.** These are the mode A settings, plus two lines that turn off the rollback and the layout's preserved state:
 
 ```nix

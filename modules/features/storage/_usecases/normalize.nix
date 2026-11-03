@@ -116,6 +116,7 @@ in
       disk
       boot
       swap
+      labels
       encryption
       filesystem
       ;
