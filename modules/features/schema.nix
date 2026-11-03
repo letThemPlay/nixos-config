@@ -1,0 +1,18 @@
+{ inputs, lib, ... }:
+{
+  # flake.modules.<class>.<aspect>: deferred modules that files merge into.
+  imports = [ inputs.flake-parts.flakeModules.modules ];
+
+  options.ltp.features = lib.mkOption {
+    #
+    # raw: values are stored untouched. `anything` would wrap functions
+    # and merge their results, resolving mkIf/mkMerge returned by
+    # core functions at call time instead of in the consumer.
+    #
+    type = lib.types.lazyAttrsOf lib.types.raw;
+
+    default = { };
+
+    description = "Feature cores and their shared kernel, one definition per attribute.";
+  };
+}

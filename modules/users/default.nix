@@ -1,21 +1,36 @@
-{ inputs, findFilesWithExt, ... }: {
+{ config, ... }:
+let
+  inherit (config.ltp) users;
+  inherit (config.ltp.lib) findFilesWithExt;
+in
+{
+  #
+  # Renders the user catalogue (ltp.users) on every host: the
+  # identity data for ltp.identity, whose user type checks it, and each
+  # user's home module for the users the host enables. A user's public
+  # OpenPGP keys are the .asc files in modules/users/<name>/gpg/.
+  #
   flake.nixosModules.users =
-    {
-      lib,
-      ...
-    }:
+    { config, lib, ... }:
     let
-      inherit (inputs) self;
-
-      userFiles = findFilesWithExt "nix" ./_users;
+      enabled = config.ltp.identity.facts.users;
     in
     {
-      imports = lib.forEach userFiles (
-        file:
-        let
-          userData = import file;
-        in
-        self.factory.user userData
+      ltp.identity.users = lib.mapAttrs (
+        name: user:
+        removeAttrs user [ "home" ]
+        // {
+          gpg = (user.gpg or { }) // {
+            keys = findFilesWithExt "asc" (./. + "/${name}/gpg");
+          };
+        }
+      ) users;
+
+      home-manager.users = lib.mapAttrs (_: user: { imports = [ user.home ]; }) (
+        lib.filterAttrs (name: _: enabled ? ${name}) users
       );
     };
+
+  # Present on every host; the datasheet enables the users it has.
+  flake.modules.nixos.features.imports = [ config.flake.nixosModules.users ];
 }
