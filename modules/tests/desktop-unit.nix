@@ -421,6 +421,12 @@ let
       ]) desktop.compositors;
     };
 
+    # Without it niri sets no DISPLAY and X11 applications cannot start.
+    testNiriProvidesXwayland = {
+      expr = builtins.elem "xwayland-satellite" desktop.compositors.niri.system.packages;
+      expected = true;
+    };
+
     testWaybarResolvesWidgets = {
       expr = desktop.waybarConfig {
         model = modelOf {

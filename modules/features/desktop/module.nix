@@ -138,6 +138,8 @@ in
 
             security.pam.services.login.enableGnomeKeyring = mkIf entry.system.keyring true;
 
+            environment.systemPackages = map (package: pkgs.${package}) entry.system.packages;
+
             home-manager.sharedModules = [
               {
                 xdg.configFile = {

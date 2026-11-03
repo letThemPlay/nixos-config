@@ -72,6 +72,10 @@ let
     package = "niri";
     portals = [ "xdg-desktop-portal-gnome" ];
     keyring = true;
+
+    # niri has no X server of its own: it starts xwayland-satellite on
+    # demand and only sets DISPLAY when it finds it on PATH.
+    packages = [ "xwayland-satellite" ];
   };
 
   render =
