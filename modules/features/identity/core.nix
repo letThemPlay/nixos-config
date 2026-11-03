@@ -5,7 +5,7 @@
 #   _usecases/  normalize (host settings + storage facts -> model),
 #               query, validate
 #   _adapters/  model -> accounts, ephemeral-root identity, home-manager,
-#               OpenPGP (gpg, gpg-agent, ssh)
+#               OpenPGP (gpg, gpg-agent, ssh), user directories
 #
 # options.nix, module.nix and home.nix beside this file are the outer ring.
 #
@@ -33,6 +33,8 @@ in
     home = import ./_adapters/home.nix { inherit lib; };
 
     gpg = import ./_adapters/gpg.nix { inherit lib; };
+
+    userDirs = import ./_adapters/user-dirs.nix { inherit lib; };
 
     #
     # Privilege escalation registry, keyed like ltp.identity.escalation.

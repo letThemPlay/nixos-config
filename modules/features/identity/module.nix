@@ -60,7 +60,7 @@ in
         # Published on every host, like the storage facts.
         {
           ltp.identity.facts = {
-            inherit (model) users gpg;
+            inherit (model) users gpg userDirs;
           };
         }
 

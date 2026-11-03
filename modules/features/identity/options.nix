@@ -65,6 +65,16 @@ in
           '';
         };
 
+        userDirs.enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            Whether this host creates the standard home folders
+            (Documents, Music, Pictures and so on) for every user and
+            records them in user-dirs.dirs.
+          '';
+        };
+
         knownBundles = mkOption {
           type = types.nullOr (types.listOf types.str);
           default = null;
@@ -76,20 +86,30 @@ in
           '';
         };
 
-        facts.gpg = mkOption {
-          type = types.bool;
-          readOnly = true;
-          description = "Whether this host renders the users' OpenPGP setup.";
-        };
+        facts = {
 
-        facts.users = mkOption {
-          type = types.attrsOf identity.types.modelUser;
-          readOnly = true;
+          gpg = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether this host renders the users' OpenPGP setup.";
+          };
 
-          description = ''
-            Users enabled on this host, normalized. Features read users
-            from here.
-          '';
+          userDirs = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether this host creates the users' standard home folders.";
+          };
+
+          users = mkOption {
+            type = types.attrsOf identity.types.modelUser;
+            readOnly = true;
+
+            description = ''
+              Users enabled on this host, normalized. Features read users
+              from here.
+            '';
+          };
+
         };
 
       };

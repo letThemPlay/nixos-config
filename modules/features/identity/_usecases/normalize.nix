@@ -76,6 +76,8 @@ in
 
   gpg = cfg.gpg.enable;
 
+  userDirs = cfg.userDirs.enable;
+
   escalation = {
     name = cfg.escalation;
     known = cfg.escalation == null || identity.escalations ? ${cfg.escalation};

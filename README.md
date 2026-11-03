@@ -39,7 +39,7 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 | Bundle | What it turns on |
 |---|---|
 | `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
-| `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components. |
+| `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components, and the users' standard home folders. |
 | `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
 | `core-apps` | git, with the users' identity, signing and the git aliases. |
