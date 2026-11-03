@@ -1,6 +1,12 @@
 # The bar's style: its own CSS on the theme's base16 colours (the
 # theme does not style waybar; see ltp.theme.untargeted).
-{ config, ... }: {
+{
+  config,
+  lib,
+  osConfig,
+  ...
+}:
+{
   programs.waybar.style = ''
     /* 👑 THE NATIVE STYLIX BASE16 VARIABLE INJECTION MAP:
        We explicitly pull your machine's cryptographically secure colors straight from 
@@ -50,6 +56,15 @@
         font-size: 12px;
         padding: 5px;
     }
+
+    ${lib.optionalString (osConfig.ltp.desktop.bar.center == [ ]) ''
+      /* Waybar draws the center box even with no modules in it, and GTK
+         CSS has no :empty, so an unused box loses its pill here. */
+      .modules-center {
+          background-color: transparent;
+          padding: 0;
+      }
+    ''}
 
     /* 🏷️ Workspace Navigation Module Layout Styling */
     #workspaces button {
