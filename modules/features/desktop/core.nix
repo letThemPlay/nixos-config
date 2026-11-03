@@ -45,7 +45,7 @@ in
     #   ruleProperties : window rule properties it can render
     #   uwsm       : { prettyName; comment; binPath; extraArgs; } for its
     #                uwsm session
-    #   system     : { package; portals; keyring; } as names
+    #   system     : { package; portals; keyring; packages; } as names
     #   render     : { model, spawnPrefix } -> config text
     #
     compositors = {
