@@ -33,7 +33,7 @@ A NixOS fleet flake in the dendritic flake-parts pattern, with clean-architectur
 | `nix develop` | dev shell; installs the commit hooks (rerun after changing `modules/development/git-hooks.nix`) |
 | `nrs` / `nrb` | `nixos-rebuild switch` / `boot` for the current host |
 
-The hosts are `theseus`, `vm-test` and `vm-test2`, plus `iso`.
+The hosts are `theseus`, `legion`, `vm-test` and `vm-test2`, plus `iso`.
 
 ## Testing
 
@@ -41,7 +41,7 @@ The hosts are `theseus`, `vm-test` and `vm-test2`, plus `iso`.
   - Settings are evaluated against `<x>-options` alone, with no NixOS.
   - Always include a model contract test: the `normalize` output checked against `types.model`.
   - Error cases check diagnostic codes, not message text.
-- **Refactors must leave hosts unchanged:** compare the toplevel `drvPath` for all four hosts before and after. Identical paths mean nothing changed.
+- **Refactors must leave hosts unchanged:** compare the toplevel `drvPath` for every host before and after. Identical paths mean nothing changed.
 - **After `nix flake update`:** evaluate every host and read its warnings. Temporary upstream workarounds must fail loudly once upstream changes, like the `--replace-fail` in `modules/tests/storage-vm.nix`.
 - **For scratch experiments** (a second file extending a host, negative checks), use a throwaway `git worktree` and remove it afterwards. New files must be `git add`ed before flake evaluation sees them.
 
