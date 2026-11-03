@@ -30,6 +30,10 @@ in
         graphical = options ? ltp.desktop && config.ltp.desktop.enable;
       };
 
+      userDirs = identity.userDirs {
+        model.users = facts.users;
+      };
+
       #
       # facts.users is published before validation; an unknown package
       # is reported by the identity assertion, not a missing attribute.
@@ -70,6 +74,13 @@ in
                 settings.gpg-tty.header = ''Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"'';
               };
             }) gpg.users;
+          })
+
+          # Standard home folders only on hosts that opt in (ltp.identity.userDirs.enable).
+          (lib.mkIf facts.userDirs {
+            home-manager.users = lib.mapAttrs (_: user: {
+              xdg.userDirs = user;
+            }) userDirs.users;
           })
 
         ]

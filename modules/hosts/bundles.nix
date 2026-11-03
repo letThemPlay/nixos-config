@@ -26,8 +26,11 @@ _: {
     };
 
     window-management = {
-      description = "The desktop: niri, the greeter, the bar and the other desktop components.";
-      module.ltp.desktop.enable = true;
+      description = "The desktop: niri, the greeter, the bar and the other desktop components, and the users' standard home folders.";
+      module.ltp = {
+        desktop.enable = true;
+        identity.userDirs.enable = true;
+      };
     };
 
     laptop = {

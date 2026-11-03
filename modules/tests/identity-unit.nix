@@ -64,6 +64,7 @@ let
     { }
     (withAlice { admin = true; })
     ((withAlice { admin = true; }) // { escalation = null; })
+    ((withAlice { }) // { userDirs.enable = true; })
     {
       users = {
         inherit alice;
@@ -415,6 +416,42 @@ let
         smartcard = true;
         none = { };
       };
+    };
+
+    # A host opts in, and then every enabled user gets the folders.
+    testUserDirs = {
+      expr = {
+        byDefault = (modelOf { }).userDirs;
+        optedIn = (modelOf { userDirs.enable = true; }).userDirs;
+        rendered =
+          (identity.userDirs {
+            model = modelOf {
+              userDirs.enable = true;
+              users = {
+                inherit alice;
+                bob = alice;
+                carol = alice // {
+                  enable = false;
+                };
+              };
+            };
+          }).users;
+      };
+      expected =
+        let
+          folders = {
+            enable = true;
+            createDirectories = true;
+          };
+        in
+        {
+          byDefault = false;
+          optedIn = true;
+          rendered = {
+            alice = folders;
+            bob = folders;
+          };
+        };
     };
 
     testModelContract = {

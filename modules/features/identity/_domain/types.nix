@@ -183,6 +183,11 @@ let
         description = "Whether this host renders the users' OpenPGP setup.";
       };
 
+      userDirs = mkOption {
+        type = types.bool;
+        description = "Whether this host creates the users' standard home folders.";
+      };
+
       ephemeral = mkOption {
         type = types.bool;
         description = "Whether / and /etc are recreated on every boot.";
