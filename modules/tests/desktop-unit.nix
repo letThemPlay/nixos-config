@@ -243,6 +243,7 @@ let
             components = {
               bar = "quickshell";
               locker = "quickshell";
+              polkit = "quickshell";
               power = "quickshell";
             };
           }).ui.surfaces;
@@ -252,6 +253,7 @@ let
         selected = [
           "bar"
           "locker"
+          "polkit"
           "power"
         ];
       };

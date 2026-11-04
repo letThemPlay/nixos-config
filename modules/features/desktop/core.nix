@@ -88,6 +88,7 @@ in
         quickshell = ./_components/locker/quickshell.nix;
       };
       power.quickshell = ./_components/power/quickshell.nix;
+      polkit.quickshell = ./_components/polkit/quickshell.nix;
       clipboard = {
         cliphist = ./_components/clipboard/cliphist.nix;
         quickshell = ./_components/clipboard/quickshell.nix;
@@ -105,6 +106,7 @@ in
       notifier = "mako";
       locker = "hyprlock";
       power = null;
+      polkit = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";

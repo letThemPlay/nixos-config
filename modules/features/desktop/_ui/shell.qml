@@ -5,6 +5,7 @@ import qs.common
 import qs.bar
 import qs.launcher
 import qs.notifications
+import qs.polkit
 import qs.power
 
 // The unified shell. Surfaces the host did not select are never created.
@@ -49,5 +50,11 @@ ShellRoot {
     active: root.has("power")
 
     PowerMenu {}
+  }
+
+  LazyLoader {
+    active: root.has("polkit")
+
+    Polkit {}
   }
 }

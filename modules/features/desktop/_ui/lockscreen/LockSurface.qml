@@ -68,86 +68,27 @@ Rectangle {
       }
     }
 
-    Panel {
+    PasswordField {
       id: field
 
-      property real shake: 0
-
       anchors.horizontalCenter: parent.horizontalCenter
-      implicitWidth: Theme.sizeSidePanel
-      implicitHeight: Theme.sizeField
-      radius: Theme.radiusLg
-      border.width: 2
-      border.color: {
-        if (root.context.failed) return Theme.danger;
-        return input.activeFocus ? Theme.accent : Qt.alpha(Theme.outline, 0.5);
+      text: root.context.password
+      busy: root.context.checking
+      failed: root.context.failed
+      placeholder: {
+        if (root.context.checking) return "Checking";
+        return root.context.failed ? "Wrong password" : "Password";
       }
 
-      transform: Translate {
-        x: field.shake
-      }
-
-      SequentialAnimation {
-        id: shaking
-
-        NumberAnimation { target: field; property: "shake"; to: -Theme.spaceSm; duration: Theme.motionFast / 2 }
-        NumberAnimation { target: field; property: "shake"; to: Theme.spaceSm; duration: Theme.motionFast / 2 }
-        NumberAnimation { target: field; property: "shake"; to: 0; duration: Theme.motionFast / 2 }
-      }
+      onEdited: root.context.password = text
+      onAccepted: root.context.submit()
+      Component.onCompleted: takeFocus()
 
       Connections {
         target: root.context
 
         function onFailedChanged() {
-          if (root.context.failed) shaking.restart();
-        }
-      }
-
-      Icon {
-        id: icon
-
-        anchors.left: parent.left
-        anchors.leftMargin: Theme.spaceLg
-        anchors.verticalCenter: parent.verticalCenter
-        name: "lock"
-        size: Theme.iconMedium
-        color: Theme.muted
-      }
-
-      TextInput {
-        id: input
-
-        anchors.left: icon.right
-        anchors.right: parent.right
-        anchors.leftMargin: Theme.spaceMd
-        anchors.rightMargin: Theme.spaceLg
-        anchors.verticalCenter: parent.verticalCenter
-
-        focus: true
-        enabled: !root.context.checking
-        echoMode: TextInput.Password
-        passwordCharacter: "•"
-        inputMethodHints: Qt.ImhSensitiveData
-        text: root.context.password
-        color: Theme.text
-        selectionColor: Theme.accent
-        selectedTextColor: Theme.accentText
-        font.family: Theme.fontFamily
-        font.pointSize: Theme.fontTitle
-
-        onTextEdited: root.context.password = text
-        onAccepted: root.context.submit()
-        Component.onCompleted: forceActiveFocus()
-
-        Label {
-          anchors.fill: parent
-          visible: input.text === ""
-          text: {
-            if (root.context.checking) return "Checking";
-            return root.context.failed ? "Wrong password" : "Password";
-          }
-          size: Theme.fontTitle
-          color: root.context.failed ? Theme.danger : Theme.muted
+          if (root.context.failed) field.shake();
         }
       }
     }
