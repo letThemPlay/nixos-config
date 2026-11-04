@@ -176,8 +176,8 @@ let
         };
         radius = {
           sm = 4;
-          md = 8;
-          lg = 16;
+          md = 6;
+          lg = 8;
         };
         motion = {
           fast = 100;

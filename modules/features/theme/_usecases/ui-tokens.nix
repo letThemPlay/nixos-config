@@ -31,8 +31,8 @@ in
 
   radius = {
     sm = ui.radius / 2;
-    md = ui.radius;
-    lg = ui.radius * 2;
+    md = ui.radius * 4 / 5;
+    lg = ui.radius;
   };
 
   size = {

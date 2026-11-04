@@ -289,10 +289,12 @@ let
           ''readonly property color background: "#aaaa00"''
           ''readonly property color danger: "#aaaa08"''
           "readonly property int spaceMd: 12"
-          "readonly property int radiusMd: 12"
+          "readonly property int radiusLg: 10"
+          "readonly property int radiusMd: 8"
           ''readonly property string iconFont: "Material Symbols Rounded"''
         ];
         expected = [
+          true
           true
           true
           true
