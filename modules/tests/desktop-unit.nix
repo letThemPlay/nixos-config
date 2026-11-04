@@ -349,6 +349,7 @@ let
             components = {
               bar = "quickshell";
               batteryAlerts = "quickshell";
+              dock = "quickshell";
               locker = "quickshell";
               osd = "quickshell";
               polkit = "quickshell";
@@ -362,6 +363,7 @@ let
         selected = [
           "bar"
           "batteryAlerts"
+          "dock"
           "locker"
           "osd"
           "polkit"
@@ -483,6 +485,7 @@ let
     # A bind that pokes the shell must name a target it actually handles.
     testShellBindTargetsExist = {
       expr = map (target: lib.any (file: lib.hasInfix ''target: "${target}"'' (uiFile file)) uiFiles) [
+        "dock"
         "launcher"
         "notifications"
         "osd"
@@ -497,7 +500,58 @@ let
         true
         true
         true
+        true
       ];
+    };
+
+    # The dock pins the roles in use unless told otherwise, as Quickshell's IDs.
+    testDockApps = {
+      expr = {
+        none = (modelOf { }).dockApps;
+        roles =
+          (normalizeWith {
+            cfg = evalCfg { };
+            apps = {
+              terminal.desktopEntry = "Alacritty.desktop";
+              browser.desktopEntry = "firefox.desktop";
+              fileManager.desktopEntry = null;
+            };
+          }).dockApps;
+        chosen =
+          (modelOf {
+            dockApps = [
+              "org.pwmt.zathura.desktop"
+              "mpv"
+            ];
+          }).dockApps;
+        empty = (modelOf { dockApps = [ ]; }).dockApps;
+      };
+      expected = {
+        none = [ ];
+        roles = [
+          "Alacritty"
+          "firefox"
+        ];
+        chosen = [
+          "org.pwmt.zathura"
+          "mpv"
+        ];
+        empty = [ ];
+      };
+    };
+
+    testNotificationHistory = {
+      expr = {
+        defaults = (modelOf { }).notificationHistory;
+        off = (modelOf { notificationHistory.limit = 0; }).notificationHistory.limit;
+      };
+      expected = {
+        defaults = {
+          limit = 50;
+          days = 7;
+        };
+        off = 0;
+      };
     };
 
     testDefaultBindsOff = {
@@ -741,8 +795,12 @@ let
         expr = map (hasLine text) [
           "readonly property bool powerProfiles: true"
           ''readonly property var batteryLevels: {"critical":8,"low":25}''
+          ''readonly property var notificationHistory: {"days":7,"limit":50}''
+          "readonly property var dockApps: []"
         ];
         expected = [
+          true
+          true
           true
           true
         ];

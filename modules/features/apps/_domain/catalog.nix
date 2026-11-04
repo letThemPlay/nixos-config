@@ -12,6 +12,7 @@ _: {
     package = "alacritty";
     command = [ "alacritty" ];
     appId = "Alacritty";
+    desktopEntry = "Alacritty.desktop";
     execFlag = "-e";
   };
 

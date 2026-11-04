@@ -147,6 +147,20 @@ in
       days = 7;
     };
 
+  # Quickshell looks desktop entries up without the suffix.
+  dockApps = map (lib.removeSuffix ".desktop") (
+    if (cfg.dockApps or null) != null then
+      cfg.dockApps
+    else
+      filter (entry: entry != null) (
+        map (role: apps.${role}.desktopEntry or null) [
+          "terminal"
+          "browser"
+          "fileManager"
+        ]
+      )
+  );
+
   # The roles that selected the unified shell are the surfaces it draws.
   ui = {
     surfaces = attrNames (filterAttrs (_: name: name == desktop.uiComponent) cfg.components);

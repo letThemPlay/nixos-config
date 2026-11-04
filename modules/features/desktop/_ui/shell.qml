@@ -3,6 +3,7 @@ import Quickshell
 import QtQuick
 import qs.common
 import qs.bar
+import qs.dock
 import qs.launcher
 import qs.notifications
 import qs.osd
@@ -34,6 +35,12 @@ ShellRoot {
 
       screen: modelData
     }
+  }
+
+  LazyLoader {
+    active: root.has("dock")
+
+    Dock {}
   }
 
   LazyLoader {

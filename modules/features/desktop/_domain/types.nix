@@ -355,6 +355,11 @@ let
         type = notificationHistory;
       };
 
+      dockApps = mkOption {
+        type = types.listOf types.str;
+        description = "Desktop IDs the dock pins, without the .desktop.";
+      };
+
       ui = mkOption {
         type = types.submodule {
           options = {

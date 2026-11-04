@@ -75,7 +75,10 @@ in
         waybar = ./_components/bar/waybar.nix;
         quickshell = ./_components/bar/quickshell.nix;
       };
-      dock.waybar = ./_components/dock/waybar.nix;
+      dock = {
+        waybar = ./_components/dock/waybar.nix;
+        quickshell = ./_components/dock/quickshell.nix;
+      };
       launcher = {
         fuzzel = ./_components/launcher/fuzzel.nix;
         quickshell = ./_components/launcher/quickshell.nix;

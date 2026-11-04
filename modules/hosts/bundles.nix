@@ -51,7 +51,7 @@ _: {
           recorder = "wf-recorder";
           nightLight = "wlsunset";
           clipboard = "quickshell";
-          dock = null;
+          dock = "quickshell";
         };
 
         # The shell draws its own launcher, so nothing starts this role.

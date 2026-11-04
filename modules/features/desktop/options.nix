@@ -123,6 +123,20 @@ in
           description = "What the unified shell's notification center keeps across restarts.";
         };
 
+        dockApps = mkOption {
+          type = types.nullOr (types.listOf types.str);
+          default = null;
+          example = [
+            "firefox.desktop"
+            "Alacritty.desktop"
+          ];
+
+          description = ''
+            Desktop IDs the unified shell's dock pins, in order. Null pins the
+            terminal, browser and file manager roles.
+          '';
+        };
+
         ui = mkOption {
           type = desktop.types.ui;
           default = { };

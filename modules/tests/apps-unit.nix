@@ -338,6 +338,12 @@ let
       expected = false;
     };
 
+    # The dock pins the terminal by this, as it does the browser.
+    testTerminalHasDesktopEntry = {
+      expr = (modelOf { roles.terminal = "alacritty"; }).roles.terminal.desktopEntry;
+      expected = "Alacritty.desktop";
+    };
+
     testHandlerNeedsDesktopEntry = {
       expr = {
         missing = codes {
