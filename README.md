@@ -100,7 +100,7 @@ Removable drives mount when plugged in; the tray icon that appears while one is 
 
 The dock stays hidden until the pointer reaches the bottom edge. It holds pinned apps, then a divider and any other app with windows open. A left click focuses an app, moves through its windows, or launches it; a middle click closes its most recent window. By default it pins the terminal, browser and file manager.
 
-The night light warms the screen on a schedule, and its quick settings tile turns it off until it's turned back on or the next login. The launcher ranks similar matches by what you open most. The notification center keeps what you haven't dismissed across restarts, under "Earlier", without action buttons. Change these per host:
+The night light warms the screen on a schedule, and its quick settings tile warms or clears it now. By day, clearing it returns to the schedule; within the schedule's hours, it stays clear until you turn it back on or next log in. The launcher ranks similar matches by what you open most. The notification center keeps what you haven't dismissed across restarts, under "Earlier", without action buttons. Change these per host:
 
 ```nix
 ltp.desktop = {

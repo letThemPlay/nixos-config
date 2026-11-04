@@ -797,8 +797,10 @@ let
           ''readonly property var batteryLevels: {"critical":8,"low":25}''
           ''readonly property var notificationHistory: {"days":7,"limit":50}''
           "readonly property var dockApps: []"
+          ''readonly property var nightLight: {"from":"21:00","temperature":4000,"until":"07:00"}''
         ];
         expected = [
+          true
           true
           true
           true

@@ -97,6 +97,7 @@ in
       (property "var" "batteryLevels" (quoted model.ui.batteryLevels))
       (property "var" "notificationHistory" (quoted model.notificationHistory))
       (property "var" "dockApps" (quoted model.dockApps))
+      (property "var" "nightLight" (quoted model.nightLight))
       (property "var" "spawnPrefix" (quoted spawnPrefix))
       (property "var" "terminal" (quoted terminal))
       (property "string" "pamConfig" (quoted pam.config))
