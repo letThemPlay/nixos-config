@@ -40,8 +40,8 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 |---|---|
 | `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components, and the users' standard home folders. |
-| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen and clipboard picker. |
-| `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
+| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt and level display. |
+| `laptop` | Audio, bluetooth, a backlight (`ltp.hardware.backlight.enable`), the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
 | `core-apps` | git, with the users' identity, signing and the git aliases. |
 | `gaming` | Steam, GameMode and gamescope. |
@@ -63,6 +63,22 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+Escape` / `Mod+Shift+Escape` | Dismiss the latest notification / all of them |
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
+| Brightness and volume keys | Level display at the bottom of the screen |
+
+Graphical admin actions prompt through the shell's polkit dialog; test it with `pkexec true`. The brightness keys use the first device `brightnessctl --class=backlight` finds.
+
+Every niri host also has these window binds:
+
+| Key | Action |
+|---|---|
+| `Mod+1..9` | Go to a workspace |
+| `Mod+Shift+1..9` | Move the column to a workspace |
+| `Mod+Page_Up` / `Mod+Page_Down` | Next workspace up / down |
+| `Mod+Shift+Page_Up` / `Mod+Shift+Page_Down` | Move the column up / down a workspace |
+| `Mod+O` | Overview |
+| `Mod+Shift+Space` | Float or tile the window |
+| `Mod+Tab` | Switch focus between floating and tiled windows |
+| `Mod+Shift+Slash` | Show the hotkey list |
 
 In the bar, right-clicking the bell toggles do-not-disturb, and right-clicking bluetooth turns the adapter on or off.
 
