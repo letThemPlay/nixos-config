@@ -243,6 +243,7 @@ let
             components = {
               bar = "quickshell";
               locker = "quickshell";
+              osd = "quickshell";
               polkit = "quickshell";
               power = "quickshell";
             };
@@ -253,6 +254,7 @@ let
         selected = [
           "bar"
           "locker"
+          "osd"
           "polkit"
           "power"
         ];
@@ -373,9 +375,11 @@ let
       expr = map (target: lib.any (file: lib.hasInfix ''target: "${target}"'' (uiFile file)) uiFiles) [
         "launcher"
         "notifications"
+        "osd"
         "power"
       ];
       expected = [
+        true
         true
         true
         true

@@ -249,6 +249,17 @@ let
       };
     };
 
+    testBacklightDefaultsOff = {
+      expr = map (settings: (modelOf settings).backlight) [
+        { }
+        { backlight.enable = true; }
+      ];
+      expected = [
+        false
+        true
+      ];
+    };
+
     testModelContract = {
       expr = map (
         settings:

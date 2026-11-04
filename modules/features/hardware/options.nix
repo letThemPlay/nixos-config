@@ -62,7 +62,19 @@ in
           description = "Whether the host has Bluetooth (BlueZ, blueman).";
         };
 
+        backlight.enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the host has a screen backlight it can dim.";
+        };
+
         facts = {
+          backlight = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether the host has a backlight; the desktop binds brightness keys only then.";
+          };
+
           audio = mkOption {
             type = types.bool;
             readOnly = true;

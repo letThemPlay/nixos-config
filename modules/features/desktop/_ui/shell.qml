@@ -5,6 +5,7 @@ import qs.common
 import qs.bar
 import qs.launcher
 import qs.notifications
+import qs.osd
 import qs.polkit
 import qs.power
 
@@ -56,5 +57,11 @@ ShellRoot {
     active: root.has("polkit")
 
     Polkit {}
+  }
+
+  LazyLoader {
+    active: root.has("osd")
+
+    Osd {}
   }
 }

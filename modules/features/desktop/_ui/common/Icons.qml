@@ -28,6 +28,8 @@ Singleton {
     "bluetoothConnected": "bluetooth_connected",
     "bluetoothOff": "bluetooth_disabled",
 
+    "brightness": "brightness_medium",
+
     "volumeHigh": "volume_up",
     "volumeLow": "volume_down",
     "volumeMuted": "volume_off",

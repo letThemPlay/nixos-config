@@ -56,7 +56,7 @@ in
         # Published on every host, like the other features' facts.
         {
           ltp.hardware.facts = {
-            inherit (model) audio bluetooth;
+            inherit (model) audio bluetooth backlight;
           };
         }
 

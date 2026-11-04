@@ -68,6 +68,10 @@ let
         type = types.bool;
       };
 
+      backlight = mkOption {
+        type = types.bool;
+      };
+
       guest = mkOption {
         type = types.submodule {
           options = {

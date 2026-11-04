@@ -34,7 +34,7 @@ _: {
     };
 
     unified-ui = {
-      description = "The unified shell on top of window-management: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker and polkit prompt. Replaces waybar, the dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
+      description = "The unified shell on top of window-management: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt and level display. Replaces waybar, the dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
       module.ltp = {
         desktop.components = {
           bar = "quickshell";
@@ -43,6 +43,7 @@ _: {
           locker = "quickshell";
           power = "quickshell";
           polkit = "quickshell";
+          osd = "quickshell";
           clipboard = "quickshell";
           dock = null;
         };
@@ -53,13 +54,14 @@ _: {
     };
 
     laptop = {
-      description = "Audio, bluetooth, the wireless UI (iwgtk) and discord.";
+      description = "Audio, bluetooth, a backlight, the wireless UI (iwgtk) and discord.";
       module.ltp = {
         apps.install = [ "discord" ];
         network.wireless.ui = true;
         hardware = {
           audio.enable = true;
           bluetooth.enable = true;
+          backlight.enable = true;
         };
       };
     };

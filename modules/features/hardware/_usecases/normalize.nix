@@ -29,6 +29,8 @@ in
 
   bluetooth = cfg.bluetooth.enable;
 
+  backlight = cfg.backlight.enable;
+
   guest = {
     name = cfg.guest;
 
