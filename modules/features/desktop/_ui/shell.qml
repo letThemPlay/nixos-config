@@ -3,6 +3,7 @@ import Quickshell
 import QtQuick
 import qs.common
 import qs.bar
+import qs.calendar
 import qs.dock
 import qs.launcher
 import qs.notifications
@@ -83,6 +84,12 @@ ShellRoot {
     active: root.has("quicksettings")
 
     QuickSettings {}
+  }
+
+  LazyLoader {
+    active: root.has("calendar")
+
+    Calendar {}
   }
 
   LazyLoader {

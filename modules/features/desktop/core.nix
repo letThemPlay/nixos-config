@@ -95,6 +95,7 @@ in
       polkit.quickshell = ./_components/polkit/quickshell.nix;
       osd.quickshell = ./_components/osd/quickshell.nix;
       quicksettings.quickshell = ./_components/quicksettings/quickshell.nix;
+      calendar.quickshell = ./_components/calendar/quickshell.nix;
       batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
       displays.kanshi = ./_components/displays/kanshi.nix;
       automount.udiskie = ./_components/automount/udiskie.nix;
@@ -120,6 +121,7 @@ in
       polkit = null;
       osd = null;
       quicksettings = null;
+      calendar = null;
       batteryAlerts = null;
       displays = null;
       automount = null;

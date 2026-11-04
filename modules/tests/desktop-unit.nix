@@ -349,6 +349,7 @@ let
             components = {
               bar = "quickshell";
               batteryAlerts = "quickshell";
+              calendar = "quickshell";
               dock = "quickshell";
               locker = "quickshell";
               osd = "quickshell";
@@ -363,6 +364,7 @@ let
         selected = [
           "bar"
           "batteryAlerts"
+          "calendar"
           "dock"
           "locker"
           "osd"
@@ -485,6 +487,7 @@ let
     # A bind that pokes the shell must name a target it actually handles.
     testShellBindTargetsExist = {
       expr = map (target: lib.any (file: lib.hasInfix ''target: "${target}"'' (uiFile file)) uiFiles) [
+        "calendar"
         "dock"
         "launcher"
         "notifications"
@@ -494,6 +497,7 @@ let
         "recorder"
       ];
       expected = [
+        true
         true
         true
         true

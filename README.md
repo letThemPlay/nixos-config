@@ -66,6 +66,7 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
 | `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
+| `Mod+Shift+D` | Calendar: a month view, also opened by clicking the clock. Change month with the arrows, the wheel or the Left and Right keys |
 | `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
 | Brightness and volume keys | Level display at the bottom of the screen |
 
