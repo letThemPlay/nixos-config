@@ -74,6 +74,12 @@ in
           '';
         };
 
+        facts.wireless = mkOption {
+          type = types.nullOr types.str;
+          readOnly = true;
+          description = "The wireless backend in use; null without a wireless link.";
+        };
+
         links = mkOption {
           type = types.attrsOf network.types.linkOverride;
 

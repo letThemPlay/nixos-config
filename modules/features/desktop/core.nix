@@ -96,6 +96,7 @@ in
       osd.quickshell = ./_components/osd/quickshell.nix;
       quicksettings.quickshell = ./_components/quicksettings/quickshell.nix;
       calendar.quickshell = ./_components/calendar/quickshell.nix;
+      wifi.quickshell = ./_components/wifi/quickshell.nix;
       batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
       displays.kanshi = ./_components/displays/kanshi.nix;
       automount.udiskie = ./_components/automount/udiskie.nix;
@@ -122,6 +123,7 @@ in
       osd = null;
       quicksettings = null;
       calendar = null;
+      wifi = null;
       batteryAlerts = null;
       displays = null;
       automount = null;
@@ -142,6 +144,9 @@ in
     uiSource = ./_ui;
 
     uiInstance = import ./_ui/instance.nix;
+
+    # The Wi-Fi panel's way to iwd (pkgs -> program).
+    wifiHelper = import ./_components/wifi/_helper.nix;
 
     # The bar widgets the shell draws (_ui/bar/Bar.qml).
     uiWidgets = [

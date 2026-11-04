@@ -126,6 +126,18 @@ let
       expected = [ "network.overlay.interface.managed" ];
     };
 
+    # What the desktop reads to choose its Wi-Fi panel's backend.
+    testWirelessBackendFact = {
+      expr = {
+        laptop = network.query.wirelessBackend (modelOf laptop);
+        wired = network.query.wirelessBackend (modelOf { });
+      };
+      expected = {
+        laptop = "iwd";
+        wired = null;
+      };
+    };
+
     testGlobMatching = {
       expr = map (glob: network.query.matchesGlob glob "tailscale0") [
         "*"

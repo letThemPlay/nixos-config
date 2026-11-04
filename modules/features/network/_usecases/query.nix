@@ -51,6 +51,8 @@ let
   # True when an enabled link needs the wireless backend.
   hasWireless = model: wireless model != [ ];
 
+  wirelessBackend = model: if hasWireless model then model.wireless.backend else null;
+
   #
   # Whether a networkd match glob (*, ?, [...]) matches an interface
   # name. Other regex characters in the glob are taken literally.
@@ -92,6 +94,7 @@ in
     wired
     wireless
     hasWireless
+    wirelessBackend
     matchesGlob
     unitName
     ;
