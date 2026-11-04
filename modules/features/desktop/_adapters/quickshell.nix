@@ -93,6 +93,8 @@ in
       (property "var" "powerActions" (
         quoted (mapAttrsToList (id: action: action // { inherit id; }) model.ui.powerActions)
       ))
+      (property "bool" "powerProfiles" (quoted model.ui.powerProfiles))
+      (property "var" "batteryLevels" (quoted model.ui.batteryLevels))
       (property "var" "spawnPrefix" (quoted spawnPrefix))
       (property "var" "terminal" (quoted terminal))
       (property "string" "pamConfig" (quoted pam.config))

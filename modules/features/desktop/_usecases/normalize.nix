@@ -139,6 +139,21 @@ in
     commands = cfg.ui.commands or { };
 
     inherit (desktop) powerActions;
+
+    powerProfiles = if facts == null then false else facts.powerProfiles or false;
+
+    # The hardware feature's defaults, for a host that publishes none.
+    batteryLevels =
+      if facts == null then
+        {
+          low = 20;
+          critical = 5;
+        }
+      else
+        facts.batteryLevels or {
+          low = 20;
+          critical = 5;
+        };
   };
 
   inherit (cfg)

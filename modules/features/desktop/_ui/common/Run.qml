@@ -14,9 +14,9 @@ Singleton {
     app(Settings.terminal.concat(argv));
   }
 
-  function command(name) {
+  function command(name, args) {
     const argv = Settings.commands[name];
-    if (argv) Quickshell.execDetached(argv);
+    if (argv) Quickshell.execDetached(argv.concat(args ?? []));
   }
 
   function has(name) {

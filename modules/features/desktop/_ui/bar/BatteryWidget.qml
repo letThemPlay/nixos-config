@@ -1,24 +1,16 @@
-import Quickshell.Services.UPower
 import qs.common
+import qs.services
 
-// Hidden on machines without a battery.
+// Hidden on machines without a battery. It turns warning and danger at the same
+// levels the alerts fire at.
 BarItem {
-  readonly property var device: UPower.displayDevice
-  readonly property int percent: Math.round((device?.percentage ?? 0) * 100)
-  readonly property bool charging: device?.state === UPowerDeviceState.Charging || device?.state === UPowerDeviceState.FullyCharged
-
-  shown: device?.isLaptopBattery ?? false
+  shown: Battery.present
   filled: true
-  icon: {
-    if (charging) return "batteryCharging";
-    if (percent >= 90) return "batteryFull";
-    if (percent >= 50) return "batteryHigh";
-    return percent >= 20 ? "batteryMedium" : "batteryLow";
-  }
-  text: percent + "%"
+  icon: Battery.icon
+  text: Battery.percent + "%"
   tint: {
-    if (charging) return Theme.success;
-    if (percent <= 15) return Theme.danger;
-    return percent <= 30 ? Theme.warning : foreground;
+    if (Battery.charging) return Theme.success;
+    if (Battery.percent <= Settings.batteryLevels.critical) return Theme.danger;
+    return Battery.percent <= Settings.batteryLevels.low ? Theme.warning : foreground;
   }
 }

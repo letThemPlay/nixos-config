@@ -259,6 +259,16 @@ let
             powerActions = mkOption {
               type = types.attrsOf powerAction;
             };
+
+            powerProfiles = mkOption {
+              type = types.bool;
+              description = "Whether the host manages power profiles.";
+            };
+
+            batteryLevels = mkOption {
+              type = types.attrsOf types.int;
+              description = "The levels the shell warns at: low and critical.";
+            };
           };
         };
       };

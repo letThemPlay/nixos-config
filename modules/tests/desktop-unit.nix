@@ -596,6 +596,44 @@ let
         };
       };
 
+    # The bar and the alerts must warn where the hardware feature says.
+    testShellSettingsCarryPowerFacts =
+      let
+        settingsFor =
+          facts:
+          desktop.quickshell.settings {
+            model = normalizeWith {
+              cfg = evalCfg { };
+              inherit facts;
+            };
+            inherit (desktop) spawnPrefix;
+            pam = {
+              config = "x";
+              directory = "/x";
+            };
+            wallpaper = "";
+            terminal = [ ];
+          };
+
+        text = settingsFor {
+          powerProfiles = true;
+          batteryLevels = {
+            low = 25;
+            critical = 8;
+          };
+        };
+      in
+      {
+        expr = map (hasLine text) [
+          "readonly property bool powerProfiles: true"
+          ''readonly property var batteryLevels: {"critical":8,"low":25}''
+        ];
+        expected = [
+          true
+          true
+        ];
+      };
+
     # A brightness key does nothing without a backlight, so the bind goes.
     testBrightnessNeedsBacklight =
       let
