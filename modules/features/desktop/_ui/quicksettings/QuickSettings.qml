@@ -163,7 +163,7 @@ Overlay {
             width: toggles.tileWidth
             visible: root.hasNotifier
             icon: "notificationsPaused"
-            text: "Do not disturb"
+            text: "Silent"
             selected: root.hasNotifier && Notifications.doNotDisturb
             onClicked: Notifications.doNotDisturb = !Notifications.doNotDisturb
           }

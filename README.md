@@ -55,7 +55,7 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 
 ## 🪟 Unified shell
 
-The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https://quickshell.org) config in place of waybar, the dock, fuzzel, mako, hyprlock and the dmenu clipboard. Each surface is a separate `quickshell` entry in the component registry, so a host can also select them one at a time through `ltp.desktop.components`.
+The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https://quickshell.org) config in place of waybar and its dock, fuzzel, mako, hyprlock and the dmenu clipboard. Each surface is a separate `quickshell` entry in the component registry, so a host can also select them one at a time through `ltp.desktop.components`.
 
 | Key | Surface |
 |---|---|
@@ -65,7 +65,7 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+Escape` / `Mod+Shift+Escape` | Dismiss the latest notification / all of them |
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
-| `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, keep awake |
+| `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
 | `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
 | Brightness and volume keys | Level display at the bottom of the screen |
 
@@ -97,6 +97,18 @@ ltp.desktop.displays.profiles = {
 ```
 
 Removable drives mount when plugged in; the tray icon that appears while one is mounted is how to unmount it.
+
+The dock stays hidden until the pointer reaches the bottom edge. It holds pinned apps, then a divider and any other app with windows open. A left click focuses an app, moves through its windows, or launches it; a middle click closes its most recent window. By default it pins the terminal, browser and file manager.
+
+The night light warms the screen on a schedule, and its quick settings tile turns it off until it's turned back on or the next login. The launcher ranks similar matches by what you open most. The notification center keeps what you haven't dismissed across restarts, under "Earlier", without action buttons. Change these per host:
+
+```nix
+ltp.desktop = {
+  dockApps = [ "firefox.desktop" "Alacritty.desktop" ];
+  nightLight = { from = "21:00"; until = "07:00"; temperature = 4000; };
+  notificationHistory = { limit = 50; days = 7; };  # limit = 0 saves nothing
+};
+```
 
 Graphical admin actions prompt through the shell's polkit dialog; test it with `pkexec true`. The brightness keys use the first device `brightnessctl --class=backlight` finds.
 
