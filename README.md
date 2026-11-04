@@ -40,8 +40,9 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 |---|---|
 | `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components, and the users' standard home folders. |
-| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings and battery alerts. |
+| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings, battery alerts, display profiles, automounting and screen recording. |
 | `power` | Power profiles (power-profiles-daemon), and battery levels with a clean shutdown as the last resort (UPower). |
+| `file-handling` | Files and links open in the right app: viewers for images (imv), PDFs (zathura) and media (mpv), with the roles in use as the default apps. |
 | `laptop` | Audio, bluetooth, a backlight (`ltp.hardware.backlight.enable`), the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
 | `core-apps` | git, with the users' identity, signing and the git aliases. |
@@ -65,6 +66,7 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
 | `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, keep awake |
+| `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
 | Brightness and volume keys | Level display at the bottom of the screen |
 
 With the `power` bundle, the battery warns at 20% and 5%, and the machine shuts down at 2%. Change that with `ltp.hardware.battery`:
@@ -78,6 +80,24 @@ ltp.hardware.battery = {
 };
 ```
 
+Display layouts are declared per host, and kanshi applies whichever matches the connected monitors. Find the names with `niri msg outputs`:
+
+```nix
+ltp.desktop.displays.profiles = {
+  laptop.outputs."eDP-1".scale = 1.25;
+
+  desk.outputs = {
+    "eDP-1".position = { x = 0; y = 0; };
+    "Dell Inc. DELL U2720Q ABC123" = {
+      scale = 1.5;
+      position = { x = 1920; y = 0; };
+    };
+  };
+};
+```
+
+Removable drives mount when plugged in; the tray icon that appears while one is mounted is how to unmount it.
+
 Graphical admin actions prompt through the shell's polkit dialog; test it with `pkexec true`. The brightness keys use the first device `brightnessctl --class=backlight` finds.
 
 Every niri host also has these window binds:
@@ -88,6 +108,10 @@ Every niri host also has these window binds:
 | `Mod+Shift+1..9` | Move the column to a workspace |
 | `Mod+Page_Up` / `Mod+Page_Down` | Next workspace up / down |
 | `Mod+Shift+Page_Up` / `Mod+Shift+Page_Down` | Move the column up / down a workspace |
+| `Mod+Ctrl+Left` / `Mod+Ctrl+Right` | Focus another monitor |
+| `Mod+Shift+Ctrl+Left` / `Mod+Shift+Ctrl+Right` | Move the column to another monitor |
+| `Print` / `Mod+Print` | Screenshot of the screen / the window, saved to `~/Pictures/Screenshots` and copied |
+| `Shift+Print` / `Ctrl+Shift+S` | Screenshot of a region, to annotate |
 | `Mod+O` | Overview |
 | `Mod+Shift+Space` | Float or tile the window |
 | `Mod+Tab` | Switch focus between floating and tiled windows |
