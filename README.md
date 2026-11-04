@@ -40,7 +40,8 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 |---|---|
 | `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components, and the users' standard home folders. |
-| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt and level display. |
+| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings and battery alerts. |
+| `power` | Power profiles (power-profiles-daemon), and battery levels with a clean shutdown as the last resort (UPower). |
 | `laptop` | Audio, bluetooth, a backlight (`ltp.hardware.backlight.enable`), the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
 | `core-apps` | git, with the users' identity, signing and the git aliases. |
@@ -63,7 +64,19 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+Escape` / `Mod+Shift+Escape` | Dismiss the latest notification / all of them |
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
+| `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, keep awake |
 | Brightness and volume keys | Level display at the bottom of the screen |
+
+With the `power` bundle, the battery warns at 20% and 5%, and the machine shuts down at 2%. Change that with `ltp.hardware.battery`:
+
+```nix
+ltp.hardware.battery = {
+  lowAt = 20;
+  criticalAt = 5;
+  actionAt = 2;
+  criticalAction = "PowerOff";  # Hibernate and HybridSleep need swap
+};
+```
 
 Graphical admin actions prompt through the shell's polkit dialog; test it with `pkexec true`. The brightness keys use the first device `brightnessctl --class=backlight` finds.
 
