@@ -95,6 +95,7 @@ in
       ))
       (property "bool" "powerProfiles" (quoted model.ui.powerProfiles))
       (property "var" "batteryLevels" (quoted model.ui.batteryLevels))
+      (property "var" "notificationHistory" (quoted model.notificationHistory))
       (property "var" "spawnPrefix" (quoted spawnPrefix))
       (property "var" "terminal" (quoted terminal))
       (property "string" "pamConfig" (quoted pam.config))

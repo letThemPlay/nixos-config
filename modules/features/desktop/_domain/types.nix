@@ -298,6 +298,25 @@ let
     };
   };
 
+  # What the notification center keeps across restarts.
+  notificationHistory = types.submodule {
+    options = {
+
+      limit = mkOption {
+        type = types.ints.unsigned;
+        default = 50;
+        description = "How many notifications to keep; 0 saves none.";
+      };
+
+      days = mkOption {
+        type = types.ints.positive;
+        default = 7;
+        description = "How long to keep them.";
+      };
+
+    };
+  };
+
   # Inputs of the unified shell (_ui): what its surfaces run.
   ui = types.submodule {
     options = {
@@ -330,6 +349,10 @@ let
 
       nightLight = mkOption {
         type = nightLight;
+      };
+
+      notificationHistory = mkOption {
+        type = notificationHistory;
       };
 
       ui = mkOption {
@@ -455,6 +478,7 @@ in
     displayOutput
     displays
     nightLight
+    notificationHistory
     ui
     powerAction
     model

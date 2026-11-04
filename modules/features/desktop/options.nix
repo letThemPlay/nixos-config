@@ -117,6 +117,12 @@ in
           description = "The schedule of the nightLight component.";
         };
 
+        notificationHistory = mkOption {
+          type = desktop.types.notificationHistory;
+          default = { };
+          description = "What the unified shell's notification center keeps across restarts.";
+        };
+
         ui = mkOption {
           type = desktop.types.ui;
           default = { };

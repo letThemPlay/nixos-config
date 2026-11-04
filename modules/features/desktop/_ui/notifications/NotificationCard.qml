@@ -14,6 +14,20 @@ Panel {
   readonly property var buttons: (notification?.actions ?? []).filter(a => a.identifier !== "default")
   readonly property alias hovered: pointer.containsMouse
 
+  // Only a saved record has a time, and says how old it is.
+  readonly property string age: {
+    const time = notification?.time;
+    if (!time) return "";
+
+    const minutes = Math.floor((Date.now() - time) / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return days === 1 ? "Yesterday" : `${days} days ago`;
+    if (hours > 0) return hours === 1 ? "An hour ago" : `${hours} hours ago`;
+    return minutes > 1 ? `${minutes} minutes ago` : "Just now";
+  }
+
   // Everything but the app name fits a fixed left inset from the icon.
   readonly property int inset: Theme.iconLarge + Theme.spaceMd
 
@@ -57,9 +71,21 @@ Panel {
         id: appName
 
         anchors.left: parent.left
-        anchors.right: close.left
+        anchors.right: ageLabel.left
+        anchors.rightMargin: root.age === "" ? 0 : Theme.spaceSm
         anchors.verticalCenter: parent.verticalCenter
         text: root.notification?.appName ?? ""
+        size: Theme.fontSmall
+        color: Theme.muted
+      }
+
+      Label {
+        id: ageLabel
+
+        anchors.right: close.left
+        anchors.rightMargin: root.age === "" ? 0 : Theme.spaceXs
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.age
         size: Theme.fontSmall
         color: Theme.muted
       }

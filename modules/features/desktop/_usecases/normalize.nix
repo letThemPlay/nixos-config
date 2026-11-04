@@ -141,6 +141,12 @@ in
       temperature = 4000;
     };
 
+  notificationHistory =
+    cfg.notificationHistory or {
+      limit = 50;
+      days = 7;
+    };
+
   # The roles that selected the unified shell are the surfaces it draws.
   ui = {
     surfaces = attrNames (filterAttrs (_: name: name == desktop.uiComponent) cfg.components);

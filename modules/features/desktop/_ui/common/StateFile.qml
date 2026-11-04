@@ -14,7 +14,12 @@ Scope {
   // After the file has been read, or found missing.
   signal ready
 
+  // Deferred, as a write from within ready would cut off the read reporting it.
   function save() {
+    Qt.callLater(write);
+  }
+
+  function write() {
     file.setText(JSON.stringify(value));
   }
 

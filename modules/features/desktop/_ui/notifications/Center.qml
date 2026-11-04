@@ -58,7 +58,7 @@ Overlay {
       }
     }
 
-    ListView {
+    Flickable {
       id: list
 
       x: Theme.spaceMd
@@ -66,24 +66,58 @@ Overlay {
       width: parent.width - Theme.spaceMd * 2
       height: parent.height - y - Theme.spaceMd
       clip: true
-      spacing: Theme.spaceSm
-      model: ScriptModel {
-        values: Notifications.history
-      }
+      contentHeight: cards.implicitHeight
+      boundsBehavior: Flickable.StopAtBounds
 
-      delegate: NotificationCard {
-        required property var modelData
+      Column {
+        id: cards
 
-        notification: modelData
         width: list.width
-        color: Theme.surfaceRaised
+        spacing: Theme.spaceSm
+
+        Repeater {
+          model: ScriptModel {
+            values: Notifications.history
+          }
+
+          NotificationCard {
+            required property var modelData
+
+            notification: modelData
+            width: cards.width
+            color: Theme.surfaceRaised
+          }
+        }
+
+        Label {
+          visible: Notifications.earlier.length > 0
+          leftPadding: Theme.spaceXs
+          topPadding: Notifications.history.length > 0 ? Theme.spaceMd : 0
+          text: "Earlier"
+          color: Theme.muted
+          font.weight: Font.DemiBold
+        }
+
+        Repeater {
+          model: ScriptModel {
+            values: Notifications.earlier
+          }
+
+          NotificationCard {
+            required property var modelData
+
+            notification: modelData
+            width: cards.width
+            color: Theme.surfaceRaised
+          }
+        }
       }
     }
 
     Column {
       anchors.centerIn: parent
       spacing: Theme.spaceSm
-      visible: list.count === 0
+      visible: Notifications.history.length === 0 && Notifications.earlier.length === 0
 
       Icon {
         anchors.horizontalCenter: parent.horizontalCenter
