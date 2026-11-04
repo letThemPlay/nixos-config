@@ -242,6 +242,7 @@ let
           (modelOf {
             components = {
               bar = "quickshell";
+              batteryAlerts = "quickshell";
               locker = "quickshell";
               osd = "quickshell";
               polkit = "quickshell";
@@ -254,6 +255,7 @@ let
         defaults = [ ];
         selected = [
           "bar"
+          "batteryAlerts"
           "locker"
           "osd"
           "polkit"
