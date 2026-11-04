@@ -90,6 +90,7 @@ in
       power.quickshell = ./_components/power/quickshell.nix;
       polkit.quickshell = ./_components/polkit/quickshell.nix;
       osd.quickshell = ./_components/osd/quickshell.nix;
+      quicksettings.quickshell = ./_components/quicksettings/quickshell.nix;
       clipboard = {
         cliphist = ./_components/clipboard/cliphist.nix;
         quickshell = ./_components/clipboard/quickshell.nix;
@@ -109,6 +110,7 @@ in
       power = null;
       polkit = null;
       osd = null;
+      quicksettings = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";
@@ -138,6 +140,7 @@ in
       "volume"
       "battery"
       "clock"
+      "settings"
       "power"
     ];
 

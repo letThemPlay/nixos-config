@@ -8,6 +8,9 @@ import QtQuick
 Singleton {
   property string open: ""
 
+  // Holds off idle locking and suspend until turned off again.
+  property bool keepAwake: false
+
   function toggle(surface) {
     open = open === surface ? "" : surface;
   }

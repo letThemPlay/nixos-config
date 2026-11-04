@@ -161,15 +161,13 @@ Scope {
         }
       }
 
-      Label {
+      Percent {
         id: percent
 
         anchors.right: parent.right
         anchors.rightMargin: Theme.spaceMd
         anchors.verticalCenter: parent.verticalCenter
-        width: Theme.sizeBarItem + Theme.spaceSm
-        horizontalAlignment: Text.AlignRight
-        text: Math.round(root.level * 100) + "%"
+        level: root.level
       }
     }
   }

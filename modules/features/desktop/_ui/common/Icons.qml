@@ -28,6 +28,18 @@ Singleton {
     "bluetoothConnected": "bluetooth_connected",
     "bluetoothOff": "bluetooth_disabled",
 
+    "settings": "tune",
+    "more": "chevron_right",
+
+    "microphone": "mic",
+    "microphoneMuted": "mic_off",
+
+    "profileSaver": "eco",
+    "profileBalanced": "balance",
+    "profilePerformance": "speed",
+
+    "keepAwake": "coffee",
+
     "brightness": "brightness_medium",
 
     "volumeHigh": "volume_up",

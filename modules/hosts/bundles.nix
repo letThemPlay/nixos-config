@@ -34,7 +34,7 @@ _: {
     };
 
     unified-ui = {
-      description = "The unified shell on top of window-management: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt and level display. Replaces waybar, the dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
+      description = "The unified shell on top of window-management: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display and quick settings. Replaces waybar, the dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
       module.ltp = {
         desktop.components = {
           bar = "quickshell";
@@ -44,6 +44,7 @@ _: {
           power = "quickshell";
           polkit = "quickshell";
           osd = "quickshell";
+          quicksettings = "quickshell";
           clipboard = "quickshell";
           dock = null;
         };

@@ -35,8 +35,15 @@ PanelWindow {
     "volume": volume,
     "battery": battery,
     "clock": clock,
+    "settings": settings,
     "power": power
   })
+
+  // Keep awake needs a surface that stays on screen; the bar is that surface.
+  IdleInhibitor {
+    window: root
+    enabled: Ui.keepAwake
+  }
 
   Component { id: launcher; LauncherWidget {} }
   Component { id: notifications; NotificationsWidget {} }
@@ -49,6 +56,7 @@ PanelWindow {
   Component { id: volume; VolumeWidget {} }
   Component { id: battery; BatteryWidget {} }
   Component { id: clock; ClockWidget {} }
+  Component { id: settings; SettingsWidget {} }
   Component { id: power; PowerWidget {} }
 
   component Island: Panel {

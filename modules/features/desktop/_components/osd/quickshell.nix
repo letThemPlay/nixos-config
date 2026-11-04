@@ -32,11 +32,21 @@ in
       "XF86MonBrightnessDown" = brightness "5%-";
     };
 
-    ui.commands.brightnessStatus = [
-      "${pkgs.brightnessctl}/bin/brightnessctl"
-      "--class=backlight"
-      "--machine-readable"
-      "info"
-    ];
+    ui.commands = {
+      brightnessStatus = [
+        "${pkgs.brightnessctl}/bin/brightnessctl"
+        "--class=backlight"
+        "--machine-readable"
+        "info"
+      ];
+
+      # Takes an absolute level such as 40%.
+      brightnessSet = [
+        "${pkgs.brightnessctl}/bin/brightnessctl"
+        "--class=backlight"
+        "--quiet"
+        "set"
+      ];
+    };
   };
 }

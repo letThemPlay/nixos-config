@@ -74,6 +74,7 @@ in
         "battery"
         "clock"
       ]
+      ++ lib.optional (drawn "quicksettings") "settings"
       ++ lib.optional (drawn "power") "power";
 
       requires = {

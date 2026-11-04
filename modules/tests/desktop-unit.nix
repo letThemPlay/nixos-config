@@ -245,6 +245,7 @@ let
               locker = "quickshell";
               osd = "quickshell";
               polkit = "quickshell";
+              quicksettings = "quickshell";
               power = "quickshell";
             };
           }).ui.surfaces;
@@ -257,6 +258,7 @@ let
           "osd"
           "polkit"
           "power"
+          "quicksettings"
         ];
       };
     };
@@ -377,8 +379,10 @@ let
         "notifications"
         "osd"
         "power"
+        "quicksettings"
       ];
       expected = [
+        true
         true
         true
         true

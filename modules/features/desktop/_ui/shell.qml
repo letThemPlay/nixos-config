@@ -8,6 +8,7 @@ import qs.notifications
 import qs.osd
 import qs.polkit
 import qs.power
+import qs.quicksettings
 
 // The unified shell. Surfaces the host did not select are never created.
 // The lock screen is a separate instance (lock.qml), so restarting this one
@@ -63,5 +64,11 @@ ShellRoot {
     active: root.has("osd")
 
     Osd {}
+  }
+
+  LazyLoader {
+    active: root.has("quicksettings")
+
+    QuickSettings {}
   }
 }
