@@ -7,6 +7,8 @@ Rectangle {
 
   property bool selected: false
   property bool danger: false
+  // For a row in a scrolling list, where the wheel belongs to the list.
+  property bool passesWheel: false
   readonly property alias hovered: mouse.containsMouse
   readonly property alias pressed: mouse.pressed
   readonly property color foreground: {
@@ -39,6 +41,9 @@ Rectangle {
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
 
     onClicked: event => root.clicked(event.button)
-    onWheel: event => root.scrolled(event.angleDelta.y)
+    onWheel: event => {
+      event.accepted = !root.passesWheel;
+      if (!root.passesWheel) root.scrolled(event.angleDelta.y);
+    }
   }
 }

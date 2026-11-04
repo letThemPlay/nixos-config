@@ -350,6 +350,7 @@ let
               bar = "quickshell";
               batteryAlerts = "quickshell";
               calendar = "quickshell";
+              wifi = "quickshell";
               dock = "quickshell";
               locker = "quickshell";
               osd = "quickshell";
@@ -371,6 +372,7 @@ let
           "polkit"
           "power"
           "quicksettings"
+          "wifi"
         ];
       };
     };
@@ -495,8 +497,10 @@ let
         "power"
         "quicksettings"
         "recorder"
+        "wifi"
       ];
       expected = [
+        true
         true
         true
         true

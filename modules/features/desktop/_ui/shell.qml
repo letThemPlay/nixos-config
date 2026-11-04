@@ -12,6 +12,7 @@ import qs.polkit
 import qs.power
 import qs.quicksettings
 import qs.services
+import qs.wifi
 
 // The unified shell. Surfaces the host did not select are never created.
 // The lock screen is a separate instance (lock.qml), so restarting this one
@@ -90,6 +91,12 @@ ShellRoot {
     active: root.has("calendar")
 
     Calendar {}
+  }
+
+  LazyLoader {
+    active: root.has("wifi")
+
+    WifiPanel {}
   }
 
   LazyLoader {

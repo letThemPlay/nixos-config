@@ -21,6 +21,11 @@ Singleton {
     return strength >= 33 ? "wifiMedium" : "wifiLow";
   }
 
+  // After a change the shell made itself, rather than on the next poll.
+  function refresh() {
+    if (status.command.length > 0) status.running = true;
+  }
+
   Process {
     id: status
 

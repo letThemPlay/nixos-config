@@ -234,10 +234,14 @@ Overlay {
         Pressable {
           width: parent.width
           implicitHeight: Theme.sizeBarItem + Theme.spaceSm
-          visible: Run.has("networkUi")
+          visible: Wifi.usable || Run.has("networkUi")
           onClicked: {
-            Ui.close();
-            Run.command("networkUi");
+            if (Wifi.usable) {
+              Ui.open = "wifi";
+            } else {
+              Ui.close();
+              Run.command("networkUi");
+            }
           }
 
           Icon {
