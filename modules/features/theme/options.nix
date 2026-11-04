@@ -59,6 +59,16 @@ in
           '';
         };
 
+        facts.ui = mkOption {
+          type = types.attrsOf types.anything;
+          readOnly = true;
+
+          description = ''
+            Design tokens for desktop interfaces: colour roles as base16
+            slots, and the spacing, corner, type, icon and motion scales.
+          '';
+        };
+
       };
     };
 }

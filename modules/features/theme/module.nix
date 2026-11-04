@@ -34,7 +34,11 @@ in
       config = mkMerge [
 
         # Published on every host, like the other features' facts.
-        { ltp.theme.facts.users = model.users; }
+        {
+          ltp.theme.facts = {
+            inherit (model) users ui;
+          };
+        }
 
         (mkIf cfg.enable {
           assertions = errors;

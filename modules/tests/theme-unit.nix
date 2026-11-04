@@ -107,7 +107,7 @@ let
 
     # The defaults are the values every host had before the feature.
     testAppearanceDefaults = {
-      expr = (evalCfg { }).appearance;
+      expr = removeAttrs (evalCfg { }).appearance [ "ui" ];
       expected = {
         fontSize = {
           terminal = 11;
@@ -129,6 +129,78 @@ let
           package = "bibata-cursors";
           name = "Bibata-Modern-Ice";
           size = 24;
+        };
+      };
+    };
+
+    # Interfaces reach every colour through a role, and roles only name slots
+    # a base16 scheme has.
+    testUiPaletteSlots = {
+      expr = builtins.filter (slot: builtins.match "base0[0-9A-F]" slot == null) (
+        builtins.attrValues theme.uiPalette
+      );
+      expected = [ ];
+    };
+
+    # One setting moves its whole scale, so components stay in proportion.
+    testUiTokenScales = {
+      expr =
+        let
+          tokens =
+            (modelOf {
+              appearance = {
+                ui = {
+                  spacing = 5;
+                  radius = 8;
+                  animationMs = 200;
+                };
+                fontSize.desktop = 11;
+                fonts.sansSerif.name = "Inter";
+              };
+            } { }).ui;
+        in
+        {
+          inherit (tokens) space radius motion;
+          family = tokens.font.family;
+          body = tokens.font.body;
+          small = tokens.font.small;
+          iconMedium = tokens.icon.medium;
+        };
+      expected = {
+        space = {
+          xs = 5;
+          sm = 10;
+          md = 15;
+          lg = 20;
+          xl = 30;
+        };
+        radius = {
+          sm = 4;
+          md = 8;
+          lg = 16;
+        };
+        motion = {
+          fast = 100;
+          normal = 200;
+        };
+        family = "Inter";
+        body = 11;
+        small = 10;
+        iconMedium = 25;
+      };
+    };
+
+    testUiIconDefaults = {
+      expr = {
+        inherit ((modelOf { } { }).ui.icon) package name theme;
+      };
+      expected = {
+        package = "material-symbols";
+        name = "Material Symbols Rounded";
+        theme = {
+          package = "papirus-icon-theme";
+          dark = "Papirus-Dark";
+          light = "Papirus-Light";
         };
       };
     };

@@ -14,6 +14,13 @@ let
       inherit default description;
     };
 
+  fraction =
+    default: description:
+    mkOption {
+      type = types.numbers.between 0 1;
+      inherit default description;
+    };
+
   #
   # A font or cursor: a package attribute path, the name it provides and
   # any extra options.
@@ -93,6 +100,43 @@ let
         size = size 24 "Cursor size.";
       };
 
+      ui = {
+        spacing = size 4 "Base spacing unit in pixels; every padding and gap is a multiple of it.";
+        radius = size 12 "Corner radius of panels in pixels; controls and cards scale from it.";
+        barHeight = size 36 "Height of the top bar in pixels.";
+        animationMs = size 180 "Duration of panel animations in milliseconds.";
+
+        panelOpacity = fraction 0.97 "Opacity of panel backgrounds.";
+        scrimOpacity = fraction 0.55 "Opacity of the dim behind modal surfaces.";
+
+        iconFont = packaged "material-symbols" "Material Symbols Rounded" { };
+
+        iconTheme = mkOption {
+          type = types.submodule {
+            options = {
+              package = mkOption {
+                type = types.str;
+                default = "papirus-icon-theme";
+                description = "Package attribute path in pkgs of the application icon theme.";
+              };
+
+              dark = mkOption {
+                type = types.str;
+                default = "Papirus-Dark";
+                description = "Icon theme name for dark themes.";
+              };
+
+              light = mkOption {
+                type = types.str;
+                default = "Papirus-Light";
+                description = "Icon theme name for light themes.";
+              };
+            };
+          };
+          default = { };
+        };
+      };
+
     };
   };
 
@@ -135,6 +179,11 @@ let
 
       users = mkOption {
         type = types.attrsOf userTheme;
+      };
+
+      ui = mkOption {
+        type = types.attrsOf types.anything;
+        description = "Design tokens for desktop interfaces.";
       };
 
     };

@@ -10,6 +10,8 @@
 {
   inherit (cfg) appearance;
 
+  ui = theme.uiTokens { inherit (cfg) appearance; };
+
   users = lib.mapAttrs (
     _: user:
     let
