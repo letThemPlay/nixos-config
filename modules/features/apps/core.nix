@@ -2,7 +2,7 @@
 # The apps core, laid out like the storage core:
 #
 #   _domain/     app fields, roles and model types; the catalogue; the
-#                default role selection
+#                default role selection; what each role opens
 #   _usecases/   normalize (roles -> resolved apps), validate
 #   _configure/  how an app is configured, per catalogue name (module
 #                functions, enabled when the app plays a role or is
@@ -25,6 +25,8 @@ in
 
     defaultRoles = import ./_domain/roles.nix { };
 
+    mimeTypes = import ./_domain/mime-types.nix { };
+
     normalize = import ./_usecases/normalize.nix { inherit lib apps; };
 
     validate = import ./_usecases/validate.nix { inherit lib apps diagnostics; };
@@ -39,6 +41,9 @@ in
       flashgbx = ./_configure/flashgbx.nix;
       eza = ./_configure/eza.nix;
       zoxide = ./_configure/zoxide.nix;
+      imv = ./_configure/imv.nix;
+      zathura = ./_configure/zathura.nix;
+      mpv = ./_configure/mpv.nix;
     };
 
   });

@@ -1,11 +1,14 @@
 { lib, apps }:
 let
   inherit (lib)
+    attrNames
     attrValues
     filterAttrs
     genAttrs
     mapAttrs
+    mapAttrsToList
     mergeAttrsList
+    optionalAttrs
     unique
     ;
 in
@@ -62,8 +65,32 @@ let
   terminal = selected.terminal or null;
 
   inUse = unique (map (role: role.app) (attrValues selected) ++ cfg.install);
+
+  defaultHandlers = cfg.defaultHandlers or false;
+
+  # The roles in use that open files.
+  handling = filterAttrs (role: _: apps.mimeTypes ? ${role}) selected;
 in
 {
+  inherit defaultHandlers;
+
+  handlers =
+    if defaultHandlers then
+      mergeAttrsList (
+        mapAttrsToList (
+          role: app:
+          optionalAttrs (app.desktopEntry != null) (genAttrs apps.mimeTypes.${role} (_: [ app.desktopEntry ]))
+        ) handling
+      )
+    else
+      { };
+
+  handlersMissing =
+    if defaultHandlers then
+      attrNames (filterAttrs (_: app: app.desktopEntry == null) handling)
+    else
+      [ ];
+
   # Apps that run in a terminal are started through the terminal role.
   roles = mapAttrs (
     _: role:

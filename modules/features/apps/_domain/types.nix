@@ -39,6 +39,11 @@ let
       description = "For a launcher: the command that picks a line from stdin (dmenu mode).";
     };
 
+    desktopEntry = {
+      type = types.nullOr types.str;
+      description = "Its desktop file, for opening files with it (e.g. firefox.desktop).";
+    };
+
   };
 
   appDefaults = name: {
@@ -48,6 +53,7 @@ let
     inTerminal = false;
     execFlag = null;
     dmenu = null;
+    desktopEntry = null;
   };
 
   override = overrides.type appFields;
@@ -120,6 +126,20 @@ let
 
       dmenuConsumers = mkOption {
         type = types.listOf types.str;
+      };
+
+      defaultHandlers = mkOption {
+        type = types.bool;
+      };
+
+      handlers = mkOption {
+        type = types.attrsOf (types.listOf types.str);
+        description = "MIME type -> desktop files, when defaultHandlers is on.";
+      };
+
+      handlersMissing = mkOption {
+        type = types.listOf types.str;
+        description = "Roles that should handle files but name no desktop file.";
       };
 
     };

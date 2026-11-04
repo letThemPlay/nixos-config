@@ -56,6 +56,19 @@ _: {
       };
     };
 
+    file-handling = {
+      description = "Files and links open in the right app: viewers for images (imv), PDFs (zathura) and media (mpv), with the roles in use as the default apps.";
+      module.ltp.apps = {
+        defaultHandlers = true;
+
+        roles = {
+          imageViewer = "imv";
+          pdfViewer = "zathura";
+          mediaPlayer = "mpv";
+        };
+      };
+    };
+
     power = {
       description = "Power profiles (power-profiles-daemon), and battery levels with a clean shutdown as the last resort (UPower).";
       module.ltp.hardware = {

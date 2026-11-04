@@ -8,6 +8,7 @@ _: {
       "base"
       "laptop"
       "power"
+      "file-handling"
       "window-management"
       "unified-ui"
       "core-apps"

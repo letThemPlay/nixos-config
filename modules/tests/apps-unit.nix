@@ -27,6 +27,10 @@ let
     }
     { roles.editor = "emacs"; }
     {
+      defaultHandlers = true;
+      roles.imageViewer = "imv";
+    }
+    {
       install = [
         "firefox"
         "nope"
@@ -232,6 +236,88 @@ let
         missing = [ "apps.dmenu.missing" ];
         unused = [ ];
       };
+    };
+
+    testHandlersOffByDefault = {
+      expr = {
+        inherit (modelOf { }) defaultHandlers handlers handlersMissing;
+        # Other hosts gain no apps from the new roles.
+        viewers = (modelOf { }).roles ? imageViewer;
+      };
+      expected = {
+        defaultHandlers = false;
+        handlers = { };
+        handlersMissing = [ ];
+        viewers = false;
+      };
+    };
+
+    testHandlersFromRoles =
+      let
+        inherit
+          (modelOf {
+            defaultHandlers = true;
+            roles = {
+              imageViewer = "imv";
+              pdfViewer = "zathura";
+              mediaPlayer = "mpv";
+            };
+          })
+          handlers
+          ;
+      in
+      {
+        expr = lib.mapAttrs (_: type: handlers.${type}) {
+          link = "x-scheme-handler/https";
+          folder = "inode/directory";
+          text = "text/plain";
+          image = "image/png";
+          pdf = "application/pdf";
+          video = "video/mp4";
+          audio = "audio/flac";
+        };
+        expected = {
+          link = [ "firefox.desktop" ];
+          folder = [ "yazi.desktop" ];
+          text = [ "nvim.desktop" ];
+          image = [ "imv.desktop" ];
+          pdf = [ "org.pwmt.zathura.desktop" ];
+          video = [ "mpv.desktop" ];
+          audio = [ "mpv.desktop" ];
+        };
+      };
+
+    # A role left out opens nothing; its types aren't handed to anything else.
+    testHandlersOnlyForRolesInUse = {
+      expr =
+        (modelOf {
+          defaultHandlers = true;
+          roles.browser = null;
+        }).handlers
+          ? "text/html";
+      expected = false;
+    };
+
+    testHandlerNeedsDesktopEntry = {
+      expr = {
+        missing = codes {
+          defaultHandlers = true;
+          overrides.browser.desktopEntry = null;
+        };
+        fine = codes {
+          overrides.browser.desktopEntry = null;
+        };
+      };
+      expected = {
+        missing = [ "apps.handler.entry.missing" ];
+        fine = [ ];
+      };
+    };
+
+    # The catalogue entry and the role names must agree with the type map.
+    testRolesWithMimeTypesHaveApps = {
+      expr = builtins.filter (role: !(apps.defaultRoles ? ${role})) (builtins.attrNames apps.mimeTypes);
+      expected = [ ];
     };
 
     testModelContract = {

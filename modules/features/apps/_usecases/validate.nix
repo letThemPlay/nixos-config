@@ -112,6 +112,19 @@ let
       )
     );
 
+  # Without a desktop file there's nothing to open files with.
+  handlers =
+    model:
+    mkResult (
+      map (
+        role:
+        diagnostic "apps.handler.entry.missing" [
+          "roles"
+          role
+        ] role "The ${role} role should open files, but its app has no desktopEntry."
+      ) model.handlersMissing
+    );
+
   all =
     model:
     combine [
@@ -119,6 +132,7 @@ let
       (installed model)
       (terminal model)
       (dmenu model)
+      (handlers model)
     ];
 in
 {
@@ -129,6 +143,7 @@ in
     terminal
     installed
     dmenu
+    handlers
     all
     ;
 }

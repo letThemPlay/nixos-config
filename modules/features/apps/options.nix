@@ -51,6 +51,15 @@ in
           description = "Catalogue apps installed and configured without playing a role.";
         };
 
+        defaultHandlers = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            Whether the roles in use become the default apps for what they
+            open: links, folders, text, images, PDFs and media.
+          '';
+        };
+
         dmenuConsumers = mkOption {
           type = types.listOf types.str;
           default = [ ];

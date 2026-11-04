@@ -101,6 +101,31 @@ in
               ];
             }
 
+            #
+            # Default apps. An existing mimeapps.list, as browsers write,
+            # would otherwise stop home-manager activating. xdg-terminal-exec
+            # is how terminal apps such as yazi find a terminal to open in.
+            #
+            (mkIf model.defaultHandlers {
+              home-manager.sharedModules = [
+                {
+                  home.packages = [
+                    pkgs.xdg-utils
+                    pkgs.xdg-terminal-exec
+                  ];
+
+                  xdg = {
+                    mimeApps = {
+                      enable = true;
+                      defaultApplications = model.handlers;
+                    };
+
+                    configFile."mimeapps.list".force = true;
+                  };
+                }
+              ];
+            })
+
             # The aliases of the apps in use, in every shell.
             { ltp.shell.aliases = model.aliases; }
 
