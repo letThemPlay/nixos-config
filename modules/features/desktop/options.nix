@@ -88,6 +88,29 @@ in
           description = "Background components of the graphical session.";
         };
 
+        displays = mkOption {
+          type = desktop.types.displays;
+          default = { };
+
+          example = {
+            profiles.desk.outputs = {
+              "eDP-1".enable = false;
+              "Dell Inc. DELL U2720Q ABC123" = {
+                scale = 1.5;
+                position = {
+                  x = 0;
+                  y = 0;
+                };
+              };
+            };
+          };
+
+          description = ''
+            Display layouts for the displays component. Whichever profile
+            matches the connected monitors is applied.
+          '';
+        };
+
         ui = mkOption {
           type = desktop.types.ui;
           default = { };

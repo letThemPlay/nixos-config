@@ -28,6 +28,11 @@ in
 numbered "Mod+" "focus-workspace"
 // numbered "Mod+Shift+" "move-to-workspace"
 // {
+  "Mod+Ctrl+Left" = act "focus-monitor-left";
+  "Mod+Ctrl+Right" = act "focus-monitor-right";
+  "Mod+Shift+Ctrl+Left" = act "move-to-monitor-left";
+  "Mod+Shift+Ctrl+Right" = act "move-to-monitor-right";
+
   "Mod+Page_Up" = act "focus-workspace-up";
   "Mod+Page_Down" = act "focus-workspace-down";
   "Mod+Shift+Page_Up" = act "move-to-workspace-up";

@@ -199,6 +199,76 @@ let
       expected = [ ];
     };
 
+    testMonitorBindsRenderToNiri = {
+      expr = builtins.filter (line: !hasLine (niriOf { }) line) [
+        ''"Mod+Ctrl+Left" { focus-monitor-left; }''
+        ''"Mod+Ctrl+Right" { focus-monitor-right; }''
+        ''"Mod+Shift+Ctrl+Left" { move-column-to-monitor-left; }''
+        ''"Mod+Shift+Ctrl+Right" { move-column-to-monitor-right; }''
+      ];
+      expected = [ ];
+    };
+
+    testDisplaysRenderToKanshi = {
+      expr = desktop.kanshi {
+        inherit
+          (modelOf {
+            displays.profiles.desk.outputs = {
+              "eDP-1".enable = false;
+              "Dell U2720Q" = {
+                scale = 1.5;
+                mode = "3840x2160@60Hz";
+                position = {
+                  x = 1920;
+                  y = 0;
+                };
+              };
+            };
+          })
+          displays
+          ;
+      };
+      expected = [
+        {
+          profile = {
+            name = "desk";
+            outputs = [
+              {
+                criteria = "Dell U2720Q";
+                status = "enable";
+                scale = 1.5;
+                mode = "3840x2160@60Hz";
+                position = "1920,0";
+              }
+              {
+                criteria = "eDP-1";
+                status = "disable";
+              }
+            ];
+          };
+        }
+      ];
+    };
+
+    testDisplayValidation = {
+      expr = {
+        none = codes { displays.profiles.empty.outputs = { }; };
+        scale = codes {
+          displays.profiles.desk.outputs."eDP-1".scale = 0;
+        };
+        fine = codes {
+          displays.profiles.desk.outputs."eDP-1".scale = 1.25;
+        };
+        nothing = (modelOf { }).displays.profiles;
+      };
+      expected = {
+        none = [ "desktop.display.profile.outputs.none" ];
+        scale = [ "desktop.display.outputs.scale" ];
+        fine = [ ];
+        nothing = { };
+      };
+    };
+
     # The vocabulary and niri's map must not drift apart.
     testNiriMapsEveryAction = {
       expr = builtins.filter (action: !(desktop.compositors.niri.actions ? ${action})) desktop.actions;

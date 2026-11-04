@@ -92,6 +92,7 @@ in
       osd.quickshell = ./_components/osd/quickshell.nix;
       quicksettings.quickshell = ./_components/quicksettings/quickshell.nix;
       batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
+      displays.kanshi = ./_components/displays/kanshi.nix;
       clipboard = {
         cliphist = ./_components/clipboard/cliphist.nix;
         quickshell = ./_components/clipboard/quickshell.nix;
@@ -113,6 +114,7 @@ in
       osd = null;
       quicksettings = null;
       batteryAlerts = null;
+      displays = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";
@@ -149,6 +151,8 @@ in
     powerActions = import ./_domain/power-actions.nix { };
 
     quickshell = import ./_adapters/quickshell.nix { inherit lib; };
+
+    kanshi = import ./_adapters/kanshi.nix { inherit lib; };
 
     # Spawned commands run as session applications.
     spawnPrefix = [

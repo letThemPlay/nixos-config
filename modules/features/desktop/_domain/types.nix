@@ -218,6 +218,61 @@ let
     };
   };
 
+  #
+  # How one monitor is set in a display profile. Null leaves that setting to
+  # the compositor.
+  #
+  displayOutput = types.submodule {
+    options = {
+
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Whether the output is on in this profile.";
+      };
+
+      scale = mkOption {
+        type = types.nullOr (types.either types.int types.float);
+        default = null;
+      };
+
+      mode = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "2560x1440@144Hz";
+      };
+
+      position = mkOption {
+        type = types.nullOr (
+          types.submodule {
+            options = {
+              x = mkOption { type = types.int; };
+              y = mkOption { type = types.int; };
+            };
+          }
+        );
+        default = null;
+      };
+
+    };
+  };
+
+  # Named layouts; the one whose outputs match what's connected applies.
+  displays = types.submodule {
+    options.profiles = mkOption {
+      type = types.attrsOf (
+        types.submodule {
+          options.outputs = mkOption {
+            type = types.attrsOf displayOutput;
+            default = { };
+            description = "Outputs by connector (\"eDP-1\") or \"Make Model Serial\".";
+          };
+        }
+      );
+      default = { };
+    };
+  };
+
   # Inputs of the unified shell (_ui): what its surfaces run.
   ui = types.submodule {
     options = {
@@ -243,6 +298,10 @@ let
 
   model = types.submodule {
     options = {
+
+      displays = mkOption {
+        type = displays;
+      };
 
       ui = mkOption {
         type = types.submodule {
@@ -364,6 +423,8 @@ in
     ruleProperties
     service
     bar
+    displayOutput
+    displays
     ui
     powerAction
     model

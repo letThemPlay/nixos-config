@@ -14,6 +14,11 @@ numbered "focus-workspace"
   "close"
   "quit"
 
+  "focus-monitor-left"
+  "focus-monitor-right"
+  "move-to-monitor-left"
+  "move-to-monitor-right"
+
   "focus-workspace-up"
   "focus-workspace-down"
   "move-to-workspace-up"

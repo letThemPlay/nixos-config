@@ -273,6 +273,56 @@ let
     );
 
   #
+  # A profile with no outputs would match a machine with nothing connected, and
+  # a scale of zero or less would be refused when it's applied, at plug-in time.
+  #
+  displays =
+    model:
+    mkResult (
+      mapAttrsToList (
+        name: _:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.display.profile.outputs.none";
+          target = name;
+          path = [
+            "displays"
+            "profiles"
+            name
+          ];
+          message = "Display profile '${name}' has no outputs.";
+        }
+      ) (filterAttrs (_: profile: profile.outputs == { }) model.displays.profiles)
+
+      ++ concatMap (
+        name:
+        mapAttrsToList
+          (
+            criteria: output:
+            mkDiagnostic {
+              severity = "error";
+              code = "desktop.display.outputs.scale";
+              target = "${name}.${criteria}";
+              path = [
+                "displays"
+                "profiles"
+                name
+                "outputs"
+                criteria
+                "scale"
+              ];
+              message = "Output '${criteria}' in display profile '${name}' has scale ${toString output.scale}; it must be above 0.";
+            }
+          )
+          (
+            filterAttrs (
+              _: output: output.scale != null && output.scale <= 0
+            ) model.displays.profiles.${name}.outputs
+          )
+      ) (attrNames model.displays.profiles)
+    );
+
+  #
   # The shell draws its own widgets, so a name only waybar knows would
   # leave a hole in the bar.
   #
@@ -317,6 +367,7 @@ let
     model:
     combine [
       (components model)
+      (displays model)
       (ui model)
       (requirements model)
       (greeter model)
@@ -338,6 +389,7 @@ in
     idle
     greeter
     requirements
+    displays
     ui
     components
     all

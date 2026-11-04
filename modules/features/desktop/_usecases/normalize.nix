@@ -132,6 +132,8 @@ in
     known = cfg.greeter == null || desktop.greeters ? ${cfg.greeter};
   };
 
+  displays = cfg.displays or { profiles = { }; };
+
   # The roles that selected the unified shell are the surfaces it draws.
   ui = {
     surfaces = attrNames (filterAttrs (_: name: name == desktop.uiComponent) cfg.components);

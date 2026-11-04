@@ -46,6 +46,7 @@ _: {
           osd = "quickshell";
           quicksettings = "quickshell";
           batteryAlerts = "quickshell";
+          displays = "kanshi";
           clipboard = "quickshell";
           dock = null;
         };

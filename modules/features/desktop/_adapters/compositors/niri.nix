@@ -33,6 +33,11 @@ let
       close = "close-window";
       quit = "quit";
 
+      focus-monitor-left = "focus-monitor-left";
+      focus-monitor-right = "focus-monitor-right";
+      move-to-monitor-left = "move-column-to-monitor-left";
+      move-to-monitor-right = "move-column-to-monitor-right";
+
       focus-workspace-up = "focus-workspace-up";
       focus-workspace-down = "focus-workspace-down";
       move-to-workspace-up = "move-column-to-workspace-up";
