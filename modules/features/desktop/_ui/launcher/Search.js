@@ -24,6 +24,17 @@ function scoreEntry(query, name, extras) {
   return Math.max(score(query, name), best);
 }
 
+// How much use lifts a result, fading over weeks of not being used. Capped below
+// the gap between match tiers in score, so it orders similar matches but never
+// lifts a worse match over a better one.
+function usageBonus(usage, now) {
+  if (!usage) return 0;
+
+  const days = (now - usage.last) / 86400000;
+  const weight = usage.count / (1 + Math.max(0, days) / 7);
+  return Math.min(15, Math.log2(1 + weight) * 4);
+}
+
 // Only digits and operators reach Function, so this can only be arithmetic.
 function calculate(query) {
   if (!/^[0-9+\-*/%().^\s]*$/.test(query) || !/[+\-*/%^]/.test(query) || !/[0-9]/.test(query))

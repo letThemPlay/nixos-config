@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.common
+import qs.services
 import "Search.js" as Search
 
 // A centered search field that grows results as you type: applications,
@@ -30,6 +31,7 @@ Scope {
     if (q === "") return [];
 
     const found = [];
+    const now = Date.now();
 
     const value = Search.calculate(q);
     if (value !== null) {
@@ -65,7 +67,7 @@ Scope {
       if (score > 0) {
         found.push({
           kind: "app",
-          score: score,
+          score: score + Search.usageBonus(Usage.apps[entry.id], now),
           title: entry.name,
           subtitle: entry.genericName || entry.comment,
           appIcon: entry.icon,
@@ -95,6 +97,7 @@ Scope {
     if (!result) return;
 
     if (result.kind === "app") {
+      Usage.record(result.entry.id);
       if (result.entry.runInTerminal) Run.inTerminal(result.entry.command);
       else Run.app(result.entry.command);
     } else if (result.kind === "power") {
