@@ -53,6 +53,14 @@ _: {
       };
     };
 
+    power = {
+      description = "Power profiles (power-profiles-daemon), and battery levels with a clean shutdown as the last resort (UPower).";
+      module.ltp.hardware = {
+        powerProfiles.enable = true;
+        battery.enable = true;
+      };
+    };
+
     laptop = {
       description = "Audio, bluetooth, a backlight, the wireless UI (iwgtk) and discord.";
       module.ltp = {

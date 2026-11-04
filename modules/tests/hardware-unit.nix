@@ -40,6 +40,10 @@ let
     (pair "amd")
     ((pair "intel") // { prime = "sync"; })
     { guest = "qemu"; }
+    {
+      powerProfiles.enable = true;
+      battery.enable = true;
+    }
   ];
 
   tests = {
@@ -258,6 +262,67 @@ let
         false
         true
       ];
+    };
+
+    testPowerDefaultsOff = {
+      expr = {
+        inherit (hardware.power { model = modelOf { }; }) profiles;
+        battery = (hardware.power { model = modelOf { }; }).battery.active;
+        codes = codes { };
+      };
+      expected = {
+        profiles.active = false;
+        battery = false;
+        codes = [ ];
+      };
+    };
+
+    # UPower's own defaults hibernate-style on a host with no swap to resume from.
+    testBatteryRendersToUpower = {
+      expr =
+        (hardware.power {
+          model = modelOf {
+            battery.enable = true;
+          };
+        }).battery.upower;
+      expected = {
+        enable = true;
+        percentageLow = 20;
+        percentageCritical = 5;
+        percentageAction = 2;
+        criticalPowerAction = "PowerOff";
+      };
+    };
+
+    testBatteryValidation = {
+      expr = {
+        unknown = codes {
+          battery = {
+            enable = true;
+            criticalAction = "Explode";
+          };
+        };
+        order = codes {
+          battery = {
+            enable = true;
+            lowAt = 5;
+            criticalAt = 20;
+          };
+        };
+        # Nothing to get wrong while the battery isn't managed.
+        off = codes {
+          battery = {
+            lowAt = 5;
+            criticalAt = 20;
+            criticalAction = "Explode";
+          };
+        };
+      };
+      expected = {
+        unknown = [ "hardware.battery.action.unknown" ];
+        order = [ "hardware.battery.levels.order" ];
+        off = [ ];
+      };
     };
 
     testModelContract = {

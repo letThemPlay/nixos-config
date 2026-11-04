@@ -7,6 +7,7 @@ _: {
     bundles = [
       "base"
       "laptop"
+      "power"
       "window-management"
       "unified-ui"
       "core-apps"

@@ -72,6 +72,23 @@ let
         type = types.bool;
       };
 
+      powerProfiles = mkOption {
+        type = types.bool;
+      };
+
+      battery = mkOption {
+        type = types.submodule {
+          options = {
+            active = mkOption { type = types.bool; };
+            lowAt = mkOption { type = types.ints.between 0 100; };
+            criticalAt = mkOption { type = types.ints.between 0 100; };
+            actionAt = mkOption { type = types.ints.between 0 100; };
+            action = mkOption { type = types.str; };
+            actionKnown = mkOption { type = types.bool; };
+          };
+        };
+      };
+
       guest = mkOption {
         type = types.submodule {
           options = {

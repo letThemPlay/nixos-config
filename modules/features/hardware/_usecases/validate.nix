@@ -88,12 +88,41 @@ let
       )
     );
 
+  #
+  # The levels are what a discharging battery passes through, so out of order
+  # the action would run before a warning does.
+  #
+  battery =
+    model:
+    let
+      inherit (model.battery)
+        active
+        lowAt
+        criticalAt
+        actionAt
+        action
+        actionKnown
+        ;
+    in
+    mkResult (
+      optional (active && !actionKnown) (
+        diagnostic "hardware.battery.action.unknown" [ "battery" "criticalAction" ] action
+          "Unknown battery action '${action}' (known: ${concatStringsSep ", " hardware.batteryActions})."
+      )
+
+      ++ optional (active && !(lowAt > criticalAt && criticalAt > actionAt)) (
+        diagnostic "hardware.battery.levels.order" [ "battery" ] "levels"
+          "Battery levels must fall in order: lowAt (${toString lowAt}) > criticalAt (${toString criticalAt}) > actionAt (${toString actionAt})."
+      )
+    );
+
   all =
     model:
     combine [
       (busIds model)
       (gpus model)
       (guest model)
+      (battery model)
     ];
 in
 {
@@ -103,6 +132,7 @@ in
     busIds
     gpus
     guest
+    battery
     all
     ;
 }

@@ -26,6 +26,8 @@ in
 
       bluetooth = hardware.bluetooth { inherit model; };
 
+      power = hardware.power { inherit model; };
+
       #
       # Every registered guest renders behind mkIf (guest == name), so
       # the module's shape does not depend on config.
@@ -56,7 +58,19 @@ in
         # Published on every host, like the other features' facts.
         {
           ltp.hardware.facts = {
-            inherit (model) audio bluetooth backlight;
+            inherit (model)
+              audio
+              bluetooth
+              backlight
+              powerProfiles
+              ;
+
+            battery = model.battery.active;
+
+            batteryLevels = {
+              low = model.battery.lowAt;
+              critical = model.battery.criticalAt;
+            };
           };
         }
 
@@ -115,6 +129,10 @@ in
                 })
 
                 { environment.variables = graphics.environment; }
+
+                (mkIf power.profiles.active { services.power-profiles-daemon.enable = true; })
+
+                (mkIf power.battery.active { services.upower = power.battery.upower; })
               ]
 
               ++ mapAttrsToList renderGuest hardware.guests
