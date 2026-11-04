@@ -4,6 +4,7 @@ import Quickshell.Services.Pipewire
 import Quickshell.Wayland
 import QtQuick
 import qs.common
+import qs.services
 
 // A short-lived level display at the bottom of the active output. Volume comes
 // from PipeWire, so changes from the bar or an application show too. Brightness
@@ -75,17 +76,11 @@ Scope {
     onTriggered: root.shown = false
   }
 
-  Process {
-    id: brightnessStatus
+  Connections {
+    target: Brightness
 
-    command: Settings.commands.brightnessStatus ?? []
-
-    stdout: StdioCollector {
-      // device,class,current,percent%,max
-      onStreamFinished: {
-        const percent = parseInt(text.trim().split(",")[3]);
-        if (!isNaN(percent)) root.show("brightness", percent / 100, false);
-      }
+    function onAnnounced() {
+      root.show("brightness", Brightness.level, false);
     }
   }
 
@@ -93,7 +88,7 @@ Scope {
     target: "osd"
 
     function brightness(): void {
-      if (brightnessStatus.command.length > 0) brightnessStatus.running = true;
+      Brightness.refresh(true);
     }
   }
 

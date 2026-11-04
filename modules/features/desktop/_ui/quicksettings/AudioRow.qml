@@ -17,6 +17,7 @@ Column {
   readonly property var devices: Pipewire.nodes.values.filter(node => node.audio && !node.isStream && node.isSink === output)
   readonly property var current: output ? Pipewire.defaultAudioSink : Pipewire.defaultAudioSource
   readonly property var audio: current?.audio ?? null
+  readonly property bool muted: audio?.muted ?? false
 
   function choose(node) {
     if (output) Pipewire.preferredDefaultAudioSink = node;
@@ -38,8 +39,9 @@ Column {
       id: mute
 
       anchors.verticalCenter: parent.verticalCenter
-      icon: root.audio?.muted ? root.mutedIcon : root.icon
+      icon: root.muted ? root.mutedIcon : root.icon
       iconSize: Theme.iconMedium
+      tint: root.muted ? Theme.warning : foreground
       onClicked: {
         if (root.audio) root.audio.muted = !root.audio.muted;
       }
@@ -49,6 +51,7 @@ Column {
       anchors.verticalCenter: parent.verticalCenter
       width: parent.width - mute.width - percent.width - parent.spacing * 2
       value: root.audio?.volume ?? 0
+      muted: root.muted
       onMoved: level => {
         if (root.audio) root.audio.volume = level;
       }
@@ -59,7 +62,7 @@ Column {
 
       anchors.verticalCenter: parent.verticalCenter
       level: root.audio?.volume ?? 0
-      color: Theme.muted
+      color: root.muted ? Theme.warning : Theme.muted
     }
   }
 

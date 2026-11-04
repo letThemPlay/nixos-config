@@ -7,6 +7,7 @@ Pressable {
   property string icon
   property int iconSize: Theme.iconSmall
   property bool filled: false
+  property color tint: foreground
 
   implicitWidth: iconSize + Theme.spaceSm * 2
   implicitHeight: implicitWidth
@@ -16,6 +17,6 @@ Pressable {
     name: root.icon
     size: root.iconSize
     filled: root.filled
-    color: root.foreground
+    color: root.tint
   }
 }

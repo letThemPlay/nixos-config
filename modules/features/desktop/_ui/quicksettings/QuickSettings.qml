@@ -17,9 +17,6 @@ Overlay {
   readonly property var adapter: Bluetooth.defaultAdapter
   readonly property bool hasNotifier: Settings.surfaces.includes("notifier")
 
-  property real brightness: 0
-  property real brightnessTarget: 0
-
   function remaining(seconds) {
     const minutes = Math.round(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -27,7 +24,7 @@ Overlay {
   }
 
   onShownChanged: {
-    if (shown && Run.has("brightnessStatus")) brightnessStatus.running = true;
+    if (shown) Brightness.refresh(false);
   }
 
   IpcHandler {
@@ -36,28 +33,6 @@ Overlay {
     function toggle(): void {
       Ui.toggle("quicksettings");
     }
-  }
-
-  Process {
-    id: brightnessStatus
-
-    command: Settings.commands.brightnessStatus ?? []
-
-    stdout: StdioCollector {
-      // device,class,current,percent%,max
-      onStreamFinished: {
-        const percent = parseInt(text.trim().split(",")[3]);
-        if (!isNaN(percent)) root.brightness = percent / 100;
-      }
-    }
-  }
-
-  // A drag reports many levels; each one would be a process and a logind call.
-  Timer {
-    id: applyBrightness
-
-    interval: Theme.motionFast
-    onTriggered: Run.command("brightnessSet", [Math.round(root.brightnessTarget * 100) + "%"])
   }
 
   Panel {
@@ -124,19 +99,15 @@ Overlay {
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width - Theme.iconMedium - Theme.spaceSm * 2 - brightnessLabel.width - parent.spacing * 2
             minimum: 0.01
-            value: root.brightness
-            onMoved: level => {
-              root.brightness = level;
-              root.brightnessTarget = level;
-              applyBrightness.restart();
-            }
+            value: Brightness.level
+            onMoved: level => Brightness.set(level)
           }
 
           Percent {
             id: brightnessLabel
 
             anchors.verticalCenter: parent.verticalCenter
-            level: root.brightness
+            level: Brightness.level
             color: Theme.muted
           }
         }

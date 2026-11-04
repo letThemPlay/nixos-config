@@ -8,6 +8,9 @@ Item {
   property real value: 0
   property real minimum: 0
 
+  // Still holds its level, but warns that the level isn't in effect.
+  property bool muted: false
+
   // While dragging it follows the pointer, not a value still catching up.
   readonly property real shownValue: mouse.pressed ? pointerValue : value
   property real pointerValue: 0
@@ -33,7 +36,7 @@ Item {
       width: parent.width * root.shownValue
       height: parent.height
       radius: parent.radius
-      color: Theme.accent
+      color: root.muted ? Theme.warning : Theme.accent
     }
   }
 
@@ -43,7 +46,7 @@ Item {
     width: Theme.iconSmall
     height: width
     radius: width / 2
-    color: Theme.accent
+    color: root.muted ? Theme.warning : Theme.accent
     border.width: 2
     border.color: Theme.surface
   }
