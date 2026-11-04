@@ -65,17 +65,19 @@ in
           "window"
         ];
 
-      right = [
-        "tray"
-        "media"
-        "network"
-        "bluetooth"
-        "volume"
-        "battery"
-        "clock"
-      ]
-      ++ lib.optional (drawn "quicksettings") "settings"
-      ++ lib.optional (drawn "power") "power";
+      right =
+        lib.optional (config.ltp.desktop.components.recorder != null) "recording"
+        ++ [
+          "tray"
+          "media"
+          "network"
+          "bluetooth"
+          "volume"
+          "battery"
+          "clock"
+        ]
+        ++ lib.optional (drawn "quicksettings") "settings"
+        ++ lib.optional (drawn "power") "power";
 
       requires = {
         bluetooth = [ "bluetooth" ];

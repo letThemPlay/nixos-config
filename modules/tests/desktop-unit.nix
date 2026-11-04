@@ -199,6 +199,15 @@ let
       expected = [ ];
     };
 
+    # The recorder asks every compositor which output has focus.
+    testCompositorsNameFocusedOutput = {
+      expr = lib.mapAttrs (_: entry: builtins.attrNames entry.focusedOutput) desktop.compositors;
+      expected = lib.mapAttrs (_: _: [
+        "command"
+        "filter"
+      ]) desktop.compositors;
+    };
+
     testScreenshotBindsRenderToNiri = {
       expr = builtins.filter (line: !hasLine (niriOf { }) line) [
         ''"Print" { screenshot-screen; }''
@@ -460,8 +469,10 @@ let
         "osd"
         "power"
         "quicksettings"
+        "recorder"
       ];
       expected = [
+        true
         true
         true
         true

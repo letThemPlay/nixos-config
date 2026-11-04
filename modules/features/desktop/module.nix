@@ -45,7 +45,7 @@ in
             }@args:
             let
               # The module system passes pkgs only to functions naming it.
-              component = import path (args // { inherit pkgs; });
+              component = import path (args // { inherit pkgs desktop; });
             in
             {
               config = lib.mkIf (config.ltp.desktop.enable && config.ltp.desktop.components.${role} == name) (

@@ -47,6 +47,7 @@ in
     #   uwsm       : { prettyName; comment; binPath; extraArgs; } for its
     #                uwsm session
     #   system     : { package; portals; keyring; packages; } as names
+    #   focusedOutput : { command; filter; } naming the focused output
     #   render     : { model, spawnPrefix } -> config text
     #
     compositors = {
@@ -94,6 +95,7 @@ in
       batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
       displays.kanshi = ./_components/displays/kanshi.nix;
       automount.udiskie = ./_components/automount/udiskie.nix;
+      recorder.wf-recorder = ./_components/recorder/wf-recorder.nix;
       clipboard = {
         cliphist = ./_components/clipboard/cliphist.nix;
         quickshell = ./_components/clipboard/quickshell.nix;
@@ -117,6 +119,7 @@ in
       batteryAlerts = null;
       displays = null;
       automount = null;
+      recorder = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";
@@ -139,6 +142,7 @@ in
       "notifications"
       "workspaces"
       "window"
+      "recording"
       "tray"
       "media"
       "network"

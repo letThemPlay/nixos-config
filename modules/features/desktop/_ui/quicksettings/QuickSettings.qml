@@ -174,6 +174,51 @@ Overlay {
           }
         }
 
+        Row {
+          id: recording
+
+          readonly property int count: Recorder.active ? 1 : 3
+          readonly property real tileWidth: (width - spacing * (count - 1)) / count
+
+          width: parent.width
+          spacing: Theme.spaceXs
+          visible: Recorder.available
+
+          Tile {
+            width: recording.tileWidth
+            visible: Recorder.active
+            icon: "recordStop"
+            text: "Stop recording, " + Recorder.elapsed
+            danger: true
+            onClicked: Recorder.stop()
+          }
+
+          Tile {
+            width: recording.tileWidth
+            visible: !Recorder.active
+            icon: "recordScreen"
+            text: "Record screen"
+            onClicked: Recorder.start("screen")
+          }
+
+          Tile {
+            width: recording.tileWidth
+            visible: !Recorder.active
+            icon: "recordRegion"
+            text: "Record region"
+            onClicked: Recorder.start("region")
+          }
+
+          Tile {
+            width: recording.tileWidth
+            visible: !Recorder.active
+            icon: "recordAudio"
+            text: "System audio"
+            selected: Recorder.withAudio
+            onClicked: Recorder.withAudio = !Recorder.withAudio
+          }
+        }
+
         Pressable {
           width: parent.width
           implicitHeight: Theme.sizeBarItem + Theme.spaceSm

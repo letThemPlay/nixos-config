@@ -28,6 +28,7 @@ PanelWindow {
     "notifications": notifications,
     "workspaces": workspaces,
     "window": window,
+    "recording": recording,
     "tray": tray,
     "media": media,
     "network": network,
@@ -49,6 +50,7 @@ PanelWindow {
   Component { id: notifications; NotificationsWidget {} }
   Component { id: workspaces; WorkspacesWidget { screen: root.screen } }
   Component { id: window; WindowWidget {} }
+  Component { id: recording; RecordingWidget {} }
   Component { id: tray; TrayWidget { window: root } }
   Component { id: media; MediaWidget {} }
   Component { id: network; NetworkWidget {} }

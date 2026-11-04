@@ -40,6 +40,12 @@ Singleton {
 
     "keepAwake": "coffee",
 
+    "recording": "fiber_manual_record",
+    "recordScreen": "videocam",
+    "recordRegion": "crop_free",
+    "recordAudio": "graphic_eq",
+    "recordStop": "stop_circle",
+
     "brightness": "brightness_medium",
 
     "volumeHigh": "volume_up",

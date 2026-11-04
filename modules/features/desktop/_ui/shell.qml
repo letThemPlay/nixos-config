@@ -21,6 +21,11 @@ ShellRoot {
     return Settings.surfaces.includes(surface);
   }
 
+  // The recorder's binds reach it over IPC, and one may already be running.
+  Component.onCompleted: {
+    if (Recorder.available) Recorder.check();
+  }
+
   Variants {
     model: root.has("bar") ? Quickshell.screens : []
 

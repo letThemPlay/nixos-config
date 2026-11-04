@@ -73,6 +73,17 @@ let
       shrink = ''set-column-width "-10%"'';
     };
 
+  # How to ask which output has focus; filter is jq, leaving its name.
+  focusedOutput = {
+    command = [
+      "niri"
+      "msg"
+      "-j"
+      "focused-output"
+    ];
+    filter = ".name";
+  };
+
   # Abstract bar widgets -> waybar modules.
   widgets = {
     workspaces = "niri/workspaces";
@@ -229,6 +240,7 @@ in
     session
     configFile
     actions
+    focusedOutput
     widgets
     ruleProperties
     uwsm
