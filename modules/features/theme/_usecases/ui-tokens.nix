@@ -37,6 +37,7 @@ in
 
   size = {
     bar = ui.barHeight;
+    barItem = ui.barHeight - unit * 3;
     launcher = unit * 160;
     sidePanel = unit * 100;
     field = unit * 13;

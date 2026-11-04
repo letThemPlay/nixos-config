@@ -14,7 +14,10 @@ PanelWindow {
     right: true
   }
 
-  implicitHeight: Theme.sizeBar + Theme.spaceSm
+  // The same gap above and below the islands. Only the part above is reserved:
+  // the compositor already keeps its own gap between the bar and windows.
+  implicitHeight: Theme.sizeBar + Theme.spaceSm * 2
+  exclusiveZone: Theme.sizeBar + Theme.spaceSm
   color: "transparent"
 
   WlrLayershell.layer: WlrLayer.Top
@@ -54,7 +57,7 @@ PanelWindow {
     required property var names
 
     y: Theme.spaceSm
-    implicitWidth: row.implicitWidth + Theme.spaceXs * 2
+    implicitWidth: row.implicitWidth + Theme.sizeBar - Theme.sizeBarItem
     implicitHeight: Theme.sizeBar
     visible: names.length > 0
 

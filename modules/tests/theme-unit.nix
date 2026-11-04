@@ -161,6 +161,7 @@ let
         in
         {
           inherit (tokens) space radius motion;
+          barPadding = tokens.size.bar - tokens.size.barItem;
           family = tokens.font.family;
           body = tokens.font.body;
           small = tokens.font.small;
@@ -183,6 +184,7 @@ let
           fast = 100;
           normal = 200;
         };
+        barPadding = 15;
         family = "Inter";
         body = 11;
         small = 10;

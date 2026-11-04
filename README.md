@@ -74,7 +74,7 @@ ltp.theme.appearance = {
   ui = {
     spacing = 4;        # every padding and gap is a multiple of this
     radius = 10;        # panel corners; controls and cards scale from it
-    barHeight = 36;
+    barHeight = 40;
     animationMs = 180;
     panelOpacity = 0.97;
     iconFont = { package = "material-symbols"; name = "Material Symbols Rounded"; };

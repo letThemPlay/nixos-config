@@ -23,7 +23,7 @@ Row {
       required property SystemTrayItem modelData
 
       implicitWidth: implicitHeight
-      implicitHeight: Theme.sizeBar - Theme.spaceSm
+      implicitHeight: Theme.sizeBarItem
 
       onClicked: button => {
         if (button === Qt.RightButton || modelData.onlyMenu)

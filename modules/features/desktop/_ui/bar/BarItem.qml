@@ -13,7 +13,7 @@ Pressable {
   property bool filled: false
   property int textWidth: 0
 
-  implicitHeight: Theme.sizeBar - Theme.spaceSm
+  implicitHeight: Theme.sizeBarItem
   // At least square, so a single digit or icon does not make a sliver.
   implicitWidth: Math.max(implicitHeight, content.implicitWidth + Theme.spaceSm * 2)
 

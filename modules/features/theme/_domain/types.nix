@@ -103,7 +103,7 @@ let
       ui = {
         spacing = size 4 "Base spacing unit in pixels; every padding and gap is a multiple of it.";
         radius = size 10 "Corner radius of panels in pixels; controls and cards scale from it.";
-        barHeight = size 36 "Height of the top bar in pixels.";
+        barHeight = size 40 "Height of the top bar's islands in pixels; their widgets sit inside with even padding.";
         animationMs = size 180 "Duration of panel animations in milliseconds.";
 
         panelOpacity = fraction 0.97 "Opacity of panel backgrounds.";
