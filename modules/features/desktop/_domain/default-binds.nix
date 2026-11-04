@@ -8,8 +8,36 @@ let
   act = action: { inherit action; };
 
   role = app: { inherit app; };
+
+  # One bind per workspace, 1 to 9.
+  numbered =
+    key: action:
+    builtins.listToAttrs (
+      builtins.genList (
+        index:
+        let
+          number = toString (index + 1);
+        in
+        {
+          name = "${key}${number}";
+          value = act "${action}-${number}";
+        }
+      ) 9
+    );
 in
-{
+numbered "Mod+" "focus-workspace"
+// numbered "Mod+Shift+" "move-to-workspace"
+// {
+  "Mod+Page_Up" = act "focus-workspace-up";
+  "Mod+Page_Down" = act "focus-workspace-down";
+  "Mod+Shift+Page_Up" = act "move-to-workspace-up";
+  "Mod+Shift+Page_Down" = act "move-to-workspace-down";
+
+  "Mod+O" = act "overview";
+  "Mod+Shift+Space" = act "toggle-floating";
+  "Mod+Tab" = act "focus-floating";
+  "Mod+Shift+Slash" = act "show-hotkeys";
+
   "Mod+Return" = role "terminal";
   "Mod+D" = role "launcher";
 

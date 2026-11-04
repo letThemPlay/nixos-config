@@ -183,6 +183,33 @@ let
       };
     };
 
+    testWorkspaceAndWindowBindsRenderToNiri = {
+      expr = builtins.filter (line: !hasLine (niriOf { }) line) [
+        ''"Mod+1" { focus-workspace 1; }''
+        ''"Mod+9" { focus-workspace 9; }''
+        ''"Mod+Shift+1" { move-column-to-workspace 1; }''
+        ''"Mod+Shift+9" { move-column-to-workspace 9; }''
+        ''"Mod+Page_Up" { focus-workspace-up; }''
+        ''"Mod+Shift+Page_Down" { move-column-to-workspace-down; }''
+        ''"Mod+O" { toggle-overview; }''
+        ''"Mod+Shift+Space" { toggle-window-floating; }''
+        ''"Mod+Tab" { switch-focus-between-floating-and-tiling; }''
+        ''"Mod+Shift+Slash" { show-hotkey-overlay; }''
+      ];
+      expected = [ ];
+    };
+
+    # The vocabulary and niri's map must not drift apart.
+    testNiriMapsEveryAction = {
+      expr = builtins.filter (action: !(desktop.compositors.niri.actions ? ${action})) desktop.actions;
+      expected = [ ];
+    };
+
+    testHotkeyOverlaySkippedAtLogin = {
+      expr = hasLine (niriOf { }) "hotkey-overlay {\n    skip-at-startup\n}";
+      expected = true;
+    };
+
     # A poke into a running component skips the session wrapper; only that.
     testDirectBindSkipsSessionWrapper = {
       expr =

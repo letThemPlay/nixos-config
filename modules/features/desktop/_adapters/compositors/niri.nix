@@ -16,31 +16,53 @@ let
 
   configFile = "niri/config.kdl";
 
+  # Workspaces by number: focus-workspace-1 -> focus-workspace 1.
+  numbered =
+    action: native:
+    lib.listToAttrs (
+      builtins.genList (
+        index: lib.nameValuePair "${action}-${toString (index + 1)}" "${native} ${toString (index + 1)}"
+      ) 9
+    );
+
   # Vocabulary -> niri bind action.
-  actions = {
-    close = "close-window";
-    quit = "quit";
+  actions =
+    numbered "focus-workspace" "focus-workspace"
+    // numbered "move-to-workspace" "move-column-to-workspace"
+    // {
+      close = "close-window";
+      quit = "quit";
 
-    focus-left = "focus-column-left";
-    focus-right = "focus-column-right";
-    focus-up = "focus-window-or-workspace-up";
-    focus-down = "focus-window-or-workspace-down";
+      focus-workspace-up = "focus-workspace-up";
+      focus-workspace-down = "focus-workspace-down";
+      move-to-workspace-up = "move-column-to-workspace-up";
+      move-to-workspace-down = "move-column-to-workspace-down";
 
-    move-left = "move-column-left";
-    move-right = "move-column-right";
-    move-up = "move-window-up";
-    move-down = "move-window-down";
+      overview = "toggle-overview";
+      toggle-floating = "toggle-window-floating";
+      focus-floating = "switch-focus-between-floating-and-tiling";
+      show-hotkeys = "show-hotkey-overlay";
 
-    maximize = "maximize-column";
-    fullscreen = "fullscreen-window";
-    center = "center-column";
+      focus-left = "focus-column-left";
+      focus-right = "focus-column-right";
+      focus-up = "focus-window-or-workspace-up";
+      focus-down = "focus-window-or-workspace-down";
 
-    consume = "consume-window-into-column";
-    expel = "expel-window-from-column";
-    cycle-width = "switch-preset-column-width";
-    grow = ''set-column-width "+10%"'';
-    shrink = ''set-column-width "-10%"'';
-  };
+      move-left = "move-column-left";
+      move-right = "move-column-right";
+      move-up = "move-window-up";
+      move-down = "move-window-down";
+
+      maximize = "maximize-column";
+      fullscreen = "fullscreen-window";
+      center = "center-column";
+
+      consume = "consume-window-into-column";
+      expel = "expel-window-from-column";
+      cycle-width = "switch-preset-column-width";
+      grow = ''set-column-width "+10%"'';
+      shrink = ''set-column-width "-10%"'';
+    };
 
   # Abstract bar widgets -> waybar modules.
   widgets = {
@@ -143,6 +165,11 @@ let
       ) model.binds;
     in
     ''
+      // Its spawn entries are raw store paths: useful on demand, not at login.
+      hotkey-overlay {
+          skip-at-startup
+      }
+
       input {
           keyboard {
               xkb {
