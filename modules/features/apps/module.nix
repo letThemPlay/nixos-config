@@ -104,7 +104,7 @@ in
             #
             # Default apps. An existing mimeapps.list, as browsers write,
             # would otherwise stop home-manager activating. xdg-terminal-exec
-            # is how terminal apps such as yazi find a terminal to open in.
+            # lets GLib applications start other terminal apps.
             #
             (mkIf model.defaultHandlers {
               home-manager.sharedModules = [
@@ -121,6 +121,8 @@ in
                     };
 
                     configFile."mimeapps.list".force = true;
+
+                    desktopEntries = model.handlerEntries;
                   };
                 }
               ];

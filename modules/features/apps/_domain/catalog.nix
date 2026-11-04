@@ -21,6 +21,7 @@ _: {
     command = [ "nvim" ];
     appId = "nvim";
     desktopEntry = "nvim.desktop";
+    opensInTerminal = true;
   };
 
   firefox = {
@@ -38,6 +39,7 @@ _: {
     appId = "yazi";
     inTerminal = true;
     desktopEntry = "yazi.desktop";
+    opensInTerminal = true;
   };
 
   imv = {

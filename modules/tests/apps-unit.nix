@@ -278,14 +278,54 @@ let
         };
         expected = {
           link = [ "firefox.desktop" ];
-          folder = [ "yazi.desktop" ];
-          text = [ "nvim.desktop" ];
+          folder = [ "ltp-yazi.desktop" ];
+          text = [ "ltp-nixvim.desktop" ];
           image = [ "imv.desktop" ];
           pdf = [ "org.pwmt.zathura.desktop" ];
           video = [ "mpv.desktop" ];
           audio = [ "mpv.desktop" ];
         };
       };
+
+    # xdg-open ignores Terminal=true, so these must go through the terminal role.
+    testTerminalHandlersGoThroughTerminal = {
+      expr =
+        let
+          inherit (modelOf { defaultHandlers = true; }) handlerEntries;
+        in
+        {
+          names = lib.attrNames handlerEntries;
+          inherit (handlerEntries.ltp-yazi) exec terminal noDisplay;
+        };
+      expected = {
+        names = [
+          "ltp-nixvim"
+          "ltp-yazi"
+        ];
+        exec = "alacritty -e yazi %F";
+        terminal = false;
+        noDisplay = true;
+      };
+    };
+
+    # With no terminal to run in, fall back to the app's own desktop file.
+    testTerminalHandlersNeedATerminal = {
+      expr =
+        let
+          model = modelOf {
+            defaultHandlers = true;
+            roles.terminal = null;
+          };
+        in
+        {
+          entries = model.handlerEntries;
+          folder = model.handlers."inode/directory";
+        };
+      expected = {
+        entries = { };
+        folder = [ "yazi.desktop" ];
+      };
+    };
 
     # A role left out opens nothing; its types aren't handed to anything else.
     testHandlersOnlyForRolesInUse = {

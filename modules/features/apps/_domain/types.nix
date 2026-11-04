@@ -44,6 +44,11 @@ let
       description = "Its desktop file, for opening files with it (e.g. firefox.desktop).";
     };
 
+    opensInTerminal = {
+      type = types.bool;
+      description = "Whether opening a file with it needs a terminal, as xdg-open won't provide one.";
+    };
+
   };
 
   appDefaults = name: {
@@ -54,6 +59,7 @@ let
     execFlag = null;
     dmenu = null;
     desktopEntry = null;
+    opensInTerminal = false;
   };
 
   override = overrides.type appFields;
@@ -135,6 +141,11 @@ let
       handlers = mkOption {
         type = types.attrsOf (types.listOf types.str);
         description = "MIME type -> desktop files, when defaultHandlers is on.";
+      };
+
+      handlerEntries = mkOption {
+        type = types.attrsOf (types.attrsOf types.anything);
+        description = "Generated desktop files for handlers that open in the terminal role.";
       };
 
       handlersMissing = mkOption {

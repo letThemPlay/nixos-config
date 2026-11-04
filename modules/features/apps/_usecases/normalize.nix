@@ -70,6 +70,22 @@ let
 
   # The roles in use that open files.
   handling = filterAttrs (role: _: apps.mimeTypes ? ${role}) selected;
+
+  #
+  # xdg-open ignores Terminal=true, so an app's own desktop file would start it
+  # with no terminal and it would die. These open in the terminal role instead,
+  # through a generated file that every opener handles the same.
+  #
+  throughTerminal =
+    if terminal != null && terminal.execFlag != null then
+      filterAttrs (_: app: app.opensInTerminal && app.desktopEntry != null) handling
+    else
+      { };
+
+  handlerName = app: "ltp-${app.app}";
+
+  handlerFile =
+    role: app: if throughTerminal ? ${role} then "${handlerName app}.desktop" else app.desktopEntry;
 in
 {
   inherit defaultHandlers;
@@ -79,9 +95,29 @@ in
       mergeAttrsList (
         mapAttrsToList (
           role: app:
-          optionalAttrs (app.desktopEntry != null) (genAttrs apps.mimeTypes.${role} (_: [ app.desktopEntry ]))
+          optionalAttrs (app.desktopEntry != null) (
+            genAttrs apps.mimeTypes.${role} (_: [ (handlerFile role app) ])
+          )
         ) handling
       )
+    else
+      { };
+
+  handlerEntries =
+    if defaultHandlers then
+      lib.mapAttrs' (
+        role: app:
+        lib.nameValuePair (handlerName app) {
+          name = app.app;
+          exec = lib.concatStringsSep " " (
+            terminal.command ++ [ terminal.execFlag ] ++ app.command ++ [ "%F" ]
+          );
+          terminal = false;
+          # Only for opening files: the launcher already lists the app itself.
+          noDisplay = true;
+          mimeType = apps.mimeTypes.${role};
+        }
+      ) throughTerminal
     else
       { };
 
