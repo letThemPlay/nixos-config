@@ -39,6 +39,16 @@ let
       description = "Hardware facts (ltp.hardware.facts) the bind needs, e.g. \"audio\".";
     };
 
+    direct = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Start spawn directly instead of as a session application: for
+        short-lived calls into a running component, where the session
+        wrapper would only add latency.
+      '';
+    };
+
   };
 
   bind = types.submodule { options = bindFields; };
@@ -208,8 +218,50 @@ let
     };
   };
 
+  # Inputs of the unified shell (_ui): what its surfaces run.
+  ui = types.submodule {
+    options = {
+
+      commands = mkOption {
+        type = types.attrsOf (types.listOf types.str);
+        default = { };
+        description = "Named commands the shell's widgets run; components add theirs.";
+      };
+
+    };
+  };
+
+  # A power menu entry; confirm asks a second time before running it.
+  powerAction = types.submodule {
+    options = {
+      label = mkOption { type = types.str; };
+      icon = mkOption { type = types.str; };
+      command = mkOption { type = types.listOf types.str; };
+      confirm = mkOption { type = types.bool; };
+    };
+  };
+
   model = types.submodule {
     options = {
+
+      ui = mkOption {
+        type = types.submodule {
+          options = {
+            surfaces = mkOption {
+              type = types.listOf types.str;
+              description = "Roles the unified shell draws.";
+            };
+
+            commands = mkOption {
+              type = types.attrsOf (types.listOf types.str);
+            };
+
+            powerActions = mkOption {
+              type = types.attrsOf powerAction;
+            };
+          };
+        };
+      };
 
       compositors = mkOption {
         type = types.listOf (
@@ -302,6 +354,8 @@ in
     ruleProperties
     service
     bar
+    ui
+    powerAction
     model
     ;
 }

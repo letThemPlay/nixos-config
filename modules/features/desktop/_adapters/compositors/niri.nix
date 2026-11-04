@@ -84,7 +84,7 @@ let
       bindAction =
         bind:
         if bind.command != null then
-          "spawn ${kdlArgs (spawnPrefix ++ bind.command)};"
+          "spawn ${kdlArgs ((if bind.direct then [ ] else spawnPrefix) ++ bind.command)};"
         else
           "${actions.${bind.action}};";
 

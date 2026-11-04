@@ -272,6 +272,27 @@ let
       ) droppedBinds
     );
 
+  #
+  # The shell draws its own widgets, so a name only waybar knows would
+  # leave a hole in the bar.
+  #
+  ui =
+    model:
+    mkResult (
+      lib.optionals (builtins.elem "bar" model.ui.surfaces) (
+        map (
+          widget:
+          mkDiagnostic {
+            severity = "error";
+            code = "desktop.ui.widget.unknown";
+            target = widget;
+            path = [ "bar" ];
+            message = "Bar widget '${widget}' is not a widget of the unified shell (known: ${concatStringsSep ", " desktop.uiWidgets}).";
+          }
+        ) (filter (widget: !builtins.elem widget desktop.uiWidgets) (barModules model.bar))
+      )
+    );
+
   components =
     model:
     mkResult (
@@ -296,6 +317,7 @@ let
     model:
     combine [
       (components model)
+      (ui model)
       (requirements model)
       (greeter model)
       (idle model)
@@ -316,6 +338,7 @@ in
     idle
     greeter
     requirements
+    ui
     components
     all
     ;

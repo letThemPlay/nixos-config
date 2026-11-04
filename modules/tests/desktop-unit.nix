@@ -66,8 +66,32 @@ let
       ];
     };
 
+  uiFile = file: builtins.readFile (desktop.uiSource + "/${file}");
+
+  # The hand-written shell, relative to its root (the generated files are
+  # not in the source).
+  uiFiles = map (path: lib.removePrefix "${toString desktop.uiSource}/" (toString path)) (
+    builtins.filter (
+      path: lib.hasSuffix ".qml" (toString path) || lib.hasSuffix ".js" (toString path)
+    ) (lib.filesystem.listFilesRecursive desktop.uiSource)
+  );
+
+  # The keys of Icons.qml, which surfaces name.
+  iconNames = lib.concatMap (group: group) (
+    builtins.filter builtins.isList (
+      builtins.split "\"([a-zA-Z]+)\": \"[a-z0-9_]+\"" (uiFile "common/Icons.qml")
+    )
+  );
+
   contractCases = [
     { }
+    {
+      components = {
+        bar = "quickshell";
+        power = "quickshell";
+      };
+      ui.commands.networkUi = [ "iwgtk" ];
+    }
     {
       binds."Mod+Return".spawn = [ "alacritty" ];
       bar.left = [ "workspaces" ];
@@ -154,8 +178,177 @@ let
         action = null;
         app = null;
         requires = [ ];
+        direct = false;
         command = [ "foo" ];
       };
+    };
+
+    # A poke into a running component skips the session wrapper; only that.
+    testDirectBindSkipsSessionWrapper = {
+      expr =
+        let
+          text = niriOf {
+            binds = {
+              "Mod+A" = {
+                spawn = [ "poke" ];
+                direct = true;
+              };
+              "Mod+B".spawn = [ "app" ];
+            };
+          };
+        in
+        map (hasLine text) [
+          ''"Mod+A" { spawn "poke"; }''
+          ''"Mod+B" { spawn "uwsm" "app" "--" "app"; }''
+        ];
+      expected = [
+        true
+        true
+      ];
+    };
+
+    # The roles selecting the shell are what it draws; the rest stay out.
+    testUiSurfaces = {
+      expr = {
+        defaults = (modelOf { }).ui.surfaces;
+        selected =
+          (modelOf {
+            components = {
+              bar = "quickshell";
+              locker = "quickshell";
+              power = "quickshell";
+            };
+          }).ui.surfaces;
+      };
+      expected = {
+        defaults = [ ];
+        selected = [
+          "bar"
+          "locker"
+          "power"
+        ];
+      };
+    };
+
+    # Waybar's own modules mean nothing to the shell's bar, and only there.
+    testUiWidgets =
+      let
+        bar = {
+          left = [ "workspaces" ];
+          right = [ "custom/weather" ];
+        };
+      in
+      {
+        expr = {
+          unknown = codes {
+            components.bar = "quickshell";
+            inherit bar;
+          };
+          waybar = codes { inherit bar; };
+          known = codes {
+            components.bar = "quickshell";
+            bar.left = desktop.uiWidgets;
+          };
+        };
+        expected = {
+          unknown = [ "desktop.ui.widget.unknown" ];
+          waybar = [ ];
+          known = [ ];
+        };
+      };
+
+    # Validation's list and the bar's own map must name the same widgets.
+    testUiWidgetsAreDrawn = {
+      expr = builtins.filter (
+        widget: !lib.hasInfix ''"${widget}": '' (uiFile "bar/Bar.qml")
+      ) desktop.uiWidgets;
+      expected = [ ];
+    };
+
+    # Every colour role resolves through the user's scheme.
+    testThemeUsesScheme =
+      let
+        tokens =
+          (lib.evalModules {
+            modules = [
+              config.flake.nixosModules.theme-options
+              { ltp.theme = { }; }
+            ];
+          }).config.ltp.theme.appearance;
+
+        text = desktop.quickshell.theme {
+          tokens = config.ltp.features.theme.uiTokens { appearance = tokens; };
+          colors = lib.genAttrs (lib.unique (builtins.attrValues config.ltp.features.theme.uiPalette)) (
+            slot: "aaaa${lib.substring 4 2 slot}"
+          );
+        };
+      in
+      {
+        expr = map (hasLine text) [
+          ''readonly property color accent: "#aaaa0D"''
+          ''readonly property color background: "#aaaa00"''
+          ''readonly property color danger: "#aaaa08"''
+          "readonly property int spaceMd: 12"
+          "readonly property int radiusMd: 12"
+          ''readonly property string iconFont: "Material Symbols Rounded"''
+        ];
+        expected = [
+          true
+          true
+          true
+          true
+          true
+          true
+        ];
+      };
+
+    # The look lives in one place: a colour or font written into a surface
+    # would stop following the theme.
+    testSurfacesTakeLookFromTheme = {
+      expr = builtins.filter (
+        file:
+        let
+          text = uiFile file;
+        in
+        builtins.match ".*\"#[0-9a-fA-F]+\".*" text != null
+        || builtins.match ".*font\\.family: \".*" text != null
+      ) uiFiles;
+      expected = [ ];
+    };
+
+    # What the surfaces name directly must be in the icon vocabulary.
+    testSurfacesNameKnownIcons =
+      let
+        known = iconNames;
+
+        named =
+          file:
+          lib.concatMap (group: group) (
+            builtins.filter builtins.isList (builtins.split "(icon|name): \"([a-zA-Z]+)\"" (uiFile file))
+          );
+
+        used = lib.unique (
+          lib.concatMap (file: lib.filter (word: word != "icon" && word != "name") (named file)) uiFiles
+          ++ lib.mapAttrsToList (_: action: action.icon) desktop.powerActions
+        );
+      in
+      {
+        expr = builtins.filter (icon: !builtins.elem icon known) used;
+        expected = [ ];
+      };
+
+    # A bind that pokes the shell must name a target it actually handles.
+    testShellBindTargetsExist = {
+      expr = map (target: lib.any (file: lib.hasInfix ''target: "${target}"'' (uiFile file)) uiFiles) [
+        "launcher"
+        "notifications"
+        "power"
+      ];
+      expected = [
+        true
+        true
+        true
+      ];
     };
 
     testDefaultBindsOff = {
@@ -379,10 +572,12 @@ let
         defaults = codes { };
         unknown = codes { components.bar = "eww"; };
         none = codes { components.bar = null; };
-        # Every default names a registered component.
-        registered = lib.all (role: desktop.components.${role} ? ${desktop.defaultComponents.${role}}) (
-          lib.attrNames desktop.defaultComponents
-        );
+        # Every default names a registered component, or none.
+        registered = lib.all (
+          role:
+          desktop.defaultComponents.${role} == null
+          || desktop.components.${role} ? ${desktop.defaultComponents.${role}}
+        ) (lib.attrNames desktop.defaultComponents);
       };
       expected = {
         defaults = [ ];
@@ -520,5 +715,22 @@ in
           pkgs.runCommand "desktop-unit-tests" { } "touch $out"
         else
           throw "desktop unit tests failed:\n${lib.generators.toPretty { } failures}";
+
+      #
+      # The icon font is addressed by ligature, so a name it does not have
+      # would render as its letters instead of failing. It shapes each one,
+      # and proves first that a made-up name would be caught.
+      #
+      checks.desktop-icons =
+        pkgs.runCommand "desktop-icons"
+          {
+            nativeBuildInputs = [ (pkgs.python3.withPackages (python: [ python.uharfbuzz ])) ];
+            icons = desktop.uiSource + "/common/Icons.qml";
+            font = "${pkgs.material-symbols}/share/fonts/truetype/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].ttf";
+          }
+          ''
+            python3 ${./_desktop-icons-check.py} "$icons" "$font"
+            touch $out
+          '';
     };
 }

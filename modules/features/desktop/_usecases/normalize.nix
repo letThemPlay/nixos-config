@@ -39,6 +39,7 @@ let
       action = null;
       app = null;
       requires = [ ];
+      direct = false;
     }
     // bind;
 
@@ -129,6 +130,15 @@ in
   greeter = {
     name = cfg.greeter;
     known = cfg.greeter == null || desktop.greeters ? ${cfg.greeter};
+  };
+
+  # The roles that selected the unified shell are the surfaces it draws.
+  ui = {
+    surfaces = attrNames (filterAttrs (_: name: name == desktop.uiComponent) cfg.components);
+
+    commands = cfg.ui.commands or { };
+
+    inherit (desktop) powerActions;
   };
 
   inherit (cfg)

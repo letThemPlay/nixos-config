@@ -69,11 +69,96 @@ in
 
       barModules = model.bar.left ++ model.bar.center ++ model.bar.right;
 
+      # The unified shell draws its own bar from the same layout lists.
+      waybarBar = barModules != [ ] && cfg.components.bar != desktop.uiComponent;
+
+      tokens = config.ltp.theme.facts.ui;
+
+      # The locker is its own short-lived instance (_ui/lock.qml).
+      shellSurfaces = lib.remove "locker" model.ui.surfaces;
+
+      iconThemeOf =
+        { config, osConfig }:
+        let
+          polarity = osConfig.ltp.theme.facts.users.${config.home.username}.polarity or "dark";
+        in
+        tokens.icon.theme.${polarity};
+
+      #
+      # One user's shell config: the QML as real files (Quickshell resolves
+      # imports relative to the files, which symlinks into the store break),
+      # with that user's generated theme and settings beside it.
+      #
+      shellConfig =
+        { config, osConfig }:
+        let
+          terminal = osConfig.ltp.apps.facts.terminal or null;
+
+          wallpaper = osConfig.ltp.theme.facts.users.${config.home.username}.wallpaper or null;
+        in
+        pkgs.runCommand "ltp-shell"
+          {
+            theme = desktop.quickshell.theme {
+              inherit tokens;
+              colors = config.lib.stylix.colors;
+            };
+
+            settings = desktop.quickshell.settings {
+              inherit model;
+              inherit (desktop) spawnPrefix;
+
+              pam = {
+                config = "ltp-lock";
+                directory = "/etc/pam.d";
+              };
+
+              wallpaper = if wallpaper == null then "" else "${wallpaper}";
+
+              terminal =
+                if terminal == null then
+                  [ ]
+                else
+                  terminal.command ++ lib.optional ((terminal.execFlag or null) != null) terminal.execFlag;
+            };
+
+            passAsFile = [
+              "theme"
+              "settings"
+            ];
+          }
+          ''
+            cp -r ${desktop.uiSource} $out
+            chmod -R u+w $out
+            cp $themePath $out/common/Theme.qml
+            cp $settingsPath $out/common/Settings.qml
+          '';
+
+      shellServices = lib.optionalAttrs (shellSurfaces != [ ]) {
+        shell = {
+          description = "Unified shell";
+          restart = "on-failure";
+          compositors = null;
+
+          exec =
+            args:
+            let
+              iconTheme = iconThemeOf args;
+            in
+            [
+              "${pkgs.coreutils}/bin/env"
+              "QS_ICON_THEME=${iconTheme}"
+              "${pkgs.quickshell}/bin/qs"
+              "-c"
+              desktop.uiInstance.name
+            ];
+        };
+      };
+
       #
       # One bar per enabled compositor, each started only in its own
       # session, so several compositors can be offered at login.
       #
-      barServices = lib.optionalAttrs (barModules != [ ]) (
+      barServices = lib.optionalAttrs waybarBar (
         listToAttrs (
           map (
             name:
@@ -94,7 +179,7 @@ in
       inherit
         (desktop.systemdUnits {
           model = model // {
-            services = model.services // barServices;
+            services = model.services // barServices // shellServices;
           };
         })
         units
@@ -148,7 +233,7 @@ in
                     inherit (desktop) spawnPrefix;
                   };
 
-                  "waybar/${name}.json" = mkIf (barModules != [ ]) {
+                  "waybar/${name}.json" = mkIf waybarBar {
                     text = builtins.toJSON (
                       desktop.waybarConfig {
                         inherit model;
@@ -239,6 +324,26 @@ in
                     )
                   ];
                 }
+
+                (mkIf (model.ui.surfaces != [ ]) {
+                  fonts.packages = [ (lib.getAttrFromPath (lib.splitString "." tokens.icon.package) pkgs) ];
+
+                  home-manager.sharedModules = [
+                    (
+                      { config, osConfig, ... }:
+                      {
+                        home.packages = [
+                          pkgs.quickshell
+                          (lib.getAttrFromPath (lib.splitString "." tokens.icon.theme.package) pkgs)
+                        ];
+
+                        xdg.configFile."quickshell/${desktop.uiInstance.name}".source = shellConfig {
+                          inherit config osConfig;
+                        };
+                      }
+                    )
+                  ];
+                })
               ]
 
               ++ mapAttrsToList renderCompositor desktop.compositors

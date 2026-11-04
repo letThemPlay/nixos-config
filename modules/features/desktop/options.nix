@@ -88,6 +88,12 @@ in
           description = "Background components of the graphical session.";
         };
 
+        ui = mkOption {
+          type = desktop.types.ui;
+          default = { };
+          description = "Inputs of the unified shell, for the roles that select it.";
+        };
+
         idle = mkOption {
           type = desktop.types.idle;
           default = { };
