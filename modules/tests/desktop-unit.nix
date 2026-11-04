@@ -596,6 +596,37 @@ let
         };
       };
 
+    # A brightness key does nothing without a backlight, so the bind goes.
+    testBrightnessNeedsBacklight =
+      let
+        withFacts =
+          backlight:
+          normalizeWith {
+            cfg = evalCfg {
+              binds."XF86MonBrightnessUp" = {
+                spawn = [ "brightness" ];
+                direct = true;
+                requires = [ "backlight" ];
+              };
+            };
+            facts = {
+              inherit backlight;
+            };
+          };
+      in
+      {
+        expr = {
+          without = (withFacts false).binds ? "XF86MonBrightnessUp";
+          withBacklight = (withFacts true).binds ? "XF86MonBrightnessUp";
+          codes = codesOf desktop.validate (withFacts false);
+        };
+        expected = {
+          without = false;
+          withBacklight = true;
+          codes = [ "desktop.bind.requirement.missing" ];
+        };
+      };
+
     # Mod+D starts the launcher role published by ltp.apps.
     testLauncherBind = {
       expr = hasLine (niriOf { }) ''"Mod+D" { spawn "uwsm" "app" "--" "fuzzel"; }'';
