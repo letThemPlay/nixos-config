@@ -38,6 +38,9 @@ numbered "Mod+" "focus-workspace"
   "Mod+Shift+Page_Up" = act "move-to-workspace-up";
   "Mod+Shift+Page_Down" = act "move-to-workspace-down";
 
+  "Print" = act "screenshot-screen";
+  "Mod+Print" = act "screenshot-window";
+
   "Mod+O" = act "overview";
   "Mod+Shift+Space" = act "toggle-floating";
   "Mod+Tab" = act "focus-floating";

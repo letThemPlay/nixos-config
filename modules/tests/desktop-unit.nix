@@ -199,6 +199,14 @@ let
       expected = [ ];
     };
 
+    testScreenshotBindsRenderToNiri = {
+      expr = builtins.filter (line: !hasLine (niriOf { }) line) [
+        ''"Print" { screenshot-screen; }''
+        ''"Mod+Print" { screenshot-window; }''
+      ];
+      expected = [ ];
+    };
+
     testMonitorBindsRenderToNiri = {
       expr = builtins.filter (line: !hasLine (niriOf { }) line) [
         ''"Mod+Ctrl+Left" { focus-monitor-left; }''

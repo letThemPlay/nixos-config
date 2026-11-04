@@ -8,6 +8,7 @@ in
 {
   ltp.desktop.binds = {
     "Ctrl+Shift+S".spawn = [ "${region}" ];
+    "Shift+Print".spawn = [ "${region}" ];
     "Mod+Shift+C".spawn = [ "${pkgs.wl-color-picker}/bin/wl-color-picker" ];
   };
 

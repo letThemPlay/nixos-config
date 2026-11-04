@@ -43,6 +43,10 @@ let
       move-to-workspace-up = "move-column-to-workspace-up";
       move-to-workspace-down = "move-column-to-workspace-down";
 
+      # Both save to ~/Pictures/Screenshots and copy to the clipboard.
+      screenshot-screen = "screenshot-screen";
+      screenshot-window = "screenshot-window";
+
       overview = "toggle-overview";
       toggle-floating = "toggle-window-floating";
       focus-floating = "switch-focus-between-floating-and-tiling";

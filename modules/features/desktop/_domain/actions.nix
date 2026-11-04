@@ -24,6 +24,9 @@ numbered "focus-workspace"
   "move-to-workspace-up"
   "move-to-workspace-down"
 
+  "screenshot-screen"
+  "screenshot-window"
+
   "overview"
   "toggle-floating"
   "focus-floating"
