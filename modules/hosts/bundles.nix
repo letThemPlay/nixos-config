@@ -33,6 +33,24 @@ _: {
       };
     };
 
+    unified-ui = {
+      description = "The unified shell on top of window-management: one themed top bar, launcher, notification center, power menu, lock screen and clipboard picker. Replaces waybar, the dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
+      module.ltp = {
+        desktop.components = {
+          bar = "quickshell";
+          launcher = "quickshell";
+          notifier = "quickshell";
+          locker = "quickshell";
+          power = "quickshell";
+          clipboard = "quickshell";
+          dock = null;
+        };
+
+        # The shell draws its own launcher, so nothing starts this role.
+        apps.roles.launcher = null;
+      };
+    };
+
     laptop = {
       description = "Audio, bluetooth, the wireless UI (iwgtk) and discord.";
       module.ltp = {

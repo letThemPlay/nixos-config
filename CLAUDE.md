@@ -67,6 +67,10 @@ The hosts are `theseus`, `legion`, `vm-test` and `vm-test2`, plus `iso`.
 - **Upstream workarounds, to delete when upstream is fixed:**
   - The patched disko test library in `modules/tests/storage-vm.nix`.
   - `ltp.theme.untargeted = [ "rofi" ]` in `modules/features/theme/stylix.nix`.
+- **Unified shell (`modules/features/desktop/_ui/`):**
+  - Surfaces take every colour, measure and font from `common/Theme.qml` and name icons through `common/Icons.qml`; `Theme.qml` and `Settings.qml` are generated per user. `desktop-unit` and `desktop-icons` fail on a hardcoded colour or a name the icon font lacks.
+  - `visible` in QML includes the parent's state, so never decide layout from it (see `shown` in `bar/Bar.qml`). `context: context` binds a property to itself; give the id another name.
+  - Power actions run for real. When testing the shell outside a session, never activate them, and start it from an empty environment on a bus with no service directories: an inherited `XDG_RUNTIME_DIR` and `WAYLAND_DISPLAY` let activated portal and a11y helpers reach the live session.
 - **Hardware profile:** `modules/hosts/_unused/legion.nix` is kept on purpose.
 - **`hostId`:** existing hosts pin `hostId = "deadbeef"`; new hosts derive it from their name.
 - **Pushing:** only on request: `git push origin`.

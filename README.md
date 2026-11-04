@@ -40,6 +40,7 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 |---|---|
 | `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components, and the users' standard home folders. |
+| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen and clipboard picker. |
 | `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
 | `core-apps` | git, with the users' identity, signing and the git aliases. |
@@ -47,6 +48,41 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 | `flashgbx` | FlashGBX, and serial access for users who list the `flashgbx` bundle. |
 | `gpg` | The users' OpenPGP keys: gpg-agent with pinentry, SSH through the agent, smartcard rules and git signing. |
 | `tailscale` | Joins the tailscale network. It needs a secret, see [After the first boot](#48-after-the-first-boot). |
+
+---
+
+## 🪟 Unified shell
+
+The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https://quickshell.org) config in place of waybar, the dock, fuzzel, mako, hyprlock and the dmenu clipboard. Each surface is a separate `quickshell` entry in the component registry, so a host can also select them one at a time through `ltp.desktop.components`.
+
+| Key | Surface |
+|---|---|
+| `Mod+D` | Launcher: applications, power actions and arithmetic |
+| `Mod+V` | Clipboard history on the launcher's surface |
+| `Mod+N` | Notification center, sliding in from the left |
+| `Mod+Escape` / `Mod+Shift+Escape` | Dismiss the latest notification / all of them |
+| `Mod+X` | Power menu |
+| `Mod+L` | Lock screen |
+
+In the bar, right-clicking the bell toggles do-not-disturb, and right-clicking bluetooth turns the adapter on or off.
+
+**Theming.** Colours follow the user's theme through the roles in `modules/features/theme/_domain/ui-palette.nix`. Shapes follow `ltp.theme.appearance`:
+
+```nix
+ltp.theme.appearance = {
+  fontSize.desktop = 11;
+  ui = {
+    spacing = 4;        # every padding and gap is a multiple of this
+    radius = 12;        # panel corners; controls and cards scale from it
+    barHeight = 36;
+    animationMs = 180;
+    panelOpacity = 0.97;
+    iconFont = { package = "material-symbols"; name = "Material Symbols Rounded"; };
+  };
+};
+```
+
+**If the lock screen fails.** A crashed lock client is restarted, and niri keeps the session locked in the meantime. If it never comes back, switch to another virtual terminal, log in and run `loginctl lock-sessions`: hypridle starts a new client, which takes the lock over.
 
 ---
 

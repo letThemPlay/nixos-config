@@ -8,6 +8,7 @@ _: {
       "base"
       "laptop"
       "window-management"
+      "unified-ui"
       "core-apps"
       "gaming"
       "gpg"
