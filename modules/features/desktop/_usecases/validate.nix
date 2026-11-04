@@ -322,6 +322,35 @@ let
       ) (attrNames model.displays.profiles)
     );
 
+  # wlsunset would only refuse a bad time at login, when the service starts.
+  nightLight =
+    model:
+    let
+      valid = time: builtins.match "([01][0-9]|2[0-3]):[0-5][0-9]" time != null;
+    in
+    mkResult (
+      map
+        (
+          field:
+          mkDiagnostic {
+            severity = "error";
+            code = "desktop.nightLight.time.format";
+            target = field;
+            path = [
+              "nightLight"
+              field
+            ];
+            message = "nightLight.${field} is '${model.nightLight.${field}}'; expected HH:MM.";
+          }
+        )
+        (
+          filter (field: !valid model.nightLight.${field}) [
+            "from"
+            "until"
+          ]
+        )
+    );
+
   #
   # The shell draws its own widgets, so a name only waybar knows would
   # leave a hole in the bar.
@@ -368,6 +397,7 @@ let
     combine [
       (components model)
       (displays model)
+      (nightLight model)
       (ui model)
       (requirements model)
       (greeter model)
@@ -390,6 +420,7 @@ in
     greeter
     requirements
     displays
+    nightLight
     ui
     components
     all

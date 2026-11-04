@@ -96,6 +96,7 @@ in
       displays.kanshi = ./_components/displays/kanshi.nix;
       automount.udiskie = ./_components/automount/udiskie.nix;
       recorder.wf-recorder = ./_components/recorder/wf-recorder.nix;
+      nightLight.wlsunset = ./_components/nightLight/wlsunset.nix;
       clipboard = {
         cliphist = ./_components/clipboard/cliphist.nix;
         quickshell = ./_components/clipboard/quickshell.nix;
@@ -120,6 +121,7 @@ in
       displays = null;
       automount = null;
       recorder = null;
+      nightLight = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";

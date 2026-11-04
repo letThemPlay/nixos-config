@@ -24,7 +24,10 @@ Overlay {
   }
 
   onShownChanged: {
-    if (shown) Brightness.refresh(false);
+    if (!shown) return;
+
+    Brightness.refresh(false);
+    NightLight.refresh();
   }
 
   IpcHandler {
@@ -139,7 +142,7 @@ Overlay {
         Row {
           id: toggles
 
-          readonly property int count: (root.adapter ? 1 : 0) + (root.hasNotifier ? 1 : 0) + 1
+          readonly property int count: (root.adapter ? 1 : 0) + (root.hasNotifier ? 1 : 0) + (NightLight.available ? 1 : 0) + 1
           readonly property real tileWidth: (width - spacing * (count - 1)) / count
 
           width: parent.width
@@ -163,6 +166,15 @@ Overlay {
             text: "Do not disturb"
             selected: root.hasNotifier && Notifications.doNotDisturb
             onClicked: Notifications.doNotDisturb = !Notifications.doNotDisturb
+          }
+
+          Tile {
+            width: toggles.tileWidth
+            visible: NightLight.available
+            icon: "nightLight"
+            text: "Night light"
+            selected: NightLight.active
+            onClicked: NightLight.toggle()
           }
 
           Tile {

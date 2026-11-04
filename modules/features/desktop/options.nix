@@ -111,6 +111,12 @@ in
           '';
         };
 
+        nightLight = mkOption {
+          type = desktop.types.nightLight;
+          default = { };
+          description = "The schedule of the nightLight component.";
+        };
+
         ui = mkOption {
           type = desktop.types.ui;
           default = { };

@@ -134,6 +134,13 @@ in
 
   displays = cfg.displays or { profiles = { }; };
 
+  nightLight =
+    cfg.nightLight or {
+      from = "21:00";
+      until = "07:00";
+      temperature = 4000;
+    };
+
   # The roles that selected the unified shell are the surfaces it draws.
   ui = {
     surfaces = attrNames (filterAttrs (_: name: name == desktop.uiComponent) cfg.components);

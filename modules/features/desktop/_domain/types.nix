@@ -273,6 +273,31 @@ let
     };
   };
 
+  # When the screen warms, and how far. wlsunset needs night below its 6500K day.
+  nightLight = types.submodule {
+    options = {
+
+      from = mkOption {
+        type = types.str;
+        default = "21:00";
+        description = "When it starts, as HH:MM.";
+      };
+
+      until = mkOption {
+        type = types.str;
+        default = "07:00";
+        description = "When it ends, as HH:MM.";
+      };
+
+      temperature = mkOption {
+        type = types.ints.between 1000 6400;
+        default = 4000;
+        description = "Colour temperature at night, in kelvin; lower is warmer.";
+      };
+
+    };
+  };
+
   # Inputs of the unified shell (_ui): what its surfaces run.
   ui = types.submodule {
     options = {
@@ -301,6 +326,10 @@ let
 
       displays = mkOption {
         type = displays;
+      };
+
+      nightLight = mkOption {
+        type = nightLight;
       };
 
       ui = mkOption {
@@ -425,6 +454,7 @@ in
     bar
     displayOutput
     displays
+    nightLight
     ui
     powerAction
     model

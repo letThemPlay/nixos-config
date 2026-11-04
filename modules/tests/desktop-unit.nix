@@ -199,6 +199,25 @@ let
       expected = [ ];
     };
 
+    testNightLightValidation = {
+      expr = {
+        fine = codes { };
+        from = codes { nightLight.from = "9pm"; };
+        until = codes { nightLight.until = "24:00"; };
+        defaults = (modelOf { }).nightLight;
+      };
+      expected = {
+        fine = [ ];
+        from = [ "desktop.nightLight.time.format" ];
+        until = [ "desktop.nightLight.time.format" ];
+        defaults = {
+          from = "21:00";
+          until = "07:00";
+          temperature = 4000;
+        };
+      };
+    };
+
     # The recorder asks every compositor which output has focus.
     testCompositorsNameFocusedOutput = {
       expr = lib.mapAttrs (_: entry: builtins.attrNames entry.focusedOutput) desktop.compositors;

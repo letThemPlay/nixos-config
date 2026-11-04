@@ -39,6 +39,7 @@ Singleton {
     "profilePerformance": "speed",
 
     "keepAwake": "coffee",
+    "nightLight": "nightlight",
 
     "recording": "fiber_manual_record",
     "recordScreen": "videocam",

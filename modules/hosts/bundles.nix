@@ -49,6 +49,7 @@ _: {
           displays = "kanshi";
           automount = "udiskie";
           recorder = "wf-recorder";
+          nightLight = "wlsunset";
           clipboard = "quickshell";
           dock = null;
         };
