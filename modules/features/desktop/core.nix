@@ -93,6 +93,7 @@ in
       quicksettings.quickshell = ./_components/quicksettings/quickshell.nix;
       batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
       displays.kanshi = ./_components/displays/kanshi.nix;
+      automount.udiskie = ./_components/automount/udiskie.nix;
       clipboard = {
         cliphist = ./_components/clipboard/cliphist.nix;
         quickshell = ./_components/clipboard/quickshell.nix;
@@ -115,6 +116,7 @@ in
       quicksettings = null;
       batteryAlerts = null;
       displays = null;
+      automount = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";
