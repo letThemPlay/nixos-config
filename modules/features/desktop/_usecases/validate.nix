@@ -272,6 +272,106 @@ let
       ) droppedBinds
     );
 
+  #
+  # A profile with no outputs would match a machine with nothing connected, and
+  # a scale of zero or less would be refused when it's applied, at plug-in time.
+  #
+  displays =
+    model:
+    mkResult (
+      mapAttrsToList (
+        name: _:
+        mkDiagnostic {
+          severity = "error";
+          code = "desktop.display.profile.outputs.none";
+          target = name;
+          path = [
+            "displays"
+            "profiles"
+            name
+          ];
+          message = "Display profile '${name}' has no outputs.";
+        }
+      ) (filterAttrs (_: profile: profile.outputs == { }) model.displays.profiles)
+
+      ++ concatMap (
+        name:
+        mapAttrsToList
+          (
+            criteria: output:
+            mkDiagnostic {
+              severity = "error";
+              code = "desktop.display.outputs.scale";
+              target = "${name}.${criteria}";
+              path = [
+                "displays"
+                "profiles"
+                name
+                "outputs"
+                criteria
+                "scale"
+              ];
+              message = "Output '${criteria}' in display profile '${name}' has scale ${toString output.scale}; it must be above 0.";
+            }
+          )
+          (
+            filterAttrs (
+              _: output: output.scale != null && output.scale <= 0
+            ) model.displays.profiles.${name}.outputs
+          )
+      ) (attrNames model.displays.profiles)
+    );
+
+  # wlsunset would only refuse a bad time at login, when the service starts.
+  nightLight =
+    model:
+    let
+      valid = time: builtins.match "([01][0-9]|2[0-3]):[0-5][0-9]" time != null;
+    in
+    mkResult (
+      map
+        (
+          field:
+          mkDiagnostic {
+            severity = "error";
+            code = "desktop.nightLight.time.format";
+            target = field;
+            path = [
+              "nightLight"
+              field
+            ];
+            message = "nightLight.${field} is '${model.nightLight.${field}}'; expected HH:MM.";
+          }
+        )
+        (
+          filter (field: !valid model.nightLight.${field}) [
+            "from"
+            "until"
+          ]
+        )
+    );
+
+  #
+  # The shell draws its own widgets, so a name only waybar knows would
+  # leave a hole in the bar.
+  #
+  ui =
+    model:
+    mkResult (
+      lib.optionals (builtins.elem "bar" model.ui.surfaces) (
+        map (
+          widget:
+          mkDiagnostic {
+            severity = "error";
+            code = "desktop.ui.widget.unknown";
+            target = widget;
+            path = [ "bar" ];
+            message = "Bar widget '${widget}' is not a widget of the unified shell (known: ${concatStringsSep ", " desktop.uiWidgets}).";
+          }
+        ) (filter (widget: !builtins.elem widget desktop.uiWidgets) (barModules model.bar))
+      )
+    );
+
   components =
     model:
     mkResult (
@@ -296,6 +396,9 @@ let
     model:
     combine [
       (components model)
+      (displays model)
+      (nightLight model)
+      (ui model)
       (requirements model)
       (greeter model)
       (idle model)
@@ -316,6 +419,9 @@ in
     idle
     greeter
     requirements
+    displays
+    nightLight
+    ui
     components
     all
     ;

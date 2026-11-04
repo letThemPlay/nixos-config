@@ -7,4 +7,9 @@ _: {
   browser = "firefox";
   fileManager = "yazi";
   launcher = "fuzzel";
+
+  # Hosts that want files to open in something opt in.
+  imageViewer = null;
+  pdfViewer = null;
+  mediaPlayer = null;
 }

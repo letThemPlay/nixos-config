@@ -62,7 +62,76 @@ in
           description = "Whether the host has Bluetooth (BlueZ, blueman).";
         };
 
+        backlight.enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the host has a screen backlight it can dim.";
+        };
+
+        powerProfiles.enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether power profiles are managed (power-profiles-daemon).";
+        };
+
+        battery = {
+          enable = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Whether the battery's levels and last-resort action are managed (UPower).";
+          };
+
+          lowAt = mkOption {
+            type = types.ints.between 0 100;
+            default = 20;
+            description = "Percentage treated as low; the desktop warns here.";
+          };
+
+          criticalAt = mkOption {
+            type = types.ints.between 0 100;
+            default = 5;
+            description = "Percentage treated as critical; the desktop warns again here.";
+          };
+
+          actionAt = mkOption {
+            type = types.ints.between 0 100;
+            default = 2;
+            description = "Percentage at which criticalAction runs.";
+          };
+
+          criticalAction = mkOption {
+            type = types.str;
+            default = "PowerOff";
+            example = "Hibernate";
+            description = "What to do at actionAt: PowerOff, Hibernate or HybridSleep. The last two need swap.";
+          };
+        };
+
         facts = {
+          powerProfiles = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether power profiles are managed; the desktop offers a selector only then.";
+          };
+
+          battery = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether the battery's levels are managed; the desktop warns at them only then.";
+          };
+
+          batteryLevels = mkOption {
+            type = types.attrsOf types.int;
+            readOnly = true;
+            description = "The levels the desktop warns at: low and critical.";
+          };
+
+          backlight = mkOption {
+            type = types.bool;
+            readOnly = true;
+            description = "Whether the host has a backlight; the desktop binds brightness keys only then.";
+          };
+
           audio = mkOption {
             type = types.bool;
             readOnly = true;

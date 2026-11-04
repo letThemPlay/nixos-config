@@ -16,30 +16,72 @@ let
 
   configFile = "niri/config.kdl";
 
+  # Workspaces by number: focus-workspace-1 -> focus-workspace 1.
+  numbered =
+    action: native:
+    lib.listToAttrs (
+      builtins.genList (
+        index: lib.nameValuePair "${action}-${toString (index + 1)}" "${native} ${toString (index + 1)}"
+      ) 9
+    );
+
   # Vocabulary -> niri bind action.
-  actions = {
-    close = "close-window";
-    quit = "quit";
+  actions =
+    numbered "focus-workspace" "focus-workspace"
+    // numbered "move-to-workspace" "move-column-to-workspace"
+    // {
+      close = "close-window";
+      quit = "quit";
 
-    focus-left = "focus-column-left";
-    focus-right = "focus-column-right";
-    focus-up = "focus-window-or-workspace-up";
-    focus-down = "focus-window-or-workspace-down";
+      focus-monitor-left = "focus-monitor-left";
+      focus-monitor-right = "focus-monitor-right";
+      move-to-monitor-left = "move-column-to-monitor-left";
+      move-to-monitor-right = "move-column-to-monitor-right";
 
-    move-left = "move-column-left";
-    move-right = "move-column-right";
-    move-up = "move-window-up";
-    move-down = "move-window-down";
+      focus-workspace-up = "focus-workspace-up";
+      focus-workspace-down = "focus-workspace-down";
+      move-to-workspace-up = "move-column-to-workspace-up";
+      move-to-workspace-down = "move-column-to-workspace-down";
 
-    maximize = "maximize-column";
-    fullscreen = "fullscreen-window";
-    center = "center-column";
+      # Both save to ~/Pictures/Screenshots and copy to the clipboard.
+      screenshot-screen = "screenshot-screen";
+      screenshot-window = "screenshot-window";
 
-    consume = "consume-window-into-column";
-    expel = "expel-window-from-column";
-    cycle-width = "switch-preset-column-width";
-    grow = ''set-column-width "+10%"'';
-    shrink = ''set-column-width "-10%"'';
+      overview = "toggle-overview";
+      toggle-floating = "toggle-window-floating";
+      focus-floating = "switch-focus-between-floating-and-tiling";
+      show-hotkeys = "show-hotkey-overlay";
+
+      focus-left = "focus-column-left";
+      focus-right = "focus-column-right";
+      focus-up = "focus-window-or-workspace-up";
+      focus-down = "focus-window-or-workspace-down";
+
+      move-left = "move-column-left";
+      move-right = "move-column-right";
+      move-up = "move-window-up";
+      move-down = "move-window-down";
+
+      maximize = "maximize-column";
+      fullscreen = "fullscreen-window";
+      center = "center-column";
+
+      consume = "consume-window-into-column";
+      expel = "expel-window-from-column";
+      cycle-width = "switch-preset-column-width";
+      grow = ''set-column-width "+10%"'';
+      shrink = ''set-column-width "-10%"'';
+    };
+
+  # How to ask which output has focus; filter is jq, leaving its name.
+  focusedOutput = {
+    command = [
+      "niri"
+      "msg"
+      "-j"
+      "focused-output"
+    ];
+    filter = ".name";
   };
 
   # Abstract bar widgets -> waybar modules.
@@ -84,7 +126,7 @@ let
       bindAction =
         bind:
         if bind.command != null then
-          "spawn ${kdlArgs (spawnPrefix ++ bind.command)};"
+          "spawn ${kdlArgs ((if bind.direct then [ ] else spawnPrefix) ++ bind.command)};"
         else
           "${actions.${bind.action}};";
 
@@ -143,6 +185,11 @@ let
       ) model.binds;
     in
     ''
+      // Its spawn entries are raw store paths: useful on demand, not at login.
+      hotkey-overlay {
+          skip-at-startup
+      }
+
       input {
           keyboard {
               xkb {
@@ -193,6 +240,7 @@ in
     session
     configFile
     actions
+    focusedOutput
     widgets
     ruleProperties
     uwsm

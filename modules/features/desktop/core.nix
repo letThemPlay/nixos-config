@@ -7,13 +7,14 @@
 #               validate
 #   _adapters/  compositors/<name> (registry), waybar-config (a bar's
 #               waybar config for one compositor), systemd user
-#               units
+#               units, quickshell (the shell's generated QML)
 #
 # options.nix and module.nix beside this file are the outer ring.
 # Components (bar, launcher, notifier, ...) are a registry in
 # _components/<role>/<name>.nix, selected per role with
 # ltp.desktop.components; they contribute binds, bar widgets and
-# services to ltp.desktop like any feature.
+# services to ltp.desktop like any feature. _ui/ is the QML of the
+# unified shell that the quickshell components share.
 #
 { config, lib, ... }:
 let
@@ -46,6 +47,7 @@ in
     #   uwsm       : { prettyName; comment; binPath; extraArgs; } for its
     #                uwsm session
     #   system     : { package; portals; keyring; packages; } as names
+    #   focusedOutput : { command; filter; } naming the focused output
     #   render     : { model, spawnPrefix } -> config text
     #
     compositors = {
@@ -69,12 +71,39 @@ in
     # (binds, bar, services, rules) like any feature.
     #
     components = {
-      bar.waybar = ./_components/bar/waybar.nix;
-      dock.waybar = ./_components/dock/waybar.nix;
-      launcher.fuzzel = ./_components/launcher/fuzzel.nix;
-      notifier.mako = ./_components/notifier/mako.nix;
-      locker.hyprlock = ./_components/locker/hyprlock.nix;
-      clipboard.cliphist = ./_components/clipboard/cliphist.nix;
+      bar = {
+        waybar = ./_components/bar/waybar.nix;
+        quickshell = ./_components/bar/quickshell.nix;
+      };
+      dock = {
+        waybar = ./_components/dock/waybar.nix;
+        quickshell = ./_components/dock/quickshell.nix;
+      };
+      launcher = {
+        fuzzel = ./_components/launcher/fuzzel.nix;
+        quickshell = ./_components/launcher/quickshell.nix;
+      };
+      notifier = {
+        mako = ./_components/notifier/mako.nix;
+        quickshell = ./_components/notifier/quickshell.nix;
+      };
+      locker = {
+        hyprlock = ./_components/locker/hyprlock.nix;
+        quickshell = ./_components/locker/quickshell.nix;
+      };
+      power.quickshell = ./_components/power/quickshell.nix;
+      polkit.quickshell = ./_components/polkit/quickshell.nix;
+      osd.quickshell = ./_components/osd/quickshell.nix;
+      quicksettings.quickshell = ./_components/quicksettings/quickshell.nix;
+      batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
+      displays.kanshi = ./_components/displays/kanshi.nix;
+      automount.udiskie = ./_components/automount/udiskie.nix;
+      recorder.wf-recorder = ./_components/recorder/wf-recorder.nix;
+      nightLight.wlsunset = ./_components/nightLight/wlsunset.nix;
+      clipboard = {
+        cliphist = ./_components/clipboard/cliphist.nix;
+        quickshell = ./_components/clipboard/quickshell.nix;
+      };
       screenshot.grim = ./_components/screenshot/grim.nix;
       wallpaper.swaybg = ./_components/wallpaper/swaybg.nix;
       media.playerctl = ./_components/media/playerctl.nix;
@@ -87,11 +116,54 @@ in
       launcher = "fuzzel";
       notifier = "mako";
       locker = "hyprlock";
+      power = null;
+      polkit = null;
+      osd = null;
+      quicksettings = null;
+      batteryAlerts = null;
+      displays = null;
+      automount = null;
+      recorder = null;
+      nightLight = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";
       media = "playerctl";
     };
+
+    #
+    # The unified shell (_ui): one Quickshell config drawing every role that
+    # selects this component name, on one theme and one set of controls.
+    #
+    uiComponent = "quickshell";
+
+    uiSource = ./_ui;
+
+    uiInstance = import ./_ui/instance.nix;
+
+    # The bar widgets the shell draws (_ui/bar/Bar.qml).
+    uiWidgets = [
+      "launcher"
+      "notifications"
+      "workspaces"
+      "window"
+      "recording"
+      "tray"
+      "media"
+      "network"
+      "bluetooth"
+      "volume"
+      "battery"
+      "clock"
+      "settings"
+      "power"
+    ];
+
+    powerActions = import ./_domain/power-actions.nix { };
+
+    quickshell = import ./_adapters/quickshell.nix { inherit lib; };
+
+    kanshi = import ./_adapters/kanshi.nix { inherit lib; };
 
     # Spawned commands run as session applications.
     spawnPrefix = [

@@ -24,25 +24,9 @@ in
 
   home-manager.sharedModules = [
     ({ config, ... }: {
-      services.hypridle = {
-        enable = true;
-        settings = {
-          general = {
-            lock_cmd = "uwsm app -- ${pkgs.hyprlock}/bin/hyprlock";
-            before_sleep_cmd = "loginctl lock-session";
-          };
-
-          # One listener per step of the idle policy that is set.
-          listener =
-            lib.optional (idle.lockAfter != null) {
-              timeout = idle.lockAfter;
-              on-timeout = "loginctl lock-session";
-            }
-            ++ lib.optional (idle.suspendAfter != null) {
-              timeout = idle.suspendAfter;
-              on-timeout = "systemctl suspend";
-            };
-        };
+      services.hypridle = import ./_hypridle.nix {
+        inherit lib idle;
+        lockCommand = "uwsm app -- ${pkgs.hyprlock}/bin/hyprlock";
       };
 
       programs.hyprlock = {

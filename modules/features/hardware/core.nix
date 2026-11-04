@@ -4,7 +4,7 @@
 #   _domain/    entities: GPU, PRIME mode, model
 #   _usecases/  normalize, query, validate
 #   _adapters/  gpu-vendors/<vendor> and guests/<type> (registries);
-#               graphics, audio, bluetooth
+#               graphics, audio, bluetooth, power
 #
 # options.nix and module.nix beside this file are the outer ring. Generated
 # hardware files (nixos-generate-config) stay in hosts/<name>/_hardware.nix.
@@ -43,6 +43,16 @@ in
     audio = import ./_adapters/audio.nix { };
 
     bluetooth = import ./_adapters/bluetooth.nix { };
+
+    power = import ./_adapters/power.nix { };
+
+    # What UPower can do at the last battery level. Hibernate and HybridSleep
+    # need swap to resume from.
+    batteryActions = [
+      "PowerOff"
+      "Hibernate"
+      "HybridSleep"
+    ];
 
   });
 

@@ -27,6 +27,10 @@ let
     }
     { roles.editor = "emacs"; }
     {
+      defaultHandlers = true;
+      roles.imageViewer = "imv";
+    }
+    {
       install = [
         "firefox"
         "nope"
@@ -232,6 +236,134 @@ let
         missing = [ "apps.dmenu.missing" ];
         unused = [ ];
       };
+    };
+
+    testHandlersOffByDefault = {
+      expr = {
+        inherit (modelOf { }) defaultHandlers handlers handlersMissing;
+        # Other hosts gain no apps from the new roles.
+        viewers = (modelOf { }).roles ? imageViewer;
+      };
+      expected = {
+        defaultHandlers = false;
+        handlers = { };
+        handlersMissing = [ ];
+        viewers = false;
+      };
+    };
+
+    testHandlersFromRoles =
+      let
+        inherit
+          (modelOf {
+            defaultHandlers = true;
+            roles = {
+              imageViewer = "imv";
+              pdfViewer = "zathura";
+              mediaPlayer = "mpv";
+            };
+          })
+          handlers
+          ;
+      in
+      {
+        expr = lib.mapAttrs (_: type: handlers.${type}) {
+          link = "x-scheme-handler/https";
+          folder = "inode/directory";
+          text = "text/plain";
+          image = "image/png";
+          pdf = "application/pdf";
+          video = "video/mp4";
+          audio = "audio/flac";
+        };
+        expected = {
+          link = [ "firefox.desktop" ];
+          folder = [ "ltp-yazi.desktop" ];
+          text = [ "ltp-nixvim.desktop" ];
+          image = [ "imv.desktop" ];
+          pdf = [ "org.pwmt.zathura.desktop" ];
+          video = [ "mpv.desktop" ];
+          audio = [ "mpv.desktop" ];
+        };
+      };
+
+    # xdg-open ignores Terminal=true, so these must go through the terminal role.
+    testTerminalHandlersGoThroughTerminal = {
+      expr =
+        let
+          inherit (modelOf { defaultHandlers = true; }) handlerEntries;
+        in
+        {
+          names = lib.attrNames handlerEntries;
+          inherit (handlerEntries.ltp-yazi) exec terminal noDisplay;
+        };
+      expected = {
+        names = [
+          "ltp-nixvim"
+          "ltp-yazi"
+        ];
+        exec = "alacritty -e yazi %F";
+        terminal = false;
+        noDisplay = true;
+      };
+    };
+
+    # With no terminal to run in, fall back to the app's own desktop file.
+    testTerminalHandlersNeedATerminal = {
+      expr =
+        let
+          model = modelOf {
+            defaultHandlers = true;
+            roles.terminal = null;
+          };
+        in
+        {
+          entries = model.handlerEntries;
+          folder = model.handlers."inode/directory";
+        };
+      expected = {
+        entries = { };
+        folder = [ "yazi.desktop" ];
+      };
+    };
+
+    # A role left out opens nothing; its types aren't handed to anything else.
+    testHandlersOnlyForRolesInUse = {
+      expr =
+        (modelOf {
+          defaultHandlers = true;
+          roles.browser = null;
+        }).handlers
+          ? "text/html";
+      expected = false;
+    };
+
+    # The dock pins the terminal by this, as it does the browser.
+    testTerminalHasDesktopEntry = {
+      expr = (modelOf { roles.terminal = "alacritty"; }).roles.terminal.desktopEntry;
+      expected = "Alacritty.desktop";
+    };
+
+    testHandlerNeedsDesktopEntry = {
+      expr = {
+        missing = codes {
+          defaultHandlers = true;
+          overrides.browser.desktopEntry = null;
+        };
+        fine = codes {
+          overrides.browser.desktopEntry = null;
+        };
+      };
+      expected = {
+        missing = [ "apps.handler.entry.missing" ];
+        fine = [ ];
+      };
+    };
+
+    # The catalogue entry and the role names must agree with the type map.
+    testRolesWithMimeTypesHaveApps = {
+      expr = builtins.filter (role: !(apps.defaultRoles ? ${role})) (builtins.attrNames apps.mimeTypes);
+      expected = [ ];
     };
 
     testModelContract = {

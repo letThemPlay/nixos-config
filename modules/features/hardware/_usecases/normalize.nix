@@ -29,6 +29,20 @@ in
 
   bluetooth = cfg.bluetooth.enable;
 
+  backlight = cfg.backlight.enable;
+
+  powerProfiles = cfg.powerProfiles.enable;
+
+  battery = {
+    active = cfg.battery.enable;
+
+    inherit (cfg.battery) lowAt criticalAt actionAt;
+
+    action = cfg.battery.criticalAction;
+
+    actionKnown = builtins.elem cfg.battery.criticalAction hardware.batteryActions;
+  };
+
   guest = {
     name = cfg.guest;
 

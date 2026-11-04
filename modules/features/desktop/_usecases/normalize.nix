@@ -39,6 +39,7 @@ let
       action = null;
       app = null;
       requires = [ ];
+      direct = false;
     }
     // bind;
 
@@ -129,6 +130,59 @@ in
   greeter = {
     name = cfg.greeter;
     known = cfg.greeter == null || desktop.greeters ? ${cfg.greeter};
+  };
+
+  displays = cfg.displays or { profiles = { }; };
+
+  nightLight =
+    cfg.nightLight or {
+      from = "21:00";
+      until = "07:00";
+      temperature = 4000;
+    };
+
+  notificationHistory =
+    cfg.notificationHistory or {
+      limit = 50;
+      days = 7;
+    };
+
+  # Quickshell looks desktop entries up without the suffix.
+  dockApps = map (lib.removeSuffix ".desktop") (
+    if (cfg.dockApps or null) != null then
+      cfg.dockApps
+    else
+      filter (entry: entry != null) (
+        map (role: apps.${role}.desktopEntry or null) [
+          "terminal"
+          "browser"
+          "fileManager"
+        ]
+      )
+  );
+
+  # The roles that selected the unified shell are the surfaces it draws.
+  ui = {
+    surfaces = attrNames (filterAttrs (_: name: name == desktop.uiComponent) cfg.components);
+
+    commands = cfg.ui.commands or { };
+
+    inherit (desktop) powerActions;
+
+    powerProfiles = if facts == null then false else facts.powerProfiles or false;
+
+    # The hardware feature's defaults, for a host that publishes none.
+    batteryLevels =
+      if facts == null then
+        {
+          low = 20;
+          critical = 5;
+        }
+      else
+        facts.batteryLevels or {
+          low = 20;
+          critical = 5;
+        };
   };
 
   inherit (cfg)

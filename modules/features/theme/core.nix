@@ -2,10 +2,10 @@
 # The theme core, laid out like the storage core:
 #
 #   _domain/      entities: theme, appearance and model types; the
-#                 catalogue, one file per theme in themes/
+#                 catalogue, one file per theme in themes/; colour roles
 #   _wallpapers/  wallpaper files the catalogue names
 #   _usecases/    normalize (host settings + identity facts -> model),
-#                 validate
+#                 validate, ui-tokens (appearance -> design tokens)
 #   _adapters/    model -> per-user stylix settings
 #
 # options.nix, module.nix and stylix.nix beside this file are the outer
@@ -35,6 +35,11 @@ in
     );
 
     wallpaperPath = file: ./_wallpapers + "/${file}";
+
+    # Colour role -> base16 slot, for anything drawing an interface.
+    uiPalette = import ./_domain/ui-palette.nix { };
+
+    uiTokens = import ./_usecases/ui-tokens.nix { inherit theme; };
 
     normalize = import ./_usecases/normalize.nix { inherit lib theme; };
 

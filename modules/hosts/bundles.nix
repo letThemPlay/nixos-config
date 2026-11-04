@@ -33,14 +33,62 @@ _: {
       };
     };
 
+    unified-ui = {
+      description = "The unified shell on top of window-management: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings, battery alerts, display profiles, automounting, screen recording, a night light and a dock. Replaces waybar and its dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
+      module.ltp = {
+        desktop.components = {
+          bar = "quickshell";
+          launcher = "quickshell";
+          notifier = "quickshell";
+          locker = "quickshell";
+          power = "quickshell";
+          polkit = "quickshell";
+          osd = "quickshell";
+          quicksettings = "quickshell";
+          batteryAlerts = "quickshell";
+          displays = "kanshi";
+          automount = "udiskie";
+          recorder = "wf-recorder";
+          nightLight = "wlsunset";
+          clipboard = "quickshell";
+          dock = "quickshell";
+        };
+
+        # The shell draws its own launcher, so nothing starts this role.
+        apps.roles.launcher = null;
+      };
+    };
+
+    file-handling = {
+      description = "Files and links open in the right app: viewers for images (imv), PDFs (zathura) and media (mpv), with the roles in use as the default apps.";
+      module.ltp.apps = {
+        defaultHandlers = true;
+
+        roles = {
+          imageViewer = "imv";
+          pdfViewer = "zathura";
+          mediaPlayer = "mpv";
+        };
+      };
+    };
+
+    power = {
+      description = "Power profiles (power-profiles-daemon), and battery levels with a clean shutdown as the last resort (UPower).";
+      module.ltp.hardware = {
+        powerProfiles.enable = true;
+        battery.enable = true;
+      };
+    };
+
     laptop = {
-      description = "Audio, bluetooth, the wireless UI (iwgtk) and discord.";
+      description = "Audio, bluetooth, a backlight, the wireless UI (iwgtk) and discord.";
       module.ltp = {
         apps.install = [ "discord" ];
         network.wireless.ui = true;
         hardware = {
           audio.enable = true;
           bluetooth.enable = true;
+          backlight.enable = true;
         };
       };
     };

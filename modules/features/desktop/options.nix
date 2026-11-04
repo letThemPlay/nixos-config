@@ -88,6 +88,61 @@ in
           description = "Background components of the graphical session.";
         };
 
+        displays = mkOption {
+          type = desktop.types.displays;
+          default = { };
+
+          example = {
+            profiles.desk.outputs = {
+              "eDP-1".enable = false;
+              "Dell Inc. DELL U2720Q ABC123" = {
+                scale = 1.5;
+                position = {
+                  x = 0;
+                  y = 0;
+                };
+              };
+            };
+          };
+
+          description = ''
+            Display layouts for the displays component. Whichever profile
+            matches the connected monitors is applied.
+          '';
+        };
+
+        nightLight = mkOption {
+          type = desktop.types.nightLight;
+          default = { };
+          description = "The schedule of the nightLight component.";
+        };
+
+        notificationHistory = mkOption {
+          type = desktop.types.notificationHistory;
+          default = { };
+          description = "What the unified shell's notification center keeps across restarts.";
+        };
+
+        dockApps = mkOption {
+          type = types.nullOr (types.listOf types.str);
+          default = null;
+          example = [
+            "firefox.desktop"
+            "Alacritty.desktop"
+          ];
+
+          description = ''
+            Desktop IDs the unified shell's dock pins, in order. Null pins the
+            terminal, browser and file manager roles.
+          '';
+        };
+
+        ui = mkOption {
+          type = desktop.types.ui;
+          default = { };
+          description = "Inputs of the unified shell, for the roles that select it.";
+        };
+
         idle = mkOption {
           type = desktop.types.idle;
           default = { };

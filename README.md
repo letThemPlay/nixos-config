@@ -40,13 +40,114 @@ Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { de
 |---|---|
 | `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components, and the users' standard home folders. |
-| `laptop` | Audio, bluetooth, the wireless UI (iwgtk) and discord. |
+| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings, battery alerts, display profiles, automounting and screen recording. |
+| `power` | Power profiles (power-profiles-daemon), and battery levels with a clean shutdown as the last resort (UPower). |
+| `file-handling` | Files and links open in the right app: viewers for images (imv), PDFs (zathura) and media (mpv), with the roles in use as the default apps. |
+| `laptop` | Audio, bluetooth, a backlight (`ltp.hardware.backlight.enable`), the wireless UI (iwgtk) and discord. |
 | `vm` | A QEMU/KVM guest (guest agent, SPICE, virtio, serial console) and audio. |
 | `core-apps` | git, with the users' identity, signing and the git aliases. |
 | `gaming` | Steam, GameMode and gamescope. |
 | `flashgbx` | FlashGBX, and serial access for users who list the `flashgbx` bundle. |
 | `gpg` | The users' OpenPGP keys: gpg-agent with pinentry, SSH through the agent, smartcard rules and git signing. |
 | `tailscale` | Joins the tailscale network. It needs a secret, see [After the first boot](#48-after-the-first-boot). |
+
+---
+
+## 🪟 Unified shell
+
+The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https://quickshell.org) config in place of waybar and its dock, fuzzel, mako, hyprlock and the dmenu clipboard. Each surface is a separate `quickshell` entry in the component registry, so a host can also select them one at a time through `ltp.desktop.components`.
+
+| Key | Surface |
+|---|---|
+| `Mod+D` | Launcher: applications, power actions and arithmetic |
+| `Mod+V` | Clipboard history on the launcher's surface |
+| `Mod+N` | Notification center, sliding in from the left |
+| `Mod+Escape` / `Mod+Shift+Escape` | Dismiss the latest notification / all of them |
+| `Mod+X` | Power menu |
+| `Mod+L` | Lock screen |
+| `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
+| `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
+| Brightness and volume keys | Level display at the bottom of the screen |
+
+With the `power` bundle, the battery warns at 20% and 5%, and the machine shuts down at 2%. Change that with `ltp.hardware.battery`:
+
+```nix
+ltp.hardware.battery = {
+  lowAt = 20;
+  criticalAt = 5;
+  actionAt = 2;
+  criticalAction = "PowerOff";  # Hibernate and HybridSleep need swap
+};
+```
+
+Display layouts are declared per host, and kanshi applies whichever matches the connected monitors. Find the names with `niri msg outputs`:
+
+```nix
+ltp.desktop.displays.profiles = {
+  laptop.outputs."eDP-1".scale = 1.25;
+
+  desk.outputs = {
+    "eDP-1".position = { x = 0; y = 0; };
+    "Dell Inc. DELL U2720Q ABC123" = {
+      scale = 1.5;
+      position = { x = 1920; y = 0; };
+    };
+  };
+};
+```
+
+Removable drives mount when plugged in; the tray icon that appears while one is mounted is how to unmount it.
+
+The dock stays hidden until the pointer reaches the bottom edge. It holds pinned apps, then a divider and any other app with windows open. A left click focuses an app, moves through its windows, or launches it; a middle click closes its most recent window. By default it pins the terminal, browser and file manager.
+
+The night light warms the screen on a schedule, and its quick settings tile warms or clears it now. By day, clearing it returns to the schedule; within the schedule's hours, it stays clear until you turn it back on or next log in. The launcher ranks similar matches by what you open most. The notification center keeps what you haven't dismissed across restarts, under "Earlier", without action buttons. Change these per host:
+
+```nix
+ltp.desktop = {
+  dockApps = [ "firefox.desktop" "Alacritty.desktop" ];
+  nightLight = { from = "21:00"; until = "07:00"; temperature = 4000; };
+  notificationHistory = { limit = 50; days = 7; };  # limit = 0 saves nothing
+};
+```
+
+Graphical admin actions prompt through the shell's polkit dialog; test it with `pkexec true`. The brightness keys use the first device `brightnessctl --class=backlight` finds.
+
+Every niri host also has these window binds:
+
+| Key | Action |
+|---|---|
+| `Mod+1..9` | Go to a workspace |
+| `Mod+Shift+1..9` | Move the column to a workspace |
+| `Mod+Page_Up` / `Mod+Page_Down` | Next workspace up / down |
+| `Mod+Shift+Page_Up` / `Mod+Shift+Page_Down` | Move the column up / down a workspace |
+| `Mod+Ctrl+Left` / `Mod+Ctrl+Right` | Focus another monitor |
+| `Mod+Shift+Ctrl+Left` / `Mod+Shift+Ctrl+Right` | Move the column to another monitor |
+| `Print` / `Mod+Print` | Screenshot of the screen / the window, saved to `~/Pictures/Screenshots` and copied |
+| `Shift+Print` / `Ctrl+Shift+S` | Screenshot of a region, to annotate |
+| `Mod+O` | Overview |
+| `Mod+Shift+Space` | Float or tile the window |
+| `Mod+Tab` | Switch focus between floating and tiled windows |
+| `Mod+Shift+Slash` | Show the hotkey list |
+
+In the bar, right-clicking the bell toggles do-not-disturb, and right-clicking bluetooth turns the adapter on or off.
+
+**Theming.** Colours follow the user's theme through the roles in `modules/features/theme/_domain/ui-palette.nix`. Shapes follow `ltp.theme.appearance`:
+
+```nix
+ltp.theme.appearance = {
+  fontSize.desktop = 11;
+  ui = {
+    spacing = 4;        # every padding and gap is a multiple of this
+    radius = 10;        # panel corners; controls and cards scale from it
+    barHeight = 40;
+    animationMs = 180;
+    panelOpacity = 0.97;
+    iconFont = { package = "material-symbols"; name = "Material Symbols Rounded"; };
+  };
+};
+```
+
+**If the lock screen fails.** A crashed lock client is restarted, and niri keeps the session locked in the meantime. If it never comes back, switch to another virtual terminal, log in and run `loginctl lock-sessions`: hypridle starts a new client, which takes the lock over.
 
 ---
 

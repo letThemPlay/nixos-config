@@ -39,6 +39,16 @@ let
       description = "Hardware facts (ltp.hardware.facts) the bind needs, e.g. \"audio\".";
     };
 
+    direct = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Start spawn directly instead of as a session application: for
+        short-lived calls into a running component, where the session
+        wrapper would only add latency.
+      '';
+    };
+
   };
 
   bind = types.submodule { options = bindFields; };
@@ -208,8 +218,176 @@ let
     };
   };
 
+  #
+  # How one monitor is set in a display profile. Null leaves that setting to
+  # the compositor.
+  #
+  displayOutput = types.submodule {
+    options = {
+
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Whether the output is on in this profile.";
+      };
+
+      scale = mkOption {
+        type = types.nullOr (types.either types.int types.float);
+        default = null;
+      };
+
+      mode = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "2560x1440@144Hz";
+      };
+
+      position = mkOption {
+        type = types.nullOr (
+          types.submodule {
+            options = {
+              x = mkOption { type = types.int; };
+              y = mkOption { type = types.int; };
+            };
+          }
+        );
+        default = null;
+      };
+
+    };
+  };
+
+  # Named layouts; the one whose outputs match what's connected applies.
+  displays = types.submodule {
+    options.profiles = mkOption {
+      type = types.attrsOf (
+        types.submodule {
+          options.outputs = mkOption {
+            type = types.attrsOf displayOutput;
+            default = { };
+            description = "Outputs by connector (\"eDP-1\") or \"Make Model Serial\".";
+          };
+        }
+      );
+      default = { };
+    };
+  };
+
+  # When the screen warms, and how far. wlsunset needs night below its 6500K day.
+  nightLight = types.submodule {
+    options = {
+
+      from = mkOption {
+        type = types.str;
+        default = "21:00";
+        description = "When it starts, as HH:MM.";
+      };
+
+      until = mkOption {
+        type = types.str;
+        default = "07:00";
+        description = "When it ends, as HH:MM.";
+      };
+
+      temperature = mkOption {
+        type = types.ints.between 1000 6400;
+        default = 4000;
+        description = "Colour temperature at night, in kelvin; lower is warmer.";
+      };
+
+    };
+  };
+
+  # What the notification center keeps across restarts.
+  notificationHistory = types.submodule {
+    options = {
+
+      limit = mkOption {
+        type = types.ints.unsigned;
+        default = 50;
+        description = "How many notifications to keep; 0 saves none.";
+      };
+
+      days = mkOption {
+        type = types.ints.positive;
+        default = 7;
+        description = "How long to keep them.";
+      };
+
+    };
+  };
+
+  # Inputs of the unified shell (_ui): what its surfaces run.
+  ui = types.submodule {
+    options = {
+
+      commands = mkOption {
+        type = types.attrsOf (types.listOf types.str);
+        default = { };
+        description = "Named commands the shell's widgets run; components add theirs.";
+      };
+
+    };
+  };
+
+  # A power menu entry; confirm asks a second time before running it.
+  powerAction = types.submodule {
+    options = {
+      label = mkOption { type = types.str; };
+      icon = mkOption { type = types.str; };
+      command = mkOption { type = types.listOf types.str; };
+      confirm = mkOption { type = types.bool; };
+    };
+  };
+
   model = types.submodule {
     options = {
+
+      displays = mkOption {
+        type = displays;
+      };
+
+      nightLight = mkOption {
+        type = nightLight;
+      };
+
+      notificationHistory = mkOption {
+        type = notificationHistory;
+      };
+
+      dockApps = mkOption {
+        type = types.listOf types.str;
+        description = "Desktop IDs the dock pins, without the .desktop.";
+      };
+
+      ui = mkOption {
+        type = types.submodule {
+          options = {
+            surfaces = mkOption {
+              type = types.listOf types.str;
+              description = "Roles the unified shell draws.";
+            };
+
+            commands = mkOption {
+              type = types.attrsOf (types.listOf types.str);
+            };
+
+            powerActions = mkOption {
+              type = types.attrsOf powerAction;
+            };
+
+            powerProfiles = mkOption {
+              type = types.bool;
+              description = "Whether the host manages power profiles.";
+            };
+
+            batteryLevels = mkOption {
+              type = types.attrsOf types.int;
+              description = "The levels the shell warns at: low and critical.";
+            };
+          };
+        };
+      };
 
       compositors = mkOption {
         type = types.listOf (
@@ -302,6 +480,12 @@ in
     ruleProperties
     service
     bar
+    displayOutput
+    displays
+    nightLight
+    notificationHistory
+    ui
+    powerAction
     model
     ;
 }

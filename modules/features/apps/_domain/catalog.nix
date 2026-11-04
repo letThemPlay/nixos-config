@@ -12,6 +12,7 @@ _: {
     package = "alacritty";
     command = [ "alacritty" ];
     appId = "Alacritty";
+    desktopEntry = "Alacritty.desktop";
     execFlag = "-e";
   };
 
@@ -20,6 +21,8 @@ _: {
     package = null;
     command = [ "nvim" ];
     appId = "nvim";
+    desktopEntry = "nvim.desktop";
+    opensInTerminal = true;
   };
 
   firefox = {
@@ -27,6 +30,7 @@ _: {
     package = "firefox";
     command = [ "firefox" ];
     appId = "firefox";
+    desktopEntry = "firefox.desktop";
   };
 
   yazi = {
@@ -35,6 +39,32 @@ _: {
     command = [ "yazi" ];
     appId = "yazi";
     inTerminal = true;
+    desktopEntry = "yazi.desktop";
+    opensInTerminal = true;
+  };
+
+  imv = {
+    roles = [ "imageViewer" ];
+    package = null;
+    command = [ "imv" ];
+    appId = "imv";
+    desktopEntry = "imv.desktop";
+  };
+
+  zathura = {
+    roles = [ "pdfViewer" ];
+    package = null;
+    command = [ "zathura" ];
+    appId = "org.pwmt.zathura";
+    desktopEntry = "org.pwmt.zathura.desktop";
+  };
+
+  mpv = {
+    roles = [ "mediaPlayer" ];
+    package = null;
+    command = [ "mpv" ];
+    appId = "mpv";
+    desktopEntry = "mpv.desktop";
   };
 
   fuzzel = {
