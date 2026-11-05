@@ -77,7 +77,7 @@ in
       # Kept out of `checks` because it takes several minutes; run with
       #   nix build .#vmTests.storage
       #
-      legacyPackages.vmTests.storage = testLib.makeDiskoTest {
+      vmTests.storage = testLib.makeDiskoTest {
         inherit pkgs;
 
         name = "storage";

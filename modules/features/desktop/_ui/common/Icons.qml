@@ -30,6 +30,7 @@ Singleton {
 
     "settings": "tune",
     "more": "chevron_right",
+    "previous": "chevron_left",
 
     "microphone": "mic",
     "microphoneMuted": "mic_off",

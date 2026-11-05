@@ -121,6 +121,9 @@ in
         # Not part of the network model; kept as before.
         { networking.firewall.enable = false; }
 
+        # Published on every host, like the other features' facts.
+        { ltp.network.facts.wireless = if cfg.enable then network.query.wirelessBackend model else null; }
+
         (mkIf cfg.enable (mkMerge [
 
           {
