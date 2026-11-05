@@ -46,7 +46,7 @@ PanelWindow {
         // A sender's own timeout wins; critical notifications wait for the user.
         readonly property int timeout: {
           if (critical) return 0;
-          return modelData?.expireTimeout > 0 ? modelData.expireTimeout * 1000 : 5000;
+          return modelData?.expireTimeout > 0 ? modelData.expireTimeout : 5000;
         }
         readonly property real hiddenX: -width - Theme.spaceSm
 

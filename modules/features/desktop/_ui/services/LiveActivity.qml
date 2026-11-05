@@ -85,7 +85,7 @@ Singleton {
   property real compactWidth: Theme.sizeSidePanel / 2
 
   // A sender's own timeout wins.
-  readonly property int timeout: ordinary?.expireTimeout > 0 ? ordinary.expireTimeout * 1000 : 5000
+  readonly property int timeout: ordinary?.expireTimeout > 0 ? ordinary.expireTimeout : 5000
 
   // Those it replaces stay in the center.
   onOrdinaryChanged: {
