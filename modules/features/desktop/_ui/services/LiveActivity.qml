@@ -40,8 +40,43 @@ Singleton {
     return Levels.shown ? "level" : settled;
   }
 
-  // What the card opens on. Pressing during an audio level is asking about audio.
-  readonly property string opening: kind === "level" && Levels.isAudio ? "audio" : settled
+  // How the island is presented, which is separate from everything above: nothing here
+  // changes what's active. Collapsed is the card not being open. Expanded shows what's
+  // active alongside the system overview. Focused shows one thing with its fuller
+  // controls: media, notification, month or audio.
+  property string presentation: "expanded"
+  property string focusedOn: ""
+
+  // Opened straight into focus, so there's nothing to go back to.
+  property bool focusedDirectly: false
+
+  readonly property bool isFocused: presentation === "focused"
+  readonly property bool readingNotification: Ui.open === "island" && isFocused && focusedOn === "notification"
+
+  function expand() {
+    presentation = "expanded";
+    focusedOn = "";
+    focusedDirectly = false;
+    Ui.open = "island";
+  }
+
+  function focusOn(what, directly) {
+    presentation = "focused";
+    focusedOn = what;
+    focusedDirectly = directly;
+    Ui.open = "island";
+  }
+
+  function collapse() {
+    Ui.close();
+  }
+
+  // Pressing during an audio level is asking about audio.
+  function press() {
+    if (Ui.open === "island") collapse();
+    else if (kind === "level" && Levels.isAudio) focusOn("audio", true);
+    else expand();
+  }
 
   // The island's own changes are bigger than a panel's, so they take a little longer.
   readonly property int motion: Theme.motionNormal * 1.5
@@ -66,12 +101,12 @@ Singleton {
     value: root.showing
   }
 
-  // Waits while the card is open, where it's being read.
+  // Waits only while focused, where it's being read.
   Timer {
     id: leaving
 
     interval: root.timeout
-    running: root.ordinary !== null && Ui.open !== "island"
+    running: root.ordinary !== null && !root.readingNotification
     onTriggered: Notifications.hidePopup(root.ordinary)
   }
 }

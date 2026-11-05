@@ -40,7 +40,7 @@ Pressable {
   }
 
   onClicked: button => {
-    if (button !== Qt.RightButton) Ui.toggle("island");
+    if (button !== Qt.RightButton) LiveActivity.press();
     else if (face === "media") Media.player?.next();
     else if (face === "notification") LiveActivity.notification?.dismiss();
   }
