@@ -3,6 +3,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import qs.common
 
 // How busy the machine is, from the kernel's own counters. It only reads them while
 // something is watching, so nothing polls the rest of the time.
@@ -16,16 +17,33 @@ Singleton {
   property real cpu: -1
   property real memory: -1
 
+  // The filesystem holding /home, as it's kept everywhere, which an erase-on-boot root
+  // isn't. It changes slowly, so it's read less often.
+  property real disk: -1
+  readonly property bool diskReadable: (Settings.commands.diskUsage ?? []).length > 0
+
   property real lastTotal: 0
   property real lastIdle: 0
 
   onWatchingChanged: {
-    if (watching) return;
+    // A second reading soon after the first, so the card doesn't open on a dash.
+    if (watching) {
+      followUp.restart();
+      return;
+    }
 
     cpu = -1;
     memory = -1;
+    disk = -1;
     lastTotal = 0;
     lastIdle = 0;
+  }
+
+  // df's header, then the size and what's available, in bytes.
+  function readDisk(text) {
+    const fields = text.trim().split("\n").pop().trim().split(/\s+/).map(Number);
+
+    if (fields.length === 2 && fields[0] > 0) disk = 1 - fields[1] / fields[0];
   }
 
   function readCpu(text) {
@@ -54,6 +72,35 @@ Singleton {
     onTriggered: {
       stat.reload();
       meminfo.reload();
+    }
+  }
+
+  Timer {
+    id: followUp
+
+    interval: 500
+    onTriggered: {
+      if (root.watching) stat.reload();
+    }
+  }
+
+  Timer {
+    interval: 30000
+    running: root.watching && root.diskReadable
+    repeat: true
+    triggeredOnStart: true
+    onTriggered: diskUsage.running = true
+  }
+
+  Process {
+    id: diskUsage
+
+    command: Settings.commands.diskUsage ?? []
+
+    stdout: StdioCollector {
+      onStreamFinished: {
+        if (root.watching) root.readDisk(text);
+      }
     }
   }
 

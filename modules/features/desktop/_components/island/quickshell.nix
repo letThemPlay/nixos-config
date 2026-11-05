@@ -52,10 +52,21 @@ in
       };
     };
 
-    ui.commands.visualizer = [
-      "${pkgs.cava}/bin/cava"
-      "-p"
-      "${visualizerConfig}"
-    ];
+    ui.commands = {
+      visualizer = [
+        "${pkgs.cava}/bin/cava"
+        "-p"
+        "${visualizerConfig}"
+      ];
+
+      # For the expanded card's overview. /home is kept on every host, which an
+      # erase-on-boot root isn't.
+      diskUsage = [
+        "${pkgs.coreutils}/bin/df"
+        "-B1"
+        "--output=size,avail"
+        "/home"
+      ];
+    };
   };
 }

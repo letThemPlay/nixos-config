@@ -12,6 +12,9 @@ Singleton {
     "clipboard": "content_paste",
     "calculator": "calculate",
     "close": "close",
+    "cpu": "memory",
+    "ram": "memory_alt",
+    "disk": "hard_drive",
 
     "notifications": "notifications",
     "notificationsUnread": "notifications_unread",

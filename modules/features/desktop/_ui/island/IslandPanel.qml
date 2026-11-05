@@ -47,7 +47,8 @@ Overlay {
     NumberAnimation { duration: LiveActivity.motion; easing.type: Easing.OutCubic }
   }
 
-  readonly property bool hasNotifier: Settings.surfaces.includes("notifier")
+  // Whether anything going on sits above the overview, which a line then separates.
+  readonly property bool live: notification !== null || Recorder.active || Microphone.active || player !== null
 
   function grown(from, to) {
     return from + (to - from) * progress;
@@ -64,7 +65,6 @@ Overlay {
 
     idleAtOpening = LiveActivity.settled === "clock";
     month.showCurrent();
-    NightLight.refresh();
   }
 
   Binding {
@@ -122,41 +122,49 @@ Overlay {
     onTriggered: root.player?.positionChanged()
   }
 
-  component Meter: Row {
+  // One of the overview's figures: an icon above, say, "CPU 12%", or a dash until the
+  // first reading.
+  component Figure: Column {
+    required property string icon
     required property string measure
     required property real value
 
-    spacing: Theme.spaceSm
+    spacing: Theme.spaceXs
+
+    Icon {
+      name: parent.icon
+      size: Theme.iconMedium
+      color: Theme.accent
+    }
 
     Label {
+      width: parent.width
+      text: parent.measure + " " + (parent.value < 0 ? "—" : Math.round(parent.value * 100) + "%")
+      size: Theme.fontHeading
+      font.weight: Font.DemiBold
+    }
+  }
+
+  // A line of the overview: what it is, and how it stands.
+  component Fact: Item {
+    required property string measure
+    required property string value
+
+    implicitHeight: valueLabel.implicitHeight
+
+    Label {
+      anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
       text: parent.measure
-      size: Theme.fontSmall
       color: Theme.muted
     }
 
-    Rectangle {
+    Label {
+      id: valueLabel
+
+      anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
-      width: Theme.sizeSidePanel / 5
-      height: Theme.spaceXs
-      radius: height / 2
-      color: Qt.alpha(Theme.outline, 0.5)
-
-      Rectangle {
-        width: parent.width * Math.max(0, parent.parent.value)
-        height: parent.height
-        radius: parent.radius
-        color: Theme.accent
-
-        Behavior on width {
-          NumberAnimation { duration: Theme.motionNormal }
-        }
-      }
-    }
-
-    Percent {
-      anchors.verticalCenter: parent.verticalCenter
-      level: Math.max(0, parent.value)
+      text: parent.value
     }
   }
 
@@ -553,104 +561,73 @@ Overlay {
           }
         }
 
-        // The system overview, whatever else is going on.
+        Rectangle {
+          width: parent.width
+          height: 1
+          color: Theme.outline
+          opacity: 0.5
+          visible: root.expanded && root.live
+        }
+
+        // The system overview, whatever else is going on. Only to read: quick settings
+        // has the controls.
         Column {
           width: parent.width
           visible: root.expanded
           spacing: Theme.spaceMd
 
-          Row {
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spaceLg
+          Label {
+            text: "System Overview"
+            size: Theme.fontHeading
+            color: Theme.muted
+          }
 
-            Meter {
+          Row {
+            id: figures
+
+            readonly property int count: SystemLoad.diskReadable ? 3 : 2
+            readonly property real figureWidth: (width - spacing * (count - 1)) / count
+
+            width: parent.width
+            spacing: Theme.spaceMd
+
+            Figure {
+              width: figures.figureWidth
+              icon: "cpu"
               measure: "CPU"
               value: SystemLoad.cpu
             }
 
-            Meter {
+            Figure {
+              width: figures.figureWidth
+              icon: "ram"
               measure: "RAM"
               value: SystemLoad.memory
             }
+
+            Figure {
+              width: figures.figureWidth
+              visible: SystemLoad.diskReadable
+              icon: "disk"
+              measure: "Disk"
+              value: SystemLoad.disk
+            }
           }
 
-          Grid {
-            id: controls
-
-            readonly property real tileWidth: (width - spacing * (columns - 1)) / columns
-
+          Fact {
             width: parent.width
-            columns: 3
-            spacing: Theme.spaceXs
-
-            Tile {
-              width: controls.tileWidth
-              visible: Wifi.usable || Run.has("networkUi")
-              icon: Network.icon
-              text: {
-                if (Network.kind === "wifi") return Network.name;
-                return Network.kind === "wired" ? "Wired" : "Disconnected";
-              }
-              selected: Network.kind !== "none"
-              onClicked: {
-                if (Wifi.usable) {
-                  Ui.open = "wifi";
-                } else {
-                  Ui.close();
-                  Run.command("networkUi");
-                }
-              }
+            measure: "Network"
+            value: {
+              if (Network.kind === "wifi") return Network.name || "Wi-Fi";
+              return Network.kind === "wired" ? "Wired" : "Disconnected";
             }
+          }
 
-            Tile {
-              width: controls.tileWidth
-              visible: BluetoothDevices.present
-              icon: BluetoothDevices.enabled ? "bluetooth" : "bluetoothOff"
-              text: "Bluetooth"
-              selected: BluetoothDevices.enabled
-              onClicked: {
-                if (Settings.surfaces.includes("bluetooth")) {
-                  Ui.open = "bluetooth";
-                } else {
-                  Ui.close();
-                  Run.command("bluetoothUi");
-                }
-              }
-            }
-
-            Tile {
-              width: controls.tileWidth
-              visible: root.hasNotifier
-              icon: "notificationsPaused"
-              text: "Silent"
-              selected: root.hasNotifier && Notifications.doNotDisturb
-              onClicked: Notifications.doNotDisturb = !Notifications.doNotDisturb
-            }
-
-            Tile {
-              width: controls.tileWidth
-              visible: NightLight.available
-              icon: "nightLight"
-              text: "Night light"
-              selected: NightLight.active
-              onClicked: NightLight.toggle()
-            }
-
-            Tile {
-              width: controls.tileWidth
-              icon: "keepAwake"
-              text: "Keep awake"
-              selected: Ui.keepAwake
-              onClicked: Ui.keepAwake = !Ui.keepAwake
-            }
-
-            Tile {
-              width: controls.tileWidth
-              visible: Settings.surfaces.includes("quicksettings")
-              icon: "settings"
-              text: "More"
-              onClicked: Ui.open = "quicksettings"
-            }
+          Fact {
+            width: parent.width
+            visible: Battery.present
+            measure: "Battery"
+            value: Battery.percent + "%" + (Battery.charging ? " · Charging" : "")
           }
         }
 
