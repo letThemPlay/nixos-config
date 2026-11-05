@@ -66,14 +66,15 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
 | `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
-| `Mod+I` | The center island's card: whatever it's showing, with its controls, or a month view when it's only showing the time. Also opened by pressing the island |
+| `Mod+I` | The center island's card: whatever it's showing, with its controls. Pressing it during a volume or microphone level gives both devices and their choices. When it's only showing the time: the workspace, CPU and memory, quick controls and a month view. Also opened by pressing the island |
+| Mic mute key | Mutes the default microphone, shown in the island |
 | `Mod+Shift+D` | The month view in that card, whatever else is happening. Change month with the arrows, the wheel or the Left and Right keys |
 | `Mod+W` | Wi-Fi: turn it on or off, join, disconnect and forget networks. Also opened by the bar's network item and quick settings. Enterprise and hidden networks are under More settings (iwgtk) |
 | `Mod+B` | Bluetooth: turn it on or off, pair, connect, disconnect and forget devices. Also opened by the bar's Bluetooth item, where a right click switches the adapter. Devices that need a code to pair are under More settings (blueman) |
 | `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
 | Brightness and volume keys | The level, in the center island |
 
-The center island shows the most pressing thing happening, and grows to fit it: a level that just changed, then a notification, a recording, the playing track with bars pulsing to the output, and otherwise the clock. A red dot stays at its edge while recording, whatever else it shows. A right click skips a track or dismisses a notification. Critical notifications keep a card of their own on the left. A fullscreen window hides the bar, so over one, levels still appear in the island's place and notifications as cards on the left.
+The center island shows the most pressing thing happening, and grows to fit it: a critical notification until you acknowledge it, a volume, brightness or microphone level that just changed or a newly chosen output's name, then a notification, a recording, the playing track with bars for its frequencies, and otherwise the clock. A red dot stays at its edge while recording, whatever else it shows. A right click skips a track or dismisses a notification. A fullscreen window hides the bar, so over one, levels still appear in the island's place and notifications as cards on the left.
 
 With the `power` bundle, the battery warns at 20% and 5%, and the machine shuts down at 2%. Change that with `ltp.hardware.battery`:
 

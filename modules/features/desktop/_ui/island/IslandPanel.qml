@@ -1,5 +1,7 @@
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
+import Quickshell.WindowManager
 import QtQuick
 import qs.calendar
 import qs.common
@@ -29,6 +31,7 @@ Overlay {
     return context === "media" || context === "clock" || (context === "recording" && Media.playing);
   }
   readonly property bool showsAudio: context === "audio"
+  readonly property bool showsIdle: context === "clock"
   readonly property bool showsMonth: {
     if (context === "calendar" || context === "clock") return true;
     return !showsNotification && !showsMedia && !showsAudio && !Recorder.active;
@@ -36,6 +39,24 @@ Overlay {
 
   readonly property real cardHeight: content.implicitHeight + Theme.spaceLg * 2
   readonly property real maxHeight: root.height - Theme.spaceSm * 2
+
+  // The focused window as the card opened: it takes the keyboard, and with it the focus
+  // this is asking about.
+  property var focused: null
+
+  // The workspace on the output holding that window.
+  readonly property string workspace: {
+    if (!showsIdle) return "";
+
+    const screen = focused?.screens?.[0] ?? Quickshell.screens[0];
+    const sets = WindowManager.screenProjection(screen)?.windowsets ?? [];
+    const shown = sets.filter(set => set.shouldDisplay);
+    const active = shown.findIndex(set => set.active);
+
+    return active < 0 ? "" : "Workspace " + (shown[active].name || active + 1);
+  }
+
+  readonly property bool hasNotifier: Settings.surfaces.includes("notifier")
 
   function grown(from, to) {
     return from + (to - from) * progress;
@@ -50,9 +71,55 @@ Overlay {
   onShownChanged: {
     if (!shown) return;
 
+    focused = ToplevelManager.activeToplevel;
     context = requested || LiveActivity.opening;
     requested = "";
     month.showCurrent();
+    NightLight.refresh();
+  }
+
+  Binding {
+    target: SystemLoad
+    property: "watching"
+    value: root.shown && root.showsIdle
+  }
+
+  component Meter: Row {
+    required property string measure
+    required property real value
+
+    spacing: Theme.spaceSm
+
+    Label {
+      anchors.verticalCenter: parent.verticalCenter
+      text: parent.measure
+      size: Theme.fontSmall
+      color: Theme.muted
+    }
+
+    Rectangle {
+      anchors.verticalCenter: parent.verticalCenter
+      width: Theme.sizeSidePanel / 5
+      height: Theme.spaceXs
+      radius: height / 2
+      color: Qt.alpha(Theme.outline, 0.5)
+
+      Rectangle {
+        width: parent.width * Math.max(0, parent.parent.value)
+        height: parent.height
+        radius: parent.radius
+        color: Theme.accent
+
+        Behavior on width {
+          NumberAnimation { duration: Theme.motionNormal }
+        }
+      }
+    }
+
+    Percent {
+      anchors.verticalCenter: parent.verticalCenter
+      level: Math.max(0, parent.value)
+    }
   }
 
   // Once it's been dismissed or acted on, there's nothing left to show.
@@ -127,6 +194,125 @@ Overlay {
 
         width: parent.width
         spacing: Theme.spaceMd
+
+        Column {
+          width: parent.width
+          visible: root.showsIdle
+          spacing: Theme.spaceMd
+
+          Column {
+            width: parent.width
+
+            Label {
+              width: parent.width
+              visible: text !== ""
+              text: root.workspace
+              size: Theme.fontTitle
+              font.weight: Font.DemiBold
+            }
+
+            Label {
+              width: parent.width
+              visible: text !== ""
+              text: root.focused?.title ?? ""
+              color: Theme.muted
+            }
+          }
+
+          Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Theme.spaceLg
+
+            Meter {
+              measure: "CPU"
+              value: SystemLoad.cpu
+            }
+
+            Meter {
+              measure: "RAM"
+              value: SystemLoad.memory
+            }
+          }
+
+          Grid {
+            id: controls
+
+            readonly property real tileWidth: (width - spacing * (columns - 1)) / columns
+
+            width: parent.width
+            columns: 3
+            spacing: Theme.spaceXs
+
+            Tile {
+              width: controls.tileWidth
+              visible: Wifi.usable || Run.has("networkUi")
+              icon: Network.icon
+              text: {
+                if (Network.kind === "wifi") return Network.name;
+                return Network.kind === "wired" ? "Wired" : "Disconnected";
+              }
+              selected: Network.kind !== "none"
+              onClicked: {
+                if (Wifi.usable) {
+                  Ui.open = "wifi";
+                } else {
+                  Ui.close();
+                  Run.command("networkUi");
+                }
+              }
+            }
+
+            Tile {
+              width: controls.tileWidth
+              visible: BluetoothDevices.present
+              icon: BluetoothDevices.enabled ? "bluetooth" : "bluetoothOff"
+              text: "Bluetooth"
+              selected: BluetoothDevices.enabled
+              onClicked: {
+                if (Settings.surfaces.includes("bluetooth")) {
+                  Ui.open = "bluetooth";
+                } else {
+                  Ui.close();
+                  Run.command("bluetoothUi");
+                }
+              }
+            }
+
+            Tile {
+              width: controls.tileWidth
+              visible: root.hasNotifier
+              icon: "notificationsPaused"
+              text: "Silent"
+              selected: root.hasNotifier && Notifications.doNotDisturb
+              onClicked: Notifications.doNotDisturb = !Notifications.doNotDisturb
+            }
+
+            Tile {
+              width: controls.tileWidth
+              visible: NightLight.available
+              icon: "nightLight"
+              text: "Night light"
+              selected: NightLight.active
+              onClicked: NightLight.toggle()
+            }
+
+            Tile {
+              width: controls.tileWidth
+              icon: "keepAwake"
+              text: "Keep awake"
+              selected: Ui.keepAwake
+              onClicked: Ui.keepAwake = !Ui.keepAwake
+            }
+
+            Tile {
+              width: controls.tileWidth
+              visible: Settings.surfaces.includes("quicksettings")
+              icon: "settings"
+              text: "More"
+              onClicked: Ui.open = "quicksettings"
+            }
+          }
+        }
 
         NotificationCard {
           width: parent.width
