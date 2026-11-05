@@ -34,13 +34,16 @@ Singleton {
   readonly property var microphone: Pipewire.defaultAudioSource
   readonly property var microphoneAudio: microphone?.audio ?? null
 
-  readonly property bool isAudio: source !== "brightness"
+  readonly property bool isAudio: source === "output" || source === "input"
+
+  // The charger's state as UPower first answers isn't a change either.
+  property bool chargerArmed: false
 
   function nameOf(node) {
     return node?.description || node?.nickname || node?.name || "";
   }
 
-  function show(newSource, newIcon, newLevel, newWarn, newLabel) {
+  function show(newSource, newIcon, newLevel, newWarn, newLabel, duration) {
     source = newSource;
     icon = newIcon;
     level = Math.max(0, Math.min(1, newLevel));
@@ -48,7 +51,26 @@ Singleton {
     label = newLabel;
     deviceOnly = false;
     shown = true;
+    hide.interval = duration ?? 1500;
     hide.restart();
+  }
+
+  function chargerLabel() {
+    if (Battery.charging) return "Charging";
+
+    // UPower takes a moment to estimate after unplugging.
+    const minutes = Math.round(Battery.timeToEmpty / 60);
+    if (minutes <= 0) return "On battery";
+
+    const hours = Math.floor(minutes / 60);
+    return (hours > 0 ? hours + " h " : "") + minutes % 60 + " min left";
+  }
+
+  // Only with the island, as this is news it has room for. Other layouts stay as they were.
+  function showCharger() {
+    if (!chargerArmed || !Battery.present || !Settings.surfaces.includes("island")) return;
+
+    show("battery", Battery.icon, Battery.percent / 100, false, chargerLabel(), 3000);
   }
 
   function showVolume() {
@@ -131,6 +153,20 @@ Singleton {
 
     interval: 1500
     onTriggered: root.shown = false
+  }
+
+  Timer {
+    interval: 1000
+    running: Battery.present
+    onTriggered: root.chargerArmed = true
+  }
+
+  Connections {
+    target: Battery
+
+    function onChargingChanged() {
+      root.showCharger();
+    }
   }
 
   Connections {
