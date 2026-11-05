@@ -27,7 +27,8 @@ Pressable {
 
   // Nothing else on the bar may hide that the screen is being recorded.
   readonly property bool marked: Recorder.active && kind !== "recording"
-  readonly property real wanted: active.implicitWidth + (marked ? mark.width + Theme.spaceSm : 0) + Theme.spaceSm * 2
+  readonly property real marksWidth: marked || Microphone.active ? marks.implicitWidth + Theme.spaceSm : 0
+  readonly property real wanted: active.implicitWidth + marksWidth + Theme.spaceSm * 2
 
   implicitHeight: Theme.sizeBarItem
   implicitWidth: Math.min(wanted, room)
@@ -49,7 +50,7 @@ Pressable {
     required property string activity
 
     anchors.centerIn: stage
-    anchors.horizontalCenterOffset: root.marked ? (mark.width + Theme.spaceSm) / 2 : 0
+    anchors.horizontalCenterOffset: root.marksWidth / 2
     spacing: Theme.spaceSm
     opacity: root.face === activity ? 1 : 0
     visible: opacity > 0
@@ -59,17 +60,30 @@ Pressable {
     }
   }
 
-  Rectangle {
-    id: mark
+  Row {
+    id: marks
 
     anchors.left: parent.left
     anchors.leftMargin: Theme.spaceSm
     anchors.verticalCenter: parent.verticalCenter
-    width: Theme.spaceSm
-    height: width
-    radius: width / 2
-    color: Theme.danger
-    visible: root.marked
+    spacing: Theme.spaceXs
+
+    Rectangle {
+      width: Theme.spaceSm
+      height: width
+      radius: width / 2
+      color: Theme.danger
+      visible: root.marked
+    }
+
+    // Nothing may hide that an app is listening either.
+    Rectangle {
+      width: Theme.spaceSm
+      height: width
+      radius: width / 2
+      color: Microphone.muted ? Theme.muted : Theme.warning
+      visible: Microphone.active
+    }
   }
 
   Item {

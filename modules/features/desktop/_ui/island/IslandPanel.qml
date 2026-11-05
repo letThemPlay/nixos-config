@@ -418,6 +418,25 @@ Overlay {
           }
         }
 
+        Row {
+          width: parent.width
+          spacing: Theme.spaceSm
+          visible: root.expanded && Microphone.active
+
+          Icon {
+            anchors.verticalCenter: parent.verticalCenter
+            name: Microphone.muted ? "microphoneMuted" : "microphone"
+            size: Theme.iconSmall
+            color: Microphone.muted ? Theme.muted : Theme.warning
+          }
+
+          Label {
+            anchors.verticalCenter: parent.verticalCenter
+            width: parent.width - Theme.iconSmall - parent.spacing
+            text: Microphone.users ? "Microphone in use by " + Microphone.users : "Microphone in use"
+          }
+        }
+
         // The player beside the overview. Pressing the track gives the fuller one.
         Column {
           width: parent.width
