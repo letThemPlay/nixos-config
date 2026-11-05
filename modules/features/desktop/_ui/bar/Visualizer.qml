@@ -13,10 +13,30 @@ Row {
   // Newest first, and as many as there are bars from the middle out.
   property var readings: [0, 0, 0, 0]
 
+  // The range the sound has been moving in lately. Loud music rarely leaves the top of
+  // the scale, so bars follow where a reading sits within this rather than how loud it
+  // is. Each edge jumps to a new extreme and drifts back over a few seconds, the
+  // ceiling faster, so a quieter passage isn't left flat while it comes down.
+  property real floor: 0
+  property real ceiling: 0
+
+  function shaped(peak) {
+    floor = Math.min(peak, floor + (peak - floor) * 0.02);
+    ceiling = Math.max(peak, ceiling + (peak - ceiling) * 0.05);
+
+    // A narrow range is sound holding steady or nearly silent, not worth filling the
+    // bars for. The curve keeps the bars low between beats.
+    return Math.pow((peak - floor) / Math.max(ceiling - floor, 0.1), 1.5);
+  }
+
   spacing: Theme.spaceXs / 2
 
   onActiveChanged: {
-    if (!active) readings = [0, 0, 0, 0];
+    if (active) return;
+
+    readings = [0, 0, 0, 0];
+    floor = 0;
+    ceiling = 0;
   }
 
   PwNodePeakMonitor {
@@ -30,8 +50,7 @@ Row {
     interval: Theme.motionFast
     running: root.active
     repeat: true
-    // Peaks are linear, where hearing isn't, so quiet sound would barely register.
-    onTriggered: root.readings = [Math.sqrt(monitor.peak)].concat(root.readings.slice(0, -1))
+    onTriggered: root.readings = [root.shaped(monitor.peak)].concat(root.readings.slice(0, -1))
   }
 
   Repeater {
