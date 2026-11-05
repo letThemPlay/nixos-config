@@ -61,11 +61,10 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 |---|---|
 | `Mod+D` | Launcher: applications, power actions and arithmetic |
 | `Mod+V` | Clipboard history on the launcher's surface |
-| `Mod+N` | Notification center, sliding in from the left |
 | `Mod+Escape` / `Mod+Shift+Escape` | Dismiss the latest notification / all of them |
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
-| `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
+| `Mod+S` | Control center, under the bar's right island: quick settings (audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake, recording, network, battery) above the notifications. The bar's settings button opens it too, shows how many notifications there are, and switches do not disturb on a right click |
 | `Mod+I` | Expands the center island, as does pressing it: anything going on, with its controls, alongside a system overview of CPU, memory, disk, network and battery, and a month view if nothing was. Pressing a track or notification there focuses it, with its fuller controls, and Escape steps back. Pressing the island during a volume or microphone level focuses both devices and their choices. Clicking outside collapses it, and nothing that's playing or happening is affected. Plugging or unplugging the charger shows the battery in the island for a few seconds. A dot on the pill means an app is using a microphone, amber or grey if muted, and the expanded card names it |
 | `Mod+Shift+I` | Goes straight to the view of whatever's current, skipping the expanded card: a notification, the audio devices during a volume or microphone level, or the full music view, including for a paused track. With only a recording it expands, as recording has no view of its own, and with nothing going on it shows the month. Escape collapses it |
 | Mic mute key | Mutes the default microphone, shown in the island |

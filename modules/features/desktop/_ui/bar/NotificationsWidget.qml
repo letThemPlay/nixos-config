@@ -1,7 +1,8 @@
 import qs.common
 import qs.notifications
 
-// Beside the screen edge the notification center slides in from.
+// The control center's button where it holds only notifications. With quick settings,
+// their button stands for both.
 BarItem {
   readonly property int count: Notifications.count
 
@@ -10,11 +11,11 @@ BarItem {
     return count > 0 ? "notificationsUnread" : "notifications";
   }
   text: count > 0 ? String(count) : ""
-  selected: Ui.open === "notifications"
+  selected: Ui.open === "controlcenter"
   onClicked: button => {
     if (button === Qt.RightButton)
       Notifications.doNotDisturb = !Notifications.doNotDisturb;
     else
-      Ui.toggle("notifications");
+      Ui.toggle("controlcenter");
   }
 }

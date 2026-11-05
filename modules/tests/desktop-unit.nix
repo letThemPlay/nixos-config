@@ -495,13 +495,13 @@ let
       expr = map (target: lib.any (file: lib.hasInfix ''target: "${target}"'' (uiFile file)) uiFiles) [
         "bluetooth"
         "calendar"
+        "controlcenter"
         "dock"
         "island"
         "launcher"
         "notifications"
         "osd"
         "power"
-        "quicksettings"
         "recorder"
         "wifi"
       ];

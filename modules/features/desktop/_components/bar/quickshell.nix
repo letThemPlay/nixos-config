@@ -62,7 +62,8 @@ in
     bar = {
       left =
         lib.optional (drawn "launcher") "launcher"
-        ++ lib.optional (drawn "notifier") "notifications"
+        # The settings button stands for the notifications too, where there is one.
+        ++ lib.optional (drawn "notifier" && !drawn "quicksettings") "notifications"
         ++ [
           "workspaces"
           "window"

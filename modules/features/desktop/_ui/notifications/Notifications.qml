@@ -156,12 +156,12 @@ Singleton {
     }
   }
 
-  // Opening the center shows everything the popups were showing.
+  // Opening the control center shows everything the popups were showing.
   Connections {
     target: Ui
 
     function onOpenChanged() {
-      if (Ui.open !== "notifications") return;
+      if (Ui.open !== "controlcenter") return;
 
       for (const popup of root.popups)
         root.hidePopup(popup);
@@ -170,10 +170,6 @@ Singleton {
 
   IpcHandler {
     target: "notifications"
-
-    function toggle(): void {
-      Ui.toggle("notifications");
-    }
 
     function dismiss(): void {
       root.dismissLatest();
