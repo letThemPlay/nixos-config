@@ -92,9 +92,11 @@ Overlay {
     value: root.shown && root.expanded
   }
 
-  // What was focused has gone, so there's nothing left to look at closely.
+  // What was focused has gone, so there's nothing left to look at closely. Only while
+  // open: collapsing leaves the presentation as it was, and this mustn't reopen the card.
   Connections {
     target: root
+    enabled: root.shown
 
     function onNotificationChanged() {
       if (root.focusedOn === "notification" && root.notification === null) LiveActivity.expand();
