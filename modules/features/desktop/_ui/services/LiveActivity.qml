@@ -32,6 +32,7 @@ Singleton {
   readonly property string settled: {
     if (notification) return "notification";
     if (Recorder.active) return "recording";
+    if (Activities.active) return "activity";
     return Media.playing ? "media" : "clock";
   }
 
@@ -78,15 +79,15 @@ Singleton {
     else expand();
   }
 
-  // Which focused view answers for what's going on. Recording has none, as its Stop is
-  // already in the expanded card, so it's only passed over for a track. A paused track
-  // is what's left to come back to, ahead of the month.
+  // Which focused view answers for what's going on. Recording and background activities
+  // have none, as they're already in the expanded card, so they're only passed over for
+  // a track. A paused track is what's left to come back to, ahead of the month.
   function currentFocus() {
     if (critical) return "notification";
     if (kind === "level" && Levels.isAudio) return "audio";
     if (notification) return "notification";
     if (Media.playing) return "media";
-    if (Recorder.active) return "";
+    if (Recorder.active || Activities.active) return "";
     return Media.player ? "media" : "month";
   }
 

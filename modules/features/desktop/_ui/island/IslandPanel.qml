@@ -418,6 +418,19 @@ Overlay {
           }
         }
 
+        Repeater {
+          model: ScriptModel {
+            values: root.expanded ? Activities.keys : []
+          }
+
+          ActivityRow {
+            required property string modelData
+
+            width: parent.width
+            activityKey: modelData
+          }
+        }
+
         // The player beside the overview. Pressing the track gives the fuller one.
         Column {
           width: parent.width
@@ -552,6 +565,40 @@ Overlay {
             Meter {
               measure: "RAM"
               value: SystemLoad.memory
+            }
+          }
+
+          Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Theme.spaceSm
+            visible: Run.has("timerDone")
+
+            Icon {
+              anchors.verticalCenter: parent.verticalCenter
+              name: "timer"
+              size: Theme.iconSmall
+              color: Theme.muted
+            }
+
+            Repeater {
+              model: [5, 10, 25, 60]
+
+              Pressable {
+                required property int modelData
+
+                anchors.verticalCenter: parent.verticalCenter
+                implicitWidth: minutes.implicitWidth + Theme.spaceMd * 2
+                implicitHeight: minutes.implicitHeight + Theme.spaceSm
+                onClicked: Activities.startTimer(modelData)
+
+                Label {
+                  id: minutes
+
+                  anchors.centerIn: parent
+                  text: parent.modelData + " min"
+                  size: Theme.fontSmall
+                }
+              }
             }
           }
 
