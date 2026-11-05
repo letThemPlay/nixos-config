@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.common
+import qs.notifications
 import qs.services
 
 // The center island's compact form. It grows to fit what LiveActivity says is
@@ -13,13 +14,16 @@ Pressable {
 
   readonly property bool shown: true
   readonly property string kind: LiveActivity.kind
+
+  // A critical notification shows as any other, only insisting.
+  readonly property string face: kind === "critical" ? "notification" : kind
   readonly property Item active: ({
     level: level,
     notification: notification,
     recording: recording,
     media: media,
     clock: clockLabel
-  })[kind]
+  })[face]
 
   // Nothing else on the bar may hide that the screen is being recorded.
   readonly property bool marked: Recorder.active && kind !== "recording"
@@ -37,8 +41,8 @@ Pressable {
 
   onClicked: button => {
     if (button !== Qt.RightButton) Ui.toggle("island");
-    else if (kind === "media") Media.player?.next();
-    else if (kind === "notification") LiveActivity.notification?.dismiss();
+    else if (face === "media") Media.player?.next();
+    else if (face === "notification") LiveActivity.notification?.dismiss();
   }
 
   component Face: Row {
@@ -47,7 +51,7 @@ Pressable {
     anchors.centerIn: stage
     anchors.horizontalCenterOffset: root.marked ? (mark.width + Theme.spaceSm) / 2 : 0
     spacing: Theme.spaceSm
-    opacity: root.kind === activity ? 1 : 0
+    opacity: root.face === activity ? 1 : 0
     visible: opacity > 0
 
     Behavior on opacity {
@@ -117,6 +121,8 @@ Pressable {
     activity: "notification"
 
     AppIcon {
+      id: notificationIcon
+
       anchors.verticalCenter: parent.verticalCenter
       size: Theme.iconSmall
       name: {
@@ -126,10 +132,44 @@ Pressable {
     }
 
     Label {
+      id: appName
+
       anchors.verticalCenter: parent.verticalCenter
-      width: Math.min(implicitWidth, Theme.sizeSidePanel)
+      visible: text !== ""
+      text: LiveActivity.notification?.appName ?? ""
+      size: Theme.fontSmall
+      color: Theme.muted
+    }
+
+    Label {
+      id: summary
+
+      anchors.verticalCenter: parent.verticalCenter
+      width: Math.min(implicitWidth, Theme.sizeSidePanel / 2)
       text: LiveActivity.notification?.summary ?? ""
-      color: root.foreground
+      color: root.kind === "critical" ? Theme.danger : root.foreground
+      font.weight: root.kind === "critical" ? Font.DemiBold : Font.Normal
+    }
+
+    // One line of the body, in whatever room the rest leaves.
+    Label {
+      readonly property real room: root.room - Theme.spaceSm * 2 - notificationIcon.width - appName.width - summary.width - count.width - notification.spacing * 4
+
+      anchors.verticalCenter: parent.verticalCenter
+      visible: text !== "" && room > Theme.iconLarge
+      width: Math.min(implicitWidth, Math.min(room, Theme.sizeSidePanel / 2))
+      text: (LiveActivity.notification?.body ?? "").split("\n")[0]
+      color: Theme.muted
+    }
+
+    Label {
+      id: count
+
+      anchors.verticalCenter: parent.verticalCenter
+      visible: Notifications.count > 1
+      text: Notifications.count
+      size: Theme.fontSmall
+      color: Theme.muted
     }
   }
 

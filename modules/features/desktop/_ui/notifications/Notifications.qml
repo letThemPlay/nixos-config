@@ -18,15 +18,11 @@ Singleton {
   property var popups: []
   property var arrivals: ({})
 
-  // While the bar's island can be seen it shows ordinary notifications itself.
-  // Critical ones stay cards, as they wait for you.
+  // While the bar's island can be seen it shows these itself. Over a fullscreen window
+  // it can't, so they stay cards.
   property bool islandShowing: false
-  readonly property var cardPopups: islandShowing
-    ? popups.filter(popup => popup.urgency === NotificationUrgency.Critical)
-    : popups
-  readonly property var islandPopups: islandShowing
-    ? popups.filter(popup => popup.urgency !== NotificationUrgency.Critical)
-    : []
+  readonly property var cardPopups: islandShowing ? [] : popups
+  readonly property var islandPopups: islandShowing ? popups : []
 
   readonly property var history: [...server.trackedNotifications.values].reverse()
   readonly property int count: history.length
@@ -113,6 +109,12 @@ Singleton {
     persistenceSupported: true
 
     onNotification: notification => {
+      // The same thing again replaces the last, so neither place repeats it.
+      for (const other of [...server.trackedNotifications.values]) {
+        if (other.appName === notification.appName && other.summary === notification.summary && other.body === notification.body)
+          other.dismiss();
+      }
+
       notification.tracked = true;
       root.arrivals[notification.id] = new Date();
 

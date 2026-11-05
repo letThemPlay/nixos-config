@@ -1,6 +1,7 @@
 pragma Singleton
 
 import Quickshell
+import Quickshell.Services.Notifications
 import Quickshell.Wayland
 import QtQuick
 import qs.common
@@ -16,7 +17,16 @@ Singleton {
   readonly property bool fullscreen: ToplevelManager.activeToplevel?.fullscreen ?? false
   readonly property bool showing: Settings.surfaces.includes("island") && !fullscreen
 
-  readonly property var notification: Notifications.islandPopups[Notifications.islandPopups.length - 1] ?? null
+  function newest(urgent) {
+    const matching = Notifications.islandPopups.filter(popup => (popup.urgency === NotificationUrgency.Critical) === urgent);
+    return matching[matching.length - 1] ?? null;
+  }
+
+  // A critical one waits to be acknowledged, and nothing interrupts it. An ordinary one
+  // leaves on its own, and the newest replaces any before it.
+  readonly property var critical: newest(true)
+  readonly property var ordinary: newest(false)
+  readonly property var notification: critical ?? ordinary
 
   // What's happening apart from a level passing through, which has nothing to expand
   // into, so the card opens on this.
@@ -26,7 +36,10 @@ Singleton {
     return Media.playing ? "media" : "clock";
   }
 
-  readonly property string kind: Levels.shown ? "level" : settled
+  readonly property string kind: {
+    if (critical) return "critical";
+    return Levels.shown ? "level" : settled;
+  }
 
   // The island's own changes are bigger than a panel's, so they take a little longer.
   readonly property int motion: Theme.motionNormal * 1.5
@@ -35,12 +48,12 @@ Singleton {
   property real compactWidth: Theme.sizeSidePanel / 2
 
   // A sender's own timeout wins.
-  readonly property int timeout: notification?.expireTimeout > 0 ? notification.expireTimeout * 1000 : 5000
+  readonly property int timeout: ordinary?.expireTimeout > 0 ? ordinary.expireTimeout * 1000 : 5000
 
-  // The newest replaces any before it, which stay in the center.
-  onNotificationChanged: {
+  // Those it replaces stay in the center.
+  onOrdinaryChanged: {
     for (const popup of Notifications.islandPopups) {
-      if (popup !== notification) Qt.callLater(Notifications.hidePopup, popup);
+      if (popup !== ordinary && popup.urgency !== NotificationUrgency.Critical) Qt.callLater(Notifications.hidePopup, popup);
     }
     leaving.restart();
   }
@@ -56,7 +69,7 @@ Singleton {
     id: leaving
 
     interval: root.timeout
-    running: root.notification !== null && Ui.open !== "island"
-    onTriggered: Notifications.hidePopup(root.notification)
+    running: root.ordinary !== null && Ui.open !== "island"
+    onTriggered: Notifications.hidePopup(root.ordinary)
   }
 }
