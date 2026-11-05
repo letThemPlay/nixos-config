@@ -18,12 +18,18 @@ Singleton {
 
   readonly property var notification: Notifications.islandPopups[Notifications.islandPopups.length - 1] ?? null
 
-  readonly property string kind: {
-    if (Levels.shown) return "level";
+  // What's happening apart from a level passing through, which has nothing to expand
+  // into, so the card opens on this.
+  readonly property string settled: {
     if (notification) return "notification";
     if (Recorder.active) return "recording";
     return Media.playing ? "media" : "clock";
   }
+
+  readonly property string kind: Levels.shown ? "level" : settled
+
+  // The island's own changes are bigger than a panel's, so they take a little longer.
+  readonly property int motion: Theme.motionNormal * 1.5
 
   // The pill's width, which the card starts from as it grows out of it.
   property real compactWidth: Theme.sizeSidePanel / 2

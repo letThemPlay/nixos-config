@@ -6,13 +6,31 @@ import qs.common
 import qs.notifications
 import qs.services
 
-// The center island expanded: the same things it shows in the bar, with room for
-// their controls, and the month it stands in for when idle. The card grows out of
-// the pill, from the pill's size and place.
+// The center island expanded: whatever it was showing, with room for its controls,
+// or the month when it was only showing the time. The card grows out of the pill, from
+// the pill's size and place.
+//
+// What it holds is decided as it opens and kept, so pausing a track in the card doesn't
+// swap the track for a calendar under the pointer. A recording always shows, as the
+// way to stop it, and a paused track shows above the month, as nothing else reaches it.
 Overlay {
   id: root
 
   surface: "island"
+  openDuration: LiveActivity.motion
+
+  property string context: "clock"
+  property string requested: ""
+
+  readonly property bool showsNotification: context === "notification" && LiveActivity.notification !== null
+  readonly property bool showsMedia: {
+    if (Media.player === null) return false;
+    return context === "media" || context === "clock" || (context === "recording" && Media.playing);
+  }
+  readonly property bool showsMonth: {
+    if (context === "calendar" || context === "clock") return true;
+    return !showsNotification && !showsMedia && !Recorder.active;
+  }
 
   readonly property real cardHeight: content.implicitHeight + Theme.spaceLg * 2
   readonly property real maxHeight: root.height - Theme.spaceSm * 2
@@ -28,7 +46,20 @@ Overlay {
   }
 
   onShownChanged: {
-    if (shown) month.showCurrent();
+    if (!shown) return;
+
+    context = requested || LiveActivity.settled;
+    requested = "";
+    month.showCurrent();
+  }
+
+  // Once it's been dismissed or acted on, there's nothing left to show.
+  Connections {
+    target: LiveActivity
+
+    function onNotificationChanged() {
+      if (root.shown && root.context === "notification" && LiveActivity.notification === null) Ui.close();
+    }
   }
 
   IpcHandler {
@@ -39,11 +70,12 @@ Overlay {
     }
   }
 
-  // The calendar's bind opens the card that holds it.
+  // The calendar's bind opens the card on the month, whatever else is happening.
   IpcHandler {
     target: "calendar"
 
     function toggle(): void {
+      if (!root.shown) root.requested = "calendar";
       Ui.toggle("island");
     }
   }
@@ -67,8 +99,12 @@ Overlay {
     clip: true
     focus: true
 
-    Keys.onLeftPressed: month.move(-1)
-    Keys.onRightPressed: month.move(1)
+    Keys.onLeftPressed: {
+      if (root.showsMonth) month.move(-1);
+    }
+    Keys.onRightPressed: {
+      if (root.showsMonth) month.move(1);
+    }
 
     // Presses inside the card must not reach the overlay's dismiss area.
     MouseArea {
@@ -92,7 +128,7 @@ Overlay {
 
         NotificationCard {
           width: parent.width
-          visible: LiveActivity.notification !== null
+          visible: root.showsNotification
           notification: LiveActivity.notification
           color: Theme.surfaceRaised
         }
@@ -124,7 +160,10 @@ Overlay {
             implicitWidth: stopLabel.implicitWidth + Theme.spaceMd * 2
             implicitHeight: stopLabel.implicitHeight + Theme.spaceSm
             color: Qt.alpha(Theme.danger, hovered ? 0.9 : 0.6)
-            onClicked: Recorder.stop()
+            onClicked: {
+              Recorder.stop();
+              if (root.context === "recording") Ui.close();
+            }
 
             Label {
               id: stopLabel
@@ -141,18 +180,19 @@ Overlay {
 
           readonly property var player: Media.player
           readonly property real length: player?.lengthSupported ? player.length : 0
+          readonly property int artSize: Theme.sizeSidePanel / 3
 
           width: parent.width
-          spacing: Theme.spaceSm
-          visible: player !== null
+          spacing: Theme.spaceMd
+          visible: root.showsMedia
 
           Row {
             width: parent.width
             spacing: Theme.spaceMd
 
             Rectangle {
-              width: Theme.iconHuge
-              height: Theme.iconHuge
+              width: media.artSize
+              height: media.artSize
               radius: Theme.radiusMd
               color: Theme.surfaceRaised
               clip: true
@@ -161,7 +201,7 @@ Overlay {
                 anchors.centerIn: parent
                 visible: art.status !== Image.Ready
                 name: "mediaPlay"
-                size: Theme.iconLarge
+                size: Theme.iconHuge
                 color: Theme.muted
               }
 
@@ -177,13 +217,16 @@ Overlay {
 
             Column {
               anchors.verticalCenter: parent.verticalCenter
-              width: parent.width - Theme.iconHuge - transport.width - parent.spacing * 2
+              width: parent.width - media.artSize - parent.spacing
+              spacing: Theme.spaceXs
 
               Label {
                 width: parent.width
                 text: media.player?.trackTitle ?? ""
                 size: Theme.fontTitle
                 font.weight: Font.DemiBold
+                wrapMode: Text.Wrap
+                maximumLineCount: 3
               }
 
               Label {
@@ -192,35 +235,45 @@ Overlay {
                 text: media.player?.trackArtist ?? ""
                 color: Theme.muted
               }
+
+              Label {
+                width: parent.width
+                visible: text !== ""
+                text: media.player?.trackAlbum ?? ""
+                size: Theme.fontSmall
+                color: Theme.muted
+              }
+            }
+          }
+
+          Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Theme.spaceMd
+
+            IconButton {
+              anchors.verticalCenter: parent.verticalCenter
+              icon: "mediaPrevious"
+              iconSize: Theme.iconMedium
+              opacity: media.player?.canGoPrevious ? 1 : 0.4
+              onClicked: {
+                if (media.player?.canGoPrevious) media.player.previous();
+              }
             }
 
-            Row {
-              id: transport
-
+            IconButton {
               anchors.verticalCenter: parent.verticalCenter
+              icon: Media.playing ? "mediaPause" : "mediaPlay"
+              iconSize: Theme.iconLarge
+              onClicked: media.player?.togglePlaying()
+            }
 
-              IconButton {
-                icon: "mediaPrevious"
-                iconSize: Theme.iconMedium
-                opacity: media.player?.canGoPrevious ? 1 : 0.4
-                onClicked: {
-                  if (media.player?.canGoPrevious) media.player.previous();
-                }
-              }
-
-              IconButton {
-                icon: Media.playing ? "mediaPause" : "mediaPlay"
-                iconSize: Theme.iconMedium
-                onClicked: media.player?.togglePlaying()
-              }
-
-              IconButton {
-                icon: "mediaNext"
-                iconSize: Theme.iconMedium
-                opacity: media.player?.canGoNext ? 1 : 0.4
-                onClicked: {
-                  if (media.player?.canGoNext) media.player.next();
-                }
+            IconButton {
+              anchors.verticalCenter: parent.verticalCenter
+              icon: "mediaNext"
+              iconSize: Theme.iconMedium
+              opacity: media.player?.canGoNext ? 1 : 0.4
+              onClicked: {
+                if (media.player?.canGoNext) media.player.next();
               }
             }
           }
@@ -259,6 +312,7 @@ Overlay {
         Item {
           width: parent.width
           height: month.implicitHeight
+          visible: root.showsMonth
 
           // Over the month, the wheel changes the month, unless it's needed to reach
           // the rest of a card too tall for the screen.

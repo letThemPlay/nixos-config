@@ -32,7 +32,7 @@ Pressable {
   onImplicitWidthChanged: LiveActivity.compactWidth = implicitWidth + Theme.sizeBar - Theme.sizeBarItem
 
   Behavior on implicitWidth {
-    NumberAnimation { duration: Theme.motionNormal; easing.type: Easing.OutCubic }
+    NumberAnimation { duration: LiveActivity.motion; easing.type: Easing.OutCubic }
   }
 
   onClicked: button => {
@@ -171,6 +171,11 @@ Pressable {
       width: Math.min(implicitWidth, Theme.sizeSidePanel)
       text: Media.player?.trackTitle ?? ""
       color: root.foreground
+    }
+
+    Visualizer {
+      anchors.verticalCenter: parent.verticalCenter
+      active: root.kind === "media" && LiveActivity.showing && Ui.open !== "island"
     }
   }
 

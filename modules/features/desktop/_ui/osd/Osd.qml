@@ -4,21 +4,25 @@ import QtQuick
 import qs.common
 import qs.services
 
-// A short-lived level display at the bottom of the active output, unless the bar's
-// island can be seen to show it instead.
+// A short-lived level display on the active output, unless the bar's island can be
+// seen to show it instead. Where there's an island but a fullscreen window hides it,
+// this goes where the island would be, so a level always appears in one place.
 Scope {
   id: root
 
   readonly property bool shown: Levels.shown && !LiveActivity.showing
+  readonly property bool inIslandsPlace: Settings.surfaces.includes("island")
 
   PanelWindow {
     id: window
 
-    anchors.bottom: true
-    margins.bottom: Theme.spaceXl * 2
+    anchors.top: root.inIslandsPlace
+    anchors.bottom: !root.inIslandsPlace
+    margins.top: root.inIslandsPlace ? Theme.spaceSm : 0
+    margins.bottom: root.inIslandsPlace ? 0 : Theme.spaceXl * 2
 
     implicitWidth: Theme.sizeSidePanel / 2 + Theme.sizeBar
-    implicitHeight: Theme.sizeBar + Theme.spaceSm
+    implicitHeight: root.inIslandsPlace ? Theme.sizeBar : Theme.sizeBar + Theme.spaceSm
     visible: root.shown || panel.opacity > 0
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore

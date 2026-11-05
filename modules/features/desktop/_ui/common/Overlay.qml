@@ -11,6 +11,7 @@ PanelWindow {
 
   required property string surface
   property bool scrimmed: false
+  property int openDuration: Theme.motionNormal
   readonly property bool shown: Ui.open === surface
   property real progress: shown ? 1 : 0
 
@@ -33,7 +34,7 @@ PanelWindow {
 
   Behavior on progress {
     NumberAnimation {
-      duration: Theme.motionNormal
+      duration: root.openDuration
       easing.type: Easing.OutCubic
     }
   }
