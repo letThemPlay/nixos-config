@@ -281,28 +281,6 @@ Pressable {
       anchors.verticalCenter: parent.verticalCenter
       active: root.kind === "media" && LiveActivity.showing && Ui.open !== "island"
     }
-
-    // A long timer or download shouldn't hide the track, but shouldn't go unseen either.
-    Row {
-      anchors.verticalCenter: parent.verticalCenter
-      leftPadding: Theme.spaceXs
-      spacing: Theme.spaceXs
-      visible: Activities.active
-
-      Icon {
-        anchors.verticalCenter: parent.verticalCenter
-        name: Activities.primary?.icon ?? "timer"
-        size: Theme.iconSmall
-        color: Theme.muted
-      }
-
-      Label {
-        anchors.verticalCenter: parent.verticalCenter
-        text: Activities.primary?.brief ?? ""
-        size: Theme.fontSmall
-        color: Theme.muted
-      }
-    }
   }
 
   Face {

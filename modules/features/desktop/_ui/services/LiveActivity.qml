@@ -32,8 +32,8 @@ Singleton {
   readonly property string settled: {
     if (notification) return "notification";
     if (Recorder.active) return "recording";
-    if (Media.playing) return "media";
-    return Activities.active ? "activity" : "clock";
+    if (Activities.active) return "activity";
+    return Media.playing ? "media" : "clock";
   }
 
   readonly property string kind: {
