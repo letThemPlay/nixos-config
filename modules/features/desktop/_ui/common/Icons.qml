@@ -70,6 +70,8 @@ Singleton {
 
     "mediaPlay": "play_arrow",
     "mediaPause": "pause",
+    "mediaNext": "skip_next",
+    "mediaPrevious": "skip_previous",
 
     "lock": "lock",
     "suspend": "bedtime",

@@ -352,6 +352,7 @@ let
               calendar = "quickshell";
               wifi = "quickshell";
               bluetooth = "quickshell";
+              island = "quickshell";
               dock = "quickshell";
               locker = "quickshell";
               osd = "quickshell";
@@ -369,6 +370,7 @@ let
           "bluetooth"
           "calendar"
           "dock"
+          "island"
           "locker"
           "osd"
           "polkit"
@@ -494,6 +496,7 @@ let
         "bluetooth"
         "calendar"
         "dock"
+        "island"
         "launcher"
         "notifications"
         "osd"
@@ -503,6 +506,7 @@ let
         "wifi"
       ];
       expected = [
+        true
         true
         true
         true

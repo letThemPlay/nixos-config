@@ -11,6 +11,9 @@
 let
   drawn = role: config.ltp.desktop.components.${role} == "quickshell";
 
+  # The center island shows these itself.
+  outsideIsland = lib.optional (!drawn "island");
+
   sessionApp =
     argv:
     [
@@ -65,17 +68,19 @@ in
           "window"
         ];
 
+      center = lib.optional (drawn "island") "island";
+
       right =
-        lib.optional (config.ltp.desktop.components.recorder != null) "recording"
+        lib.optionals (!drawn "island" && config.ltp.desktop.components.recorder != null) [ "recording" ]
+        ++ [ "tray" ]
+        ++ outsideIsland "media"
         ++ [
-          "tray"
-          "media"
           "network"
           "bluetooth"
           "volume"
           "battery"
-          "clock"
         ]
+        ++ outsideIsland "clock"
         ++ lib.optional (drawn "quicksettings") "settings"
         ++ lib.optional (drawn "power") "power";
 

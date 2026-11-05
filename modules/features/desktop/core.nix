@@ -98,6 +98,7 @@ in
       calendar.quickshell = ./_components/calendar/quickshell.nix;
       wifi.quickshell = ./_components/wifi/quickshell.nix;
       bluetooth.quickshell = ./_components/bluetooth/quickshell.nix;
+      island.quickshell = ./_components/island/quickshell.nix;
       batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
       displays.kanshi = ./_components/displays/kanshi.nix;
       automount.udiskie = ./_components/automount/udiskie.nix;
@@ -126,6 +127,7 @@ in
       calendar = null;
       wifi = null;
       bluetooth = null;
+      island = null;
       batteryAlerts = null;
       displays = null;
       automount = null;
@@ -152,6 +154,7 @@ in
 
     # The bar widgets the shell draws (_ui/bar/Bar.qml).
     uiWidgets = [
+      "island"
       "launcher"
       "notifications"
       "workspaces"

@@ -4,11 +4,12 @@ import QtQuick
 import qs.common
 import qs.services
 
-// A short-lived level display at the bottom of the active output.
+// A short-lived level display at the bottom of the active output, unless the bar's
+// island can be seen to show it instead.
 Scope {
   id: root
 
-  readonly property bool shown: Levels.shown
+  readonly property bool shown: Levels.shown && !LiveActivity.showing
 
   PanelWindow {
     id: window

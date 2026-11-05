@@ -23,7 +23,14 @@ PanelWindow {
   WlrLayershell.layer: WlrLayer.Top
   WlrLayershell.namespace: "ltp-bar"
 
+  readonly property bool hasCenter: Settings.barCenter.length > 0
+
+  // What the side islands leave the center one, with a gap each side.
+  readonly property real centerRoom: rightIsland.x - leftIsland.x - leftIsland.width - Theme.spaceSm * 2
+    - (Theme.sizeBar - Theme.sizeBarItem)
+
   readonly property var widgets: ({
+    "island": island,
     "launcher": launcher,
     "notifications": notifications,
     "workspaces": workspaces,
@@ -46,10 +53,12 @@ PanelWindow {
     enabled: Ui.keepAwake
   }
 
+  Component { id: island; IslandWidget { room: root.centerRoom } }
   Component { id: launcher; LauncherWidget {} }
   Component { id: notifications; NotificationsWidget {} }
   Component { id: workspaces; WorkspacesWidget { screen: root.screen } }
-  Component { id: window; WindowWidget {} }
+  // The title gives way first when the center island needs the room.
+  Component { id: window; WindowWidget { room: root.hasCenter ? Math.min(Theme.sizeSidePanel, root.width / 6) : Theme.sizeSidePanel } }
   Component { id: recording; RecordingWidget {} }
   Component { id: tray; TrayWidget { window: root } }
   Component { id: media; MediaWidget {} }
@@ -95,11 +104,28 @@ PanelWindow {
   }
 
   Island {
+    id: leftIsland
+
     x: Theme.spaceSm
     names: Settings.barLeft
   }
 
+  // Centered on the screen, unless the side islands leave no room for that. It hides
+  // while the card is open, which grows out of it, as two translucent layers would
+  // otherwise show through each other.
   Island {
+    readonly property real centered: (root.width - width) / 2
+    readonly property real leftmost: leftIsland.x + leftIsland.width + Theme.spaceSm
+    readonly property real rightmost: rightIsland.x - width - Theme.spaceSm
+
+    x: Math.max(leftmost, Math.min(centered, rightmost))
+    names: Settings.barCenter
+    opacity: Ui.open === "island" ? 0 : 1
+  }
+
+  Island {
+    id: rightIsland
+
     x: root.width - width - Theme.spaceSm
     names: Settings.barRight
   }

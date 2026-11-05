@@ -6,6 +6,7 @@ import qs.bar
 import qs.bluetooth
 import qs.calendar
 import qs.dock
+import qs.island
 import qs.launcher
 import qs.notifications
 import qs.osd
@@ -88,10 +89,17 @@ ShellRoot {
     QuickSettings {}
   }
 
+  // The island's card holds the calendar where there is one.
   LazyLoader {
-    active: root.has("calendar")
+    active: root.has("calendar") && !root.has("island")
 
     Calendar {}
+  }
+
+  LazyLoader {
+    active: root.has("island")
+
+    IslandPanel {}
   }
 
   LazyLoader {

@@ -53,12 +53,13 @@ Singleton {
     target: root.audio
     ignoreUnknownSignals: true
 
+    // The sink's last changes can arrive as the shell exits, with this already gone.
     function onVolumesChanged() {
-      root.showVolume();
+      root?.showVolume();
     }
 
     function onMutedChanged() {
-      root.showVolume();
+      root?.showVolume();
     }
   }
 

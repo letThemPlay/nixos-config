@@ -18,6 +18,16 @@ Singleton {
   property var popups: []
   property var arrivals: ({})
 
+  // While the bar's island can be seen it shows ordinary notifications itself.
+  // Critical ones stay cards, as they wait for you.
+  property bool islandShowing: false
+  readonly property var cardPopups: islandShowing
+    ? popups.filter(popup => popup.urgency === NotificationUrgency.Critical)
+    : popups
+  readonly property var islandPopups: islandShowing
+    ? popups.filter(popup => popup.urgency !== NotificationUrgency.Critical)
+    : []
+
   readonly property var history: [...server.trackedNotifications.values].reverse()
   readonly property int count: history.length
 

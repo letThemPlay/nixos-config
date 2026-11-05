@@ -17,7 +17,7 @@ PanelWindow {
   margins.top: Theme.sizeBar + Theme.spaceSm * 2
   margins.left: Theme.spaceSm
 
-  visible: Notifications.popups.length > 0
+  visible: Notifications.cardPopups.length > 0
   implicitWidth: Theme.sizeSidePanel
   implicitHeight: Math.max(1, stack.implicitHeight)
   color: "transparent"
@@ -35,7 +35,7 @@ PanelWindow {
 
     Repeater {
       model: ScriptModel {
-        values: Notifications.popups
+        values: Notifications.cardPopups
       }
 
       NotificationCard {
