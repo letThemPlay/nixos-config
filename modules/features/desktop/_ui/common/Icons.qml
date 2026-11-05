@@ -12,9 +12,6 @@ Singleton {
     "clipboard": "content_paste",
     "calculator": "calculate",
     "close": "close",
-    "download": "download",
-    "fileCopy": "file_copy",
-    "timer": "timer",
 
     "notifications": "notifications",
     "notificationsUnread": "notifications_unread",

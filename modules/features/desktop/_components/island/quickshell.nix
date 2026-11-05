@@ -33,14 +33,6 @@ let
     bar_delimiter = 59
     frame_delimiter = 10
   '';
-
-  #
-  # The island's background activities. Firefox and yazi don't report their progress
-  # anywhere, so this watches for it. See _transfers.py.
-  #
-  transfers = pkgs.writers.writePython3 "ltp-transfers" {
-    flakeIgnore = [ "E501" ];
-  } (builtins.readFile ./_transfers.py);
 in
 {
   ltp.desktop = {
@@ -60,21 +52,10 @@ in
       };
     };
 
-    ui.commands = {
-      visualizer = [
-        "${pkgs.cava}/bin/cava"
-        "-p"
-        "${visualizerConfig}"
-      ];
-
-      transfers = [ "${transfers}" ];
-
-      # A timer finishing is what it was set for, so it waits to be seen.
-      timerDone = [
-        "${pkgs.libnotify}/bin/notify-send"
-        "--app-name=Timer"
-        "--urgency=critical"
-      ];
-    };
+    ui.commands.visualizer = [
+      "${pkgs.cava}/bin/cava"
+      "-p"
+      "${visualizerConfig}"
+    ];
   };
 }

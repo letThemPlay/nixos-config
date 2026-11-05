@@ -21,7 +21,6 @@ Pressable {
     level: level,
     notification: notification,
     recording: recording,
-    activity: ongoing,
     media: media,
     clock: clockLabel
   })[face]
@@ -202,58 +201,6 @@ Pressable {
       anchors.verticalCenter: parent.verticalCenter
       text: Recorder.elapsed
       color: Theme.danger
-    }
-  }
-
-  // The first of what's going on, and how many more there are.
-  Face {
-    id: ongoing
-
-    activity: "activity"
-
-    Icon {
-      anchors.verticalCenter: parent.verticalCenter
-      name: Activities.primary?.icon ?? "timer"
-      size: Theme.iconSmall
-      color: Theme.accent
-    }
-
-    Label {
-      anchors.verticalCenter: parent.verticalCenter
-      width: Math.min(implicitWidth, Theme.sizeSidePanel / 2)
-      text: Activities.primary?.name ?? ""
-      color: root.foreground
-    }
-
-    Rectangle {
-      anchors.verticalCenter: parent.verticalCenter
-      visible: (Activities.primary?.fraction ?? -1) >= 0
-      width: Theme.sizeSidePanel / 5
-      height: Theme.spaceXs
-      radius: height / 2
-      color: Qt.alpha(Theme.outline, 0.5)
-
-      Rectangle {
-        width: parent.width * Math.max(0, Activities.primary?.fraction ?? 0)
-        height: parent.height
-        radius: parent.radius
-        color: Theme.accent
-      }
-    }
-
-    Label {
-      anchors.verticalCenter: parent.verticalCenter
-      text: Activities.primary?.brief ?? ""
-      size: Theme.fontSmall
-      color: Theme.muted
-    }
-
-    Label {
-      anchors.verticalCenter: parent.verticalCenter
-      visible: Activities.items.length > 1
-      text: "+" + (Activities.items.length - 1)
-      size: Theme.fontSmall
-      color: Theme.muted
     }
   }
 
