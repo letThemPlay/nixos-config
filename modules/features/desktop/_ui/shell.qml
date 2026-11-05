@@ -3,6 +3,7 @@ import Quickshell
 import QtQuick
 import qs.common
 import qs.bar
+import qs.bluetooth
 import qs.calendar
 import qs.dock
 import qs.launcher
@@ -97,6 +98,12 @@ ShellRoot {
     active: root.has("wifi")
 
     WifiPanel {}
+  }
+
+  LazyLoader {
+    active: root.has("bluetooth")
+
+    BluetoothPanel {}
   }
 
   LazyLoader {

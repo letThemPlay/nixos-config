@@ -97,6 +97,7 @@ in
       quicksettings.quickshell = ./_components/quicksettings/quickshell.nix;
       calendar.quickshell = ./_components/calendar/quickshell.nix;
       wifi.quickshell = ./_components/wifi/quickshell.nix;
+      bluetooth.quickshell = ./_components/bluetooth/quickshell.nix;
       batteryAlerts.quickshell = ./_components/batteryAlerts/quickshell.nix;
       displays.kanshi = ./_components/displays/kanshi.nix;
       automount.udiskie = ./_components/automount/udiskie.nix;
@@ -124,6 +125,7 @@ in
       quicksettings = null;
       calendar = null;
       wifi = null;
+      bluetooth = null;
       batteryAlerts = null;
       displays = null;
       automount = null;

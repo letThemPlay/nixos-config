@@ -28,6 +28,14 @@ Singleton {
     "bluetoothConnected": "bluetooth_connected",
     "bluetoothOff": "bluetooth_disabled",
 
+    "deviceHeadphones": "headphones",
+    "deviceSpeaker": "speaker",
+    "deviceKeyboard": "keyboard",
+    "deviceMouse": "mouse",
+    "deviceGamepad": "sports_esports",
+    "devicePhone": "smartphone",
+    "deviceComputer": "computer",
+
     "settings": "tune",
     "more": "chevron_right",
     "previous": "chevron_left",

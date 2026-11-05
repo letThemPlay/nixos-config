@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Bluetooth
 import Quickshell.Io
 import QtQuick
 import qs.common
@@ -14,7 +13,6 @@ Overlay {
 
   surface: "quicksettings"
 
-  readonly property var adapter: Bluetooth.defaultAdapter
   readonly property bool hasNotifier: Settings.surfaces.includes("notifier")
 
   function remaining(seconds) {
@@ -142,7 +140,7 @@ Overlay {
         Row {
           id: toggles
 
-          readonly property int count: (root.adapter ? 1 : 0) + (root.hasNotifier ? 1 : 0) + (NightLight.available ? 1 : 0) + 1
+          readonly property int count: (BluetoothDevices.present ? 1 : 0) + (root.hasNotifier ? 1 : 0) + (NightLight.available ? 1 : 0) + 1
           readonly property real tileWidth: (width - spacing * (count - 1)) / count
 
           width: parent.width
@@ -150,13 +148,11 @@ Overlay {
 
           Tile {
             width: toggles.tileWidth
-            visible: root.adapter !== null
-            icon: root.adapter?.enabled ? "bluetooth" : "bluetoothOff"
+            visible: BluetoothDevices.present
+            icon: BluetoothDevices.enabled ? "bluetooth" : "bluetoothOff"
             text: "Bluetooth"
-            selected: root.adapter?.enabled ?? false
-            onClicked: {
-              if (root.adapter) root.adapter.enabled = !root.adapter.enabled;
-            }
+            selected: BluetoothDevices.enabled
+            onClicked: BluetoothDevices.setEnabled(!BluetoothDevices.enabled)
           }
 
           Tile {
