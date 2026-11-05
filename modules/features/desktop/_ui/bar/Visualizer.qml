@@ -14,19 +14,30 @@ Row {
   property var readings: [0, 0, 0, 0]
 
   // The range the sound has been moving in lately. Loud music rarely leaves the top of
-  // the scale, so bars follow where a reading sits within this rather than how loud it
-  // is. Each edge jumps to a new extreme and drifts back over a few seconds, the
-  // ceiling faster, so a quieter passage isn't left flat while it comes down.
+  // the scale, so movement is where a reading sits within this. Each edge jumps to a new
+  // extreme and drifts back over a couple of seconds, to follow a track's changes.
   property real floor: 0
   property real ceiling: 0
 
-  function shaped(peak) {
-    floor = Math.min(peak, floor + (peak - floor) * 0.02);
-    ceiling = Math.max(peak, ceiling + (peak - ceiling) * 0.05);
+  // How loud the track has been over a longer stretch, for how present this reading is.
+  property real reference: 0
 
-    // A narrow range is sound holding steady or nearly silent, not worth filling the
-    // bars for. The curve keeps the bars low between beats.
-    return Math.pow((peak - floor) / Math.max(ceiling - floor, 0.1), 1.5);
+  // Movement alone would collapse whenever music holds steady, as the floor catches up
+  // with it. So bars stand on this share of their height while there's sound, and
+  // movement takes them the rest of the way. Only silence reaches the minimum.
+  readonly property real base: 0.55
+
+  function shaped(peak) {
+    floor = Math.min(peak, floor + (peak - floor) * 0.05);
+    ceiling = Math.max(peak, ceiling + (peak - ceiling) * 0.05);
+    reference = Math.max(peak, reference + (peak - reference) * 0.005);
+
+    if (reference < 0.01) return 0;
+
+    const presence = peak / reference;
+    const movement = Math.pow((peak - floor) / Math.max(ceiling - floor, 0.1), 1.5);
+
+    return presence * (base + (1 - base) * movement);
   }
 
   spacing: Theme.spaceXs / 2
@@ -37,6 +48,7 @@ Row {
     readings = [0, 0, 0, 0];
     floor = 0;
     ceiling = 0;
+    reference = 0;
   }
 
   PwNodePeakMonitor {
