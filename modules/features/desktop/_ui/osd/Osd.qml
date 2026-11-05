@@ -55,9 +55,20 @@ Scope {
         color: Levels.warn ? Theme.warning : Theme.text
       }
 
+      Label {
+        anchors.left: symbol.right
+        anchors.right: parent.right
+        anchors.leftMargin: Theme.spaceMd
+        anchors.rightMargin: Theme.spaceMd
+        anchors.verticalCenter: parent.verticalCenter
+        visible: Levels.deviceOnly
+        text: Levels.label
+      }
+
       Rectangle {
         id: track
 
+        visible: !Levels.deviceOnly
         anchors.left: symbol.right
         anchors.right: percent.left
         anchors.leftMargin: Theme.spaceMd
@@ -82,6 +93,7 @@ Scope {
       Percent {
         id: percent
 
+        visible: !Levels.deviceOnly
         anchors.right: parent.right
         anchors.rightMargin: Theme.spaceMd
         anchors.verticalCenter: parent.verticalCenter

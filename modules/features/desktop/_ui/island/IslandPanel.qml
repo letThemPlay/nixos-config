@@ -4,6 +4,7 @@ import QtQuick
 import qs.calendar
 import qs.common
 import qs.notifications
+import qs.quicksettings
 import qs.services
 
 // The center island expanded: whatever it was showing, with room for its controls,
@@ -27,9 +28,10 @@ Overlay {
     if (Media.player === null) return false;
     return context === "media" || context === "clock" || (context === "recording" && Media.playing);
   }
+  readonly property bool showsAudio: context === "audio"
   readonly property bool showsMonth: {
     if (context === "calendar" || context === "clock") return true;
-    return !showsNotification && !showsMedia && !Recorder.active;
+    return !showsNotification && !showsMedia && !showsAudio && !Recorder.active;
   }
 
   readonly property real cardHeight: content.implicitHeight + Theme.spaceLg * 2
@@ -48,7 +50,7 @@ Overlay {
   onShownChanged: {
     if (!shown) return;
 
-    context = requested || LiveActivity.settled;
+    context = requested || LiveActivity.opening;
     requested = "";
     month.showCurrent();
   }
@@ -131,6 +133,24 @@ Overlay {
           visible: root.showsNotification
           notification: LiveActivity.notification
           color: Theme.surfaceRaised
+        }
+
+        AudioRow {
+          width: parent.width
+          visible: root.showsAudio && devices.length > 0
+          output: true
+          icon: "volumeHigh"
+          mutedIcon: "volumeMuted"
+          tracking: root.shown && root.showsAudio
+        }
+
+        AudioRow {
+          width: parent.width
+          visible: root.showsAudio && devices.length > 0
+          output: false
+          icon: "microphone"
+          mutedIcon: "microphoneMuted"
+          tracking: root.shown && root.showsAudio
         }
 
         Row {

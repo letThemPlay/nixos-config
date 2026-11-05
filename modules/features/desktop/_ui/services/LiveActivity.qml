@@ -28,8 +28,7 @@ Singleton {
   readonly property var ordinary: newest(false)
   readonly property var notification: critical ?? ordinary
 
-  // What's happening apart from a level passing through, which has nothing to expand
-  // into, so the card opens on this.
+  // What's happening apart from a level passing through.
   readonly property string settled: {
     if (notification) return "notification";
     if (Recorder.active) return "recording";
@@ -40,6 +39,9 @@ Singleton {
     if (critical) return "critical";
     return Levels.shown ? "level" : settled;
   }
+
+  // What the card opens on. Pressing during an audio level is asking about audio.
+  readonly property string opening: kind === "level" && Levels.isAudio ? "audio" : settled
 
   // The island's own changes are bigger than a panel's, so they take a little longer.
   readonly property int motion: Theme.motionNormal * 1.5

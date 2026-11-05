@@ -36,7 +36,20 @@ let
 in
 {
   ltp.desktop = {
-    binds."Mod+I" = instance.bind pkgs "island" "toggle";
+    binds = {
+      "Mod+I" = instance.bind pkgs "island" "toggle";
+
+      # The island shows the microphone's state, so it's worth having the key for it.
+      "XF86AudioMicMute" = {
+        spawn = [
+          "${pkgs.wireplumber}/bin/wpctl"
+          "set-mute"
+          "@DEFAULT_AUDIO_SOURCE@"
+          "toggle"
+        ];
+        requires = [ "audio" ];
+      };
+    };
 
     ui.commands.visualizer = [
       "${pkgs.cava}/bin/cava"

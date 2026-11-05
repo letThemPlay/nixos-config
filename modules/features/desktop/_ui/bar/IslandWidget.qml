@@ -90,8 +90,18 @@ Pressable {
       color: Levels.warn ? Theme.warning : root.foreground
     }
 
+    Label {
+      anchors.verticalCenter: parent.verticalCenter
+      visible: Levels.label !== ""
+      width: Math.min(implicitWidth, Theme.sizeSidePanel / 2)
+      text: Levels.label
+      size: Levels.deviceOnly ? Theme.fontBody : Theme.fontSmall
+      color: Levels.deviceOnly ? root.foreground : Theme.muted
+    }
+
     Rectangle {
       anchors.verticalCenter: parent.verticalCenter
+      visible: !Levels.deviceOnly
       width: Theme.sizeSidePanel / 3
       height: Theme.spaceXs
       radius: height / 2
@@ -111,6 +121,7 @@ Pressable {
 
     Percent {
       anchors.verticalCenter: parent.verticalCenter
+      visible: !Levels.deviceOnly
       level: Levels.level
     }
   }
