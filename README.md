@@ -66,7 +66,7 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
 | `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
-| `Mod+I` | Expands the center island, as does pressing it: anything going on, with its controls, alongside the workspace, CPU and memory, and quick controls, and a month view if nothing was. Pressing a track or notification there focuses it, with its fuller controls, and Escape steps back. Pressing the island during a volume or microphone level focuses both devices and their choices. Clicking outside collapses it, and nothing that's playing or happening is affected |
+| `Mod+I` | Expands the center island, as does pressing it: anything going on, with its controls, alongside CPU and memory and quick controls, and a month view if nothing was. Pressing a track or notification there focuses it, with its fuller controls, and Escape steps back. Pressing the island during a volume or microphone level focuses both devices and their choices. Clicking outside collapses it, and nothing that's playing or happening is affected |
 | `Mod+Shift+I` | Goes straight to the view of whatever's current, skipping the expanded card: a notification, the audio devices during a volume or microphone level, or the full music view, including for a paused track. With only a recording it expands, as recording has no view of its own, and with nothing going on it shows the month. Escape collapses it |
 | Mic mute key | Mutes the default microphone, shown in the island |
 | `Mod+Shift+D` | Focuses the month view, whatever else is happening. Change month with the arrows, the wheel or the Left and Right keys |

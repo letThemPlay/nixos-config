@@ -1,7 +1,5 @@
 import Quickshell
 import Quickshell.Io
-import Quickshell.Wayland
-import Quickshell.WindowManager
 import QtQuick
 import qs.calendar
 import qs.common
@@ -28,10 +26,6 @@ Overlay {
   // doesn't change while open, so pausing a track doesn't make it appear.
   property bool idleAtOpening: false
 
-  // The focused window as the card opened: it takes the keyboard, and with it the focus
-  // this is asking about.
-  property var focused: null
-
   readonly property var notification: LiveActivity.notification
   readonly property bool isCritical: LiveActivity.critical !== null
 
@@ -53,18 +47,6 @@ Overlay {
     NumberAnimation { duration: LiveActivity.motion; easing.type: Easing.OutCubic }
   }
 
-  // The workspace on the output holding that window.
-  readonly property string workspace: {
-    if (!expanded) return "";
-
-    const screen = focused?.screens?.[0] ?? Quickshell.screens[0];
-    const sets = WindowManager.screenProjection(screen)?.windowsets ?? [];
-    const shown = sets.filter(set => set.shouldDisplay);
-    const active = shown.findIndex(set => set.active);
-
-    return active < 0 ? "" : "Workspace " + (shown[active].name || active + 1);
-  }
-
   readonly property bool hasNotifier: Settings.surfaces.includes("notifier")
 
   function grown(from, to) {
@@ -80,7 +62,6 @@ Overlay {
   onShownChanged: {
     if (!shown) return;
 
-    focused = ToplevelManager.activeToplevel;
     idleAtOpening = LiveActivity.settled === "clock";
     month.showCurrent();
     NightLight.refresh();
@@ -558,25 +539,6 @@ Overlay {
           width: parent.width
           visible: root.expanded
           spacing: Theme.spaceMd
-
-          Column {
-            width: parent.width
-
-            Label {
-              width: parent.width
-              visible: text !== ""
-              text: root.workspace
-              size: Theme.fontTitle
-              font.weight: Font.DemiBold
-            }
-
-            Label {
-              width: parent.width
-              visible: text !== ""
-              text: root.focused?.title ?? ""
-              color: Theme.muted
-            }
-          }
 
           Row {
             anchors.horizontalCenter: parent.horizontalCenter
