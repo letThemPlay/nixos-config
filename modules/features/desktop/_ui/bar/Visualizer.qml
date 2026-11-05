@@ -1,43 +1,25 @@
-import Quickshell.Services.Pipewire
+import Quickshell.Io
 import QtQuick
 import qs.common
 
-// Bars pulsing with what the default output is playing, spreading from the middle as
-// each reading ages. PipeWire reports a level, not frequencies, so this is the sound's
-// loudness over time rather than a spectrum. It only listens while active.
+// Bars for what the default output is playing, bass on the left and treble on the
+// right, from the visualizer command. It only runs while active.
 Row {
   id: root
 
   property bool active: false
 
-  // Newest first, and as many as there are bars from the middle out.
-  property var readings: [0, 0, 0, 0]
+  // As many as the command's config asks for.
+  property var levels: [0, 0, 0, 0, 0, 0, 0]
 
-  // The range the sound has been moving in lately. Loud music rarely leaves the top of
-  // the scale, so movement is where a reading sits within this. Each edge jumps to a new
-  // extreme and drifts back over a couple of seconds, to follow a track's changes.
-  property real floor: 0
-  property real ceiling: 0
+  // Each band's recent peak. cava scales every band to the loudest, so with this few
+  // bars one band can flatten the rest, so each is shown against its own. The peak falls
+  // over a few seconds, and has a lower limit so near silence isn't blown up to fill.
+  property var peaks: [0, 0, 0, 0, 0, 0, 0]
 
-  // How loud the track has been over a longer stretch, for how present this reading is.
-  property real reference: 0
-
-  // Movement alone would collapse whenever music holds steady, as the floor catches up
-  // with it. So bars stand on this share of their height while there's sound, and
-  // movement takes them the rest of the way. Only silence reaches the minimum.
-  readonly property real base: 0.55
-
-  function shaped(peak) {
-    floor = Math.min(peak, floor + (peak - floor) * 0.05);
-    ceiling = Math.max(peak, ceiling + (peak - ceiling) * 0.05);
-    reference = Math.max(peak, reference + (peak - reference) * 0.005);
-
-    if (reference < 0.01) return 0;
-
-    const presence = peak / reference;
-    const movement = Math.pow((peak - floor) / Math.max(ceiling - floor, 0.1), 1.5);
-
-    return presence * (base + (1 - base) * movement);
+  function show(bands) {
+    peaks = bands.map((band, index) => Math.max(band, peaks[index] * 0.99, 0.03));
+    levels = bands.map((band, index) => band / peaks[index]);
   }
 
   spacing: Theme.spaceXs / 2
@@ -45,41 +27,34 @@ Row {
   onActiveChanged: {
     if (active) return;
 
-    readings = [0, 0, 0, 0];
-    floor = 0;
-    ceiling = 0;
-    reference = 0;
+    levels = [0, 0, 0, 0, 0, 0, 0];
+    peaks = [0, 0, 0, 0, 0, 0, 0];
   }
 
-  PwNodePeakMonitor {
-    id: monitor
+  Process {
+    command: Settings.commands.visualizer ?? []
+    running: root.active && command.length > 0
 
-    node: Pipewire.defaultAudioSink
-    enabled: root.active
-  }
-
-  Timer {
-    interval: Theme.motionFast
-    running: root.active
-    repeat: true
-    onTriggered: root.readings = [root.shaped(monitor.peak)].concat(root.readings.slice(0, -1))
+    // One frame a line: each band from 0 to 100, followed by a semicolon.
+    stdout: SplitParser {
+      onRead: frame => {
+        const bands = frame.split(";").filter(band => band !== "").map(band => Number(band) / 100);
+        if (bands.length === root.levels.length) root.show(bands);
+      }
+    }
   }
 
   Repeater {
-    model: 7
+    model: root.levels.length
 
     Rectangle {
       required property int index
 
       anchors.verticalCenter: parent.verticalCenter
       width: Theme.spaceXs
-      height: Math.max(width, Theme.iconSmall * root.readings[Math.abs(index - 3)])
+      height: width + (Theme.iconSmall - width) * root.levels[index]
       radius: width / 2
       color: Theme.accent
-
-      Behavior on height {
-        NumberAnimation { duration: Theme.motionFast }
-      }
     }
   }
 }
