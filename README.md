@@ -66,11 +66,13 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
 | `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
-| `Mod+Shift+D` | Calendar: a month view, also opened by clicking the clock. Change month with the arrows, the wheel or the Left and Right keys |
+| `Mod+I` / `Mod+Shift+D` | The center island's card: anything happening now, with its controls, and a month view. Also opened by pressing the island. Change month with the arrows, the wheel or the Left and Right keys |
 | `Mod+W` | Wi-Fi: turn it on or off, join, disconnect and forget networks. Also opened by the bar's network item and quick settings. Enterprise and hidden networks are under More settings (iwgtk) |
 | `Mod+B` | Bluetooth: turn it on or off, pair, connect, disconnect and forget devices. Also opened by the bar's Bluetooth item, where a right click switches the adapter. Devices that need a code to pair are under More settings (blueman) |
 | `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
-| Brightness and volume keys | Level display at the bottom of the screen |
+| Brightness and volume keys | The level, in the center island |
+
+The center island shows the most pressing thing happening, and grows to fit it: a level that just changed, then a notification, a recording, the playing track, and otherwise the clock. A red dot stays at its edge while recording, whatever else it shows. A right click skips a track or dismisses a notification. Critical notifications keep a card of their own on the left. Over a fullscreen window, which hides the bar, levels go back to a display at the bottom of the screen and notifications to cards on the left.
 
 With the `power` bundle, the battery warns at 20% and 5%, and the machine shuts down at 2%. Change that with `ltp.hardware.battery`:
 
