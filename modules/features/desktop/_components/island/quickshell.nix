@@ -38,6 +38,7 @@ in
   ltp.desktop = {
     binds = {
       "Mod+I" = instance.bind pkgs "island" "toggle";
+      "Mod+Shift+I" = instance.bind pkgs "island" "focusCurrent";
 
       # The island shows the microphone's state, so it's worth having the key for it.
       "XF86AudioMicMute" = {

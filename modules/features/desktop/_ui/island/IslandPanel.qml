@@ -114,6 +114,12 @@ Overlay {
       if (root.shown) LiveActivity.collapse();
       else LiveActivity.expand();
     }
+
+    // Straight to the view of whatever's current, past the expanded card.
+    function focusCurrent(): void {
+      if (root.shown) LiveActivity.collapse();
+      else LiveActivity.focusCurrent();
+    }
   }
 
   // The calendar's bind opens the month, whatever else is happening.

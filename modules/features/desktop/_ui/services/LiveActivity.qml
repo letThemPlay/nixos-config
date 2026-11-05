@@ -78,6 +78,25 @@ Singleton {
     else expand();
   }
 
+  // Which focused view answers for what's going on. Recording has none, as its Stop is
+  // already in the expanded card, so it's only passed over for a track. A paused track
+  // is what's left to come back to, ahead of the month.
+  function currentFocus() {
+    if (critical) return "notification";
+    if (kind === "level" && Levels.isAudio) return "audio";
+    if (notification) return "notification";
+    if (Media.playing) return "media";
+    if (Recorder.active) return "";
+    return Media.player ? "media" : "month";
+  }
+
+  function focusCurrent() {
+    const what = currentFocus();
+
+    if (what) focusOn(what, true);
+    else expand();
+  }
+
   // The island's own changes are bigger than a panel's, so they take a little longer.
   readonly property int motion: Theme.motionNormal * 1.5
 
