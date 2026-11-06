@@ -1,7 +1,6 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import qs.calendar
 import qs.common
 import qs.notifications
 import qs.quicksettings
@@ -22,17 +21,11 @@ Overlay {
   readonly property bool expanded: !LiveActivity.isFocused
   readonly property string focusedOn: LiveActivity.isFocused ? LiveActivity.focusedOn : ""
 
-  // Noted as the card opens. The calendar doesn't sit under anything going on, and this
-  // doesn't change while open, so pausing a track doesn't make it appear.
-  property bool idleAtOpening: false
-
   readonly property var notification: LiveActivity.notification
   readonly property bool isCritical: LiveActivity.critical !== null
 
   readonly property var player: Media.player
   readonly property real trackLength: player?.lengthSupported ? player.length : 0
-
-  readonly property bool showsMonth: focusedOn === "month" || (expanded && idleAtOpening)
 
   readonly property real cardHeight: content.implicitHeight + Theme.spaceLg * 2
   readonly property real maxHeight: root.height - Theme.spaceSm * 2
@@ -58,13 +51,6 @@ Overlay {
     const whole = Math.max(0, Math.floor(seconds));
     const rest = whole % 60;
     return Math.floor(whole / 60) + ":" + (rest < 10 ? "0" : "") + rest;
-  }
-
-  onShownChanged: {
-    if (!shown) return;
-
-    idleAtOpening = LiveActivity.settled === "idle";
-    month.showCurrent();
   }
 
   Binding {
@@ -100,16 +86,6 @@ Overlay {
     function focusCurrent(): void {
       if (root.shown) LiveActivity.collapse();
       else LiveActivity.focusCurrent();
-    }
-  }
-
-  // The calendar's bind opens the month, whatever else is happening.
-  IpcHandler {
-    target: "calendar"
-
-    function toggle(): void {
-      if (root.shown) LiveActivity.collapse();
-      else LiveActivity.focusOn("month", true);
     }
   }
 
@@ -264,13 +240,6 @@ Overlay {
     height: root.grown(Theme.sizeBar, root.shownHeight)
     clip: true
     focus: true
-
-    Keys.onLeftPressed: {
-      if (root.showsMonth) month.move(-1);
-    }
-    Keys.onRightPressed: {
-      if (root.showsMonth) month.move(1);
-    }
 
     // Steps back where it came from there; otherwise the overlay closes it.
     Keys.onEscapePressed: event => {
@@ -629,26 +598,6 @@ Overlay {
             visible: Battery.present
             measure: "Battery"
             value: Battery.percent + "%" + (Battery.charging ? " · Charging" : "")
-          }
-        }
-
-        Item {
-          width: parent.width
-          height: month.implicitHeight
-          visible: root.showsMonth
-
-          // Over the month, the wheel changes the month, unless it's needed to reach
-          // the rest of a card too tall for the screen.
-          MouseArea {
-            anchors.fill: parent
-            enabled: root.cardHeight <= root.maxHeight
-            onWheel: event => month.scroll(event.angleDelta.y)
-          }
-
-          MonthView {
-            id: month
-
-            anchors.horizontalCenter: parent.horizontalCenter
           }
         }
       }
