@@ -71,7 +71,7 @@ in
     large = unit * 8;
     huge = unit * 12;
 
-    theme = ui.iconTheme;
+    theme = appearance.icons;
   };
 
   motion = {

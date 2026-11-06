@@ -27,5 +27,10 @@ in
     cursor = {
       inherit (appearance.cursor) package name size;
     };
+
+    icons = {
+      inherit (appearance.icons) package dark light;
+      inherit (user) folderColor;
+    };
   }) (lib.filterAttrs (_: user: user.known) model.users);
 }

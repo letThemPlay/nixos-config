@@ -37,6 +37,14 @@ let
       settings = { };
       themes.bob = "nope";
     }
+    {
+      settings.appearance.icons = {
+        package = "adwaita-icon-theme";
+        dark = "Adwaita";
+        light = "Adwaita";
+      };
+      themes.carol = "tokyonight";
+    }
   ];
 
   tests = {
@@ -52,6 +60,7 @@ let
             known
             scheme
             polarity
+            folderColor
             ;
           wallpaper = baseNameOf user.wallpaper;
         };
@@ -60,6 +69,7 @@ let
         known = true;
         scheme = "catppuccin-macchiato";
         polarity = "dark";
+        folderColor = "blue";
         wallpaper = "catppuccin.png";
       };
     };
@@ -75,12 +85,13 @@ let
           model = modelOf { } { alice = "nope"; };
         in
         {
-          inherit (model.users.alice) known wallpaper;
+          inherit (model.users.alice) known wallpaper folderColor;
           codes = codesOf model;
         };
       expected = {
         known = false;
         wallpaper = null;
+        folderColor = null;
         codes = [ "theme.user.unknown" ];
       };
     };
@@ -103,6 +114,42 @@ let
         in
         map (d: d.code) (validate.all { users = { }; }).diagnostics;
       expected = [ "theme.wallpaper.missing" ];
+    };
+
+    # Folder colours are a registry; a theme without one keeps the pack's own.
+    testUnknownFolderColor = {
+      expr =
+        let
+          broken = theme // {
+            themes = {
+              typo = {
+                wallpaper = "catppuccin.png";
+                scheme = "x";
+                polarity = "dark";
+                folderColor = "bleu";
+              };
+              plain = {
+                wallpaper = "catppuccin.png";
+                scheme = "x";
+                polarity = "dark";
+              };
+            };
+          };
+          validate = import ../features/theme/_usecases/validate.nix {
+            inherit lib;
+            theme = broken;
+            inherit (config.ltp.features) diagnostics;
+          };
+        in
+        map (d: {
+          inherit (d) code target;
+        }) (validate.all { users = { }; }).diagnostics;
+      expected = [
+        {
+          code = "theme.icons.folderColor.unknown";
+          target = "typo";
+        }
+      ];
     };
 
     # The defaults are the values every host had before the feature.
@@ -129,6 +176,11 @@ let
           package = "bibata-cursors";
           name = "Bibata-Modern-Ice";
           size = 24;
+        };
+        icons = {
+          package = "papirus-icon-theme";
+          dark = "Papirus-Dark";
+          light = "Papirus-Light";
         };
       };
     };
@@ -226,6 +278,7 @@ let
           image = baseNameOf users.alice.image;
           terminal = users.alice.fonts.sizes.terminal;
           cursor = users.alice.cursor.name;
+          inherit (users.alice) icons;
         };
       expected = {
         names = [ "alice" ];
@@ -234,6 +287,12 @@ let
         image = "tokyonight.png";
         terminal = 14;
         cursor = "Bibata-Modern-Ice";
+        icons = {
+          package = "papirus-icon-theme";
+          dark = "Papirus-Dark";
+          light = "Papirus-Light";
+          folderColor = "indigo";
+        };
       };
     };
 

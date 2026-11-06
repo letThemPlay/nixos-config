@@ -27,6 +27,8 @@
       scheme = entry.scheme or null;
 
       polarity = entry.polarity or null;
+
+      folderColor = entry.folderColor or null;
     }
   ) users;
 }

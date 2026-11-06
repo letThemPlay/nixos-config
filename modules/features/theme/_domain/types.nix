@@ -68,6 +68,12 @@ let
         default = "dark";
       };
 
+      folderColor = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Papirus folder colour that follows the theme's accent; null keeps the pack's own.";
+      };
+
     };
   };
 
@@ -100,6 +106,32 @@ let
         size = size 24 "Cursor size.";
       };
 
+      # Every app's icons, the shell's dock included.
+      icons = mkOption {
+        type = types.submodule {
+          options = {
+            package = mkOption {
+              type = types.str;
+              default = "papirus-icon-theme";
+              description = "Package attribute path in pkgs of the application icon theme.";
+            };
+
+            dark = mkOption {
+              type = types.str;
+              default = "Papirus-Dark";
+              description = "Icon theme name for dark themes.";
+            };
+
+            light = mkOption {
+              type = types.str;
+              default = "Papirus-Light";
+              description = "Icon theme name for light themes.";
+            };
+          };
+        };
+        default = { };
+      };
+
       ui = {
         spacing = size 4 "Base spacing unit in pixels; every padding and gap is a multiple of it.";
         radius = size 10 "Corner radius of panels in pixels; controls and cards scale from it.";
@@ -111,31 +143,6 @@ let
         shadowOpacity = fraction 0.25 "Opacity of the soft shadow under panels; 0 for none.";
 
         iconFont = packaged "material-symbols" "Material Symbols Rounded" { };
-
-        iconTheme = mkOption {
-          type = types.submodule {
-            options = {
-              package = mkOption {
-                type = types.str;
-                default = "papirus-icon-theme";
-                description = "Package attribute path in pkgs of the application icon theme.";
-              };
-
-              dark = mkOption {
-                type = types.str;
-                default = "Papirus-Dark";
-                description = "Icon theme name for dark themes.";
-              };
-
-              light = mkOption {
-                type = types.str;
-                default = "Papirus-Light";
-                description = "Icon theme name for light themes.";
-              };
-            };
-          };
-          default = { };
-        };
       };
 
     };
@@ -166,6 +173,11 @@ let
 
       polarity = mkOption {
         type = types.nullOr polarity;
+      };
+
+      folderColor = mkOption {
+        type = types.nullOr types.str;
+        description = "Papirus folder colour; null for the pack's own or an unknown theme.";
       };
 
     };
