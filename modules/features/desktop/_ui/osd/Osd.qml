@@ -1,105 +1,28 @@
 import Quickshell
-import Quickshell.Io
-import Quickshell.Services.Pipewire
 import Quickshell.Wayland
 import QtQuick
 import qs.common
 import qs.services
 
-// A short-lived level display at the bottom of the active output. Volume comes
-// from PipeWire, so changes from the bar or an application show too. Brightness
-// has no such signal, so its keys report in over IPC.
+// A short-lived level display on the active output, unless the bar's island can be
+// seen to show it instead. Where there's an island but a fullscreen window hides it,
+// this goes where the island would be, so a level always appears in one place.
 Scope {
   id: root
 
-  property string icon: "volumeHigh"
-  property real level: 0
-  property bool warn: false
-  property bool shown: false
-
-  // The sink reports its values as it appears; those are not a change.
-  property bool armed: false
-
-  readonly property var sink: Pipewire.defaultAudioSink
-  readonly property var audio: sink?.audio ?? null
-
-  function show(newIcon, newLevel, newWarn) {
-    icon = newIcon;
-    level = Math.max(0, Math.min(1, newLevel));
-    warn = newWarn;
-    shown = true;
-    hide.restart();
-  }
-
-  function showVolume() {
-    if (!armed || !audio) return;
-
-    if (audio.muted) show("volumeMuted", audio.volume, true);
-    else show(audio.volume >= 0.5 ? "volumeHigh" : "volumeLow", audio.volume, false);
-  }
-
-  onSinkChanged: {
-    armed = false;
-    arm.restart();
-  }
-
-  Component.onCompleted: arm.restart()
-
-  PwObjectTracker {
-    objects: root.sink ? [root.sink] : []
-  }
-
-  Connections {
-    target: root.audio
-    ignoreUnknownSignals: true
-
-    function onVolumesChanged() {
-      root.showVolume();
-    }
-
-    function onMutedChanged() {
-      root.showVolume();
-    }
-  }
-
-  Timer {
-    id: arm
-
-    interval: 1000
-    onTriggered: root.armed = true
-  }
-
-  Timer {
-    id: hide
-
-    interval: 1500
-    onTriggered: root.shown = false
-  }
-
-  Connections {
-    target: Brightness
-
-    function onAnnounced() {
-      root.show("brightness", Brightness.level, false);
-    }
-  }
-
-  IpcHandler {
-    target: "osd"
-
-    function brightness(): void {
-      Brightness.refresh(true);
-    }
-  }
+  readonly property bool shown: Levels.shown && !LiveActivity.showing
+  readonly property bool inIslandsPlace: Settings.surfaces.includes("island")
 
   PanelWindow {
     id: window
 
-    anchors.bottom: true
-    margins.bottom: Theme.spaceXl * 2
+    anchors.top: root.inIslandsPlace
+    anchors.bottom: !root.inIslandsPlace
+    margins.top: root.inIslandsPlace ? Theme.spaceSm : 0
+    margins.bottom: root.inIslandsPlace ? 0 : Theme.spaceXl * 2
 
     implicitWidth: Theme.sizeSidePanel / 2 + Theme.sizeBar
-    implicitHeight: Theme.sizeBar + Theme.spaceSm
+    implicitHeight: root.inIslandsPlace ? Theme.sizeBar : Theme.sizeBar + Theme.spaceSm
     visible: root.shown || panel.opacity > 0
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -127,14 +50,25 @@ Scope {
         anchors.left: parent.left
         anchors.leftMargin: Theme.spaceMd
         anchors.verticalCenter: parent.verticalCenter
-        name: root.icon
+        name: Levels.icon
         size: Theme.iconMedium
-        color: root.warn ? Theme.warning : Theme.text
+        color: Levels.warn ? Theme.warning : Theme.text
+      }
+
+      Label {
+        anchors.left: symbol.right
+        anchors.right: parent.right
+        anchors.leftMargin: Theme.spaceMd
+        anchors.rightMargin: Theme.spaceMd
+        anchors.verticalCenter: parent.verticalCenter
+        visible: Levels.deviceOnly
+        text: Levels.label
       }
 
       Rectangle {
         id: track
 
+        visible: !Levels.deviceOnly
         anchors.left: symbol.right
         anchors.right: percent.left
         anchors.leftMargin: Theme.spaceMd
@@ -145,10 +79,10 @@ Scope {
         color: Qt.alpha(Theme.outline, 0.5)
 
         Rectangle {
-          width: parent.width * root.level
+          width: parent.width * Levels.level
           height: parent.height
           radius: parent.radius
-          color: root.warn ? Theme.warning : Theme.accent
+          color: Levels.warn ? Theme.warning : Theme.accent
 
           Behavior on width {
             NumberAnimation { duration: Theme.motionFast }
@@ -159,10 +93,11 @@ Scope {
       Percent {
         id: percent
 
+        visible: !Levels.deviceOnly
         anchors.right: parent.right
         anchors.rightMargin: Theme.spaceMd
         anchors.verticalCenter: parent.verticalCenter
-        level: root.level
+        level: Levels.level
       }
     }
   }

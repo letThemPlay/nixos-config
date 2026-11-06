@@ -1,15 +1,13 @@
-import Quickshell.Services.Mpris
 import QtQuick
 import qs.common
+import qs.services
 
-// The playing player, or the first one there is. Left click plays or pauses,
-// right click skips.
+// Left click plays or pauses, right click skips.
 BarItem {
-  readonly property var players: Mpris.players.values
-  readonly property var player: players.find(p => p.isPlaying) ?? players[0] ?? null
+  readonly property var player: Media.player
 
   shown: player !== null
-  icon: player?.isPlaying ? "mediaPause" : "mediaPlay"
+  icon: Media.playing ? "mediaPause" : "mediaPlay"
   text: player?.trackTitle ?? ""
   textWidth: Theme.sizeSidePanel / 2
 

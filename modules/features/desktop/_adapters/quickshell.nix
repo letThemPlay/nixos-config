@@ -88,6 +88,7 @@ in
     singleton [
       (property "var" "surfaces" (quoted model.ui.surfaces))
       (property "var" "barLeft" (quoted model.bar.left))
+      (property "var" "barCenter" (quoted model.bar.center))
       (property "var" "barRight" (quoted model.bar.right))
       (property "var" "commands" (quoted model.ui.commands))
       (property "var" "powerActions" (

@@ -18,6 +18,12 @@ Singleton {
   property var popups: []
   property var arrivals: ({})
 
+  // While the bar's island can be seen it shows these itself. Over a fullscreen window
+  // it can't, so they stay cards.
+  property bool islandShowing: false
+  readonly property var cardPopups: islandShowing ? [] : popups
+  readonly property var islandPopups: islandShowing ? popups : []
+
   readonly property var history: [...server.trackedNotifications.values].reverse()
   readonly property int count: history.length
 
@@ -103,6 +109,12 @@ Singleton {
     persistenceSupported: true
 
     onNotification: notification => {
+      // The same thing again replaces the last, so neither place repeats it.
+      for (const other of [...server.trackedNotifications.values]) {
+        if (other.appName === notification.appName && other.summary === notification.summary && other.body === notification.body)
+          other.dismiss();
+      }
+
       notification.tracked = true;
       root.arrivals[notification.id] = new Date();
 
@@ -144,12 +156,12 @@ Singleton {
     }
   }
 
-  // Opening the center shows everything the popups were showing.
+  // Opening the control center shows everything the popups were showing.
   Connections {
     target: Ui
 
     function onOpenChanged() {
-      if (Ui.open !== "notifications") return;
+      if (Ui.open !== "controlcenter") return;
 
       for (const popup of root.popups)
         root.hidePopup(popup);
@@ -158,10 +170,6 @@ Singleton {
 
   IpcHandler {
     target: "notifications"
-
-    function toggle(): void {
-      Ui.toggle("notifications");
-    }
 
     function dismiss(): void {
       root.dismissLatest();

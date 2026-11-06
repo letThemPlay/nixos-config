@@ -3,14 +3,16 @@ import Quickshell
 import QtQuick
 import qs.common
 import qs.bar
+import qs.bluetooth
 import qs.calendar
+import qs.controlcenter
 import qs.dock
+import qs.island
 import qs.launcher
 import qs.notifications
 import qs.osd
 import qs.polkit
 import qs.power
-import qs.quicksettings
 import qs.services
 import qs.wifi
 
@@ -52,9 +54,9 @@ ShellRoot {
   }
 
   LazyLoader {
-    active: root.has("notifier")
+    active: root.has("notifier") || root.has("quicksettings")
 
-    Center {}
+    ControlCenter {}
   }
 
   LazyLoader {
@@ -81,22 +83,29 @@ ShellRoot {
     Osd {}
   }
 
+  // The island's card holds the calendar where there is one.
   LazyLoader {
-    active: root.has("quicksettings")
+    active: root.has("calendar") && !root.has("island")
 
-    QuickSettings {}
+    Calendar {}
   }
 
   LazyLoader {
-    active: root.has("calendar")
+    active: root.has("island")
 
-    Calendar {}
+    IslandPanel {}
   }
 
   LazyLoader {
     active: root.has("wifi")
 
     WifiPanel {}
+  }
+
+  LazyLoader {
+    active: root.has("bluetooth")
+
+    BluetoothPanel {}
   }
 
   LazyLoader {

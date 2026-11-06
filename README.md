@@ -61,15 +61,20 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 |---|---|
 | `Mod+D` | Launcher: applications, power actions and arithmetic |
 | `Mod+V` | Clipboard history on the launcher's surface |
-| `Mod+N` | Notification center, sliding in from the left |
 | `Mod+Escape` / `Mod+Shift+Escape` | Dismiss the latest notification / all of them |
 | `Mod+X` | Power menu |
 | `Mod+L` | Lock screen |
-| `Mod+S` | Quick settings: audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake |
-| `Mod+Shift+D` | Calendar: a month view, also opened by clicking the clock. Change month with the arrows, the wheel or the Left and Right keys |
+| `Mod+S` | Control center, under the bar's right island: quick settings (audio devices and levels, brightness, power profile, bluetooth, do not disturb, night light, keep awake, recording, network, battery) above the notifications. The bar's settings button opens it too, shows how many notifications there are, and switches do not disturb on a right click |
+| `Mod+I` | Expands the center island, as does pressing it: anything going on, with its controls, alongside a system overview of CPU, memory, disk, network and battery, and a month view if nothing was. Pressing a track or notification there focuses it, with its fuller controls, and Escape steps back. Pressing the island during a volume or microphone level focuses both devices and their choices. Clicking outside collapses it, and nothing that's playing or happening is affected. Plugging or unplugging the charger shows the battery in the island for a few seconds. A dot on the pill means an app is using a microphone, amber or grey if muted, and the expanded card names it |
+| `Mod+Shift+I` | Goes straight to the view of whatever's current, skipping the expanded card: a notification, the audio devices during a volume or microphone level, or the full music view, including for a paused track. With only a recording it expands, as recording has no view of its own, and with nothing going on it shows the month. Escape collapses it |
+| Mic mute key | Mutes the default microphone, shown in the island |
+| `Mod+Shift+D` | Focuses the month view, whatever else is happening. Change month with the arrows, the wheel or the Left and Right keys |
 | `Mod+W` | Wi-Fi: turn it on or off, join, disconnect and forget networks. Also opened by the bar's network item and quick settings. Enterprise and hidden networks are under More settings (iwgtk) |
+| `Mod+B` | Bluetooth: turn it on or off, pair, connect, disconnect and forget devices. Also opened by the bar's Bluetooth item, where a right click switches the adapter. Devices that need a code to pair are under More settings (blueman) |
 | `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
-| Brightness and volume keys | Level display at the bottom of the screen |
+| Brightness and volume keys | The level, in the center island |
+
+The center island shows the most pressing thing happening, and grows to fit it: a critical notification until you acknowledge it, a volume, brightness or microphone level that just changed or a newly chosen output's name, then a notification, a recording, the playing track with bars for its frequencies, and otherwise the clock. A red dot stays at its edge while recording, whatever else it shows. A right click skips a track or dismisses a notification. A fullscreen window hides the bar, so over one, levels still appear in the island's place and notifications as cards on the left.
 
 With the `power` bundle, the battery warns at 20% and 5%, and the machine shuts down at 2%. Change that with `ltp.hardware.battery`:
 

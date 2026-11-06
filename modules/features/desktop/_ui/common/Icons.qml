@@ -12,6 +12,9 @@ Singleton {
     "clipboard": "content_paste",
     "calculator": "calculate",
     "close": "close",
+    "cpu": "memory",
+    "ram": "memory_alt",
+    "disk": "hard_drive",
 
     "notifications": "notifications",
     "notificationsUnread": "notifications_unread",
@@ -27,6 +30,14 @@ Singleton {
     "bluetooth": "bluetooth",
     "bluetoothConnected": "bluetooth_connected",
     "bluetoothOff": "bluetooth_disabled",
+
+    "deviceHeadphones": "headphones",
+    "deviceSpeaker": "speaker",
+    "deviceKeyboard": "keyboard",
+    "deviceMouse": "mouse",
+    "deviceGamepad": "sports_esports",
+    "devicePhone": "smartphone",
+    "deviceComputer": "computer",
 
     "settings": "tune",
     "more": "chevron_right",
@@ -62,6 +73,8 @@ Singleton {
 
     "mediaPlay": "play_arrow",
     "mediaPause": "pause",
+    "mediaNext": "skip_next",
+    "mediaPrevious": "skip_previous",
 
     "lock": "lock",
     "suspend": "bedtime",
