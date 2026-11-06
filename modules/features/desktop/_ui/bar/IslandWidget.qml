@@ -22,7 +22,7 @@ Pressable {
     notification: notification,
     recording: recording,
     media: media,
-    clock: clockLabel
+    idle: idleFace
   })[face]
 
   // Nothing else on the bar may hide that the screen is being recorded.
@@ -244,23 +244,43 @@ Pressable {
     }
   }
 
-  Face {
-    id: clockFace
+  // Nothing going on: how busy the machine is. The date and time are on the right
+  // island, where they stay whatever this shows.
+  component Reading: Row {
+    required property string icon
+    required property real value
 
-    activity: "clock"
+    anchors.verticalCenter: parent.verticalCenter
+    spacing: Theme.spaceXs
+
+    Icon {
+      anchors.verticalCenter: parent.verticalCenter
+      name: parent.icon
+      size: Theme.iconSmall
+      color: Theme.muted
+    }
 
     Label {
-      id: clockLabel
-
       anchors.verticalCenter: parent.verticalCenter
-      text: Qt.formatDateTime(clock.date, "ddd d MMM  HH:mm")
+      text: parent.value < 0 ? "—" : Math.round(parent.value * 100) + "%"
+      size: Theme.fontSmall
       color: root.foreground
     }
   }
 
-  SystemClock {
-    id: clock
+  Face {
+    id: idleFace
 
-    precision: SystemClock.Minutes
+    activity: "idle"
+
+    Reading {
+      icon: "cpu"
+      value: SystemLoad.cpu
+    }
+
+    Reading {
+      icon: "ram"
+      value: SystemLoad.memory
+    }
   }
 }

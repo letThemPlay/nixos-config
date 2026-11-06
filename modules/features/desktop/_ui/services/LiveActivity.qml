@@ -32,7 +32,7 @@ Singleton {
   readonly property string settled: {
     if (notification) return "notification";
     if (Recorder.active) return "recording";
-    return Media.playing ? "media" : "clock";
+    return Media.playing ? "media" : "idle";
   }
 
   readonly property string kind: {
@@ -43,7 +43,7 @@ Singleton {
   // How the island is presented, which is separate from everything above: nothing here
   // changes what's active. Collapsed is the card not being open. Expanded shows what's
   // active alongside the system overview. Focused shows one thing with its fuller
-  // controls: media, notification, month or audio.
+  // controls: media, notification or audio.
   property string presentation: "expanded"
   property string focusedOn: ""
 
@@ -80,14 +80,14 @@ Singleton {
 
   // Which focused view answers for what's going on. Recording has none, as its Stop is
   // already in the expanded card, so it's only passed over for a track. A paused track
-  // is what's left to come back to, ahead of the month.
+  // is what's left to come back to; with nothing at all, the expanded card answers.
   function currentFocus() {
     if (critical) return "notification";
     if (kind === "level" && Levels.isAudio) return "audio";
     if (notification) return "notification";
     if (Media.playing) return "media";
     if (Recorder.active) return "";
-    return Media.player ? "media" : "month";
+    return Media.player ? "media" : "";
   }
 
   function focusCurrent() {
@@ -118,6 +118,14 @@ Singleton {
     target: Notifications
     property: "islandShowing"
     value: root.showing
+  }
+
+  // The idle pill shows CPU and memory, so they're read while it can be seen. Here
+  // rather than in the pill, as there's one on every screen.
+  Binding {
+    target: SystemLoad
+    property: "watchingPill"
+    value: root.showing && root.kind === "idle" && Ui.open !== "island"
   }
 
   // Waits only while focused, where it's being read.

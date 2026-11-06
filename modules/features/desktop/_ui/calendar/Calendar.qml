@@ -3,11 +3,14 @@ import Quickshell.Io
 import QtQuick
 import qs.common
 
-// A month view under the bar's clock, always opening on the current month.
+// A month view under the bar's clock, on whichever side holds it, always opening on
+// the current month.
 Overlay {
   id: root
 
   surface: "calendar"
+
+  readonly property bool onLeft: Settings.barLeft.includes("clock")
 
   onShownChanged: {
     if (shown) view.showCurrent();
@@ -24,7 +27,7 @@ Overlay {
   Panel {
     id: panel
 
-    x: root.width - width - Theme.spaceSm
+    x: root.onLeft ? Theme.spaceSm : root.width - width - Theme.spaceSm
     y: Theme.sizeBar + Theme.spaceSm * 2 - (1 - root.progress) * Theme.spaceXl
     width: view.implicitWidth + Theme.spaceLg * 2
     height: view.implicitHeight + Theme.spaceLg * 2

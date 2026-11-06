@@ -83,9 +83,8 @@ ShellRoot {
     Osd {}
   }
 
-  // The island's card holds the calendar where there is one.
   LazyLoader {
-    active: root.has("calendar") && !root.has("island")
+    active: root.has("calendar")
 
     Calendar {}
   }

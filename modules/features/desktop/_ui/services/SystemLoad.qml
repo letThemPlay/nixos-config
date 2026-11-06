@@ -6,11 +6,14 @@ import QtQuick
 import qs.common
 
 // How busy the machine is, from the kernel's own counters. It only reads them while
-// something is watching, so nothing polls the rest of the time.
+// something is watching, so nothing polls the rest of the time: the island's card, or
+// its idle pill, which shows CPU and memory but not disk.
 Singleton {
   id: root
 
-  property bool watching: false
+  property bool watchingCard: false
+  property bool watchingPill: false
+  readonly property bool watching: watchingCard || watchingPill
 
   // Fractions, or -1 until there's a reading. CPU needs two, as the kernel only counts
   // time since boot, so its use is the change between them.
@@ -26,17 +29,31 @@ Singleton {
   property real lastIdle: 0
 
   onWatchingChanged: {
-    // A second reading soon after the first, so the card doesn't open on a dash.
+    // A second reading soon after the first, so nothing opens on a dash.
     if (watching) {
+      forget.stop();
       followUp.restart();
       return;
     }
 
-    cpu = -1;
-    memory = -1;
-    disk = -1;
-    lastTotal = 0;
-    lastIdle = 0;
+    forget.restart();
+  }
+
+  // Stale figures are cleared once nothing has watched for a moment. Not at once, as
+  // the pill stops watching just before the card starts, as it opens.
+  Timer {
+    id: forget
+
+    interval: 1000
+    onTriggered: {
+      if (root.watching) return;
+
+      root.cpu = -1;
+      root.memory = -1;
+      root.disk = -1;
+      root.lastTotal = 0;
+      root.lastIdle = 0;
+    }
   }
 
   // df's header, then the size and what's available, in bytes.
@@ -86,7 +103,7 @@ Singleton {
 
   Timer {
     interval: 30000
-    running: root.watching && root.diskReadable
+    running: root.watchingCard && root.diskReadable
     repeat: true
     triggeredOnStart: true
     onTriggered: diskUsage.running = true
@@ -99,7 +116,7 @@ Singleton {
 
     stdout: StdioCollector {
       onStreamFinished: {
-        if (root.watching) root.readDisk(text);
+        if (root.watchingCard) root.readDisk(text);
       }
     }
   }
