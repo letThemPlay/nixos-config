@@ -64,7 +64,10 @@ in
         lib.optional (drawn "launcher") "launcher"
         # The settings button stands for the notifications too, where there is one.
         ++ lib.optional (drawn "notifier" && !drawn "quicksettings") "notifications"
+        # Here even with the center island, as it shows whatever is going on instead,
+        # and on the left so the two side islands carry a similar weight.
         ++ [
+          "clock"
           "workspaces"
           "window"
         ];
@@ -81,8 +84,6 @@ in
           "volume"
           "battery"
         ]
-        # Here even with the island, as it shows whatever is going on instead.
-        ++ [ "clock" ]
         ++ lib.optional (drawn "quicksettings") "settings"
         ++ lib.optional (drawn "power") "power";
 
