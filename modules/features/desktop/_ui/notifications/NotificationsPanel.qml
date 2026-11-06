@@ -78,6 +78,7 @@ Panel {
           notification: modelData
           width: cards.width
           color: Theme.surfaceRaised
+          elevated: false
         }
       }
 
@@ -101,6 +102,7 @@ Panel {
           notification: modelData
           width: cards.width
           color: Theme.surfaceRaised
+          elevated: false
         }
       }
 

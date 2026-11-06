@@ -14,11 +14,20 @@ PanelWindow {
     right: true
   }
 
-  // The same gap above and below the islands. Only the part above is reserved:
-  // the compositor already keeps its own gap between the bar and windows.
-  implicitHeight: Theme.sizeBar + Theme.spaceSm * 2
+  // A gap above the islands, and room below for their shadows. Only the gap above is
+  // reserved: the compositor already keeps its own gap between the bar and windows.
+  // Only the islands take presses, so the room below never covers a window's.
+  implicitHeight: Theme.sizeBar + Theme.spaceSm + Theme.shadowRoom
   exclusiveZone: Theme.sizeBar + Theme.spaceSm
   color: "transparent"
+
+  mask: Region {
+    regions: [
+      Region { item: leftIsland },
+      Region { item: centerIsland },
+      Region { item: rightIsland }
+    ]
+  }
 
   WlrLayershell.layer: WlrLayer.Top
   WlrLayershell.namespace: "ltp-bar"
@@ -114,6 +123,8 @@ PanelWindow {
   // while the card is open, which grows out of it, as two translucent layers would
   // otherwise show through each other.
   Island {
+    id: centerIsland
+
     readonly property real centered: (root.width - width) / 2
     readonly property real leftmost: leftIsland.x + leftIsland.width + Theme.spaceSm
     readonly property real rightmost: rightIsland.x - width - Theme.spaceSm

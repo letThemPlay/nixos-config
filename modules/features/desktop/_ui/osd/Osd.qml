@@ -18,11 +18,15 @@ Scope {
 
     anchors.top: root.inIslandsPlace
     anchors.bottom: !root.inIslandsPlace
+    // Room for the panel's shadow, but not above it in the island's place, where the
+    // screen's top edge is.
     margins.top: root.inIslandsPlace ? Theme.spaceSm : 0
-    margins.bottom: root.inIslandsPlace ? 0 : Theme.spaceXl * 2
+    margins.bottom: root.inIslandsPlace ? 0 : Theme.spaceXl * 2 - Theme.shadowRoom
 
-    implicitWidth: Theme.sizeSidePanel / 2 + Theme.sizeBar
-    implicitHeight: root.inIslandsPlace ? Theme.sizeBar : Theme.sizeBar + Theme.spaceSm
+    readonly property real panelHeight: root.inIslandsPlace ? Theme.sizeBar : Theme.sizeBar + Theme.spaceSm
+
+    implicitWidth: Theme.sizeSidePanel / 2 + Theme.sizeBar + Theme.shadowRoom * 2
+    implicitHeight: panelHeight + Theme.shadowRoom * (root.inIslandsPlace ? 1 : 2)
     visible: root.shown || panel.opacity > 0
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -37,7 +41,10 @@ Scope {
     Panel {
       id: panel
 
-      anchors.fill: parent
+      x: Theme.shadowRoom
+      y: root.inIslandsPlace ? 0 : Theme.shadowRoom
+      width: parent.width - Theme.shadowRoom * 2
+      height: window.panelHeight
       opacity: root.shown ? 1 : 0
 
       Behavior on opacity {

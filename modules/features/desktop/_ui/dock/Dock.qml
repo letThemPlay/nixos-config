@@ -91,8 +91,9 @@ Scope {
 
       anchors.bottom: true
 
-      implicitWidth: pill.width + Theme.spaceSm * 2
-      implicitHeight: pill.height + Theme.spaceSm * 2
+      // Room for the pill's shadow, except below, where the screen's edge is.
+      implicitWidth: pill.width + Theme.shadowRoom * 2
+      implicitHeight: pill.height + Theme.spaceSm + Theme.shadowRoom
       exclusionMode: ExclusionMode.Ignore
       color: "transparent"
       visible: root.pinned.length + root.unpinned.length > 0
@@ -137,7 +138,7 @@ Scope {
           id: pill
 
           anchors.horizontalCenter: parent.horizontalCenter
-          y: window.revealed ? Theme.spaceSm : area.height
+          y: window.revealed ? Theme.shadowRoom : area.height
           width: row.implicitWidth + Theme.spaceSm * 2
           height: row.implicitHeight + Theme.spaceSm * 2
           opacity: window.revealed ? 1 : 0

@@ -367,6 +367,7 @@ Overlay {
           visible: root.focusedOn === "notification" && root.notification !== null
           notification: root.notification
           color: Theme.surfaceRaised
+          elevated: false
         }
 
         AudioRow {

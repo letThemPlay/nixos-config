@@ -19,6 +19,15 @@ in
   opacity = {
     panel = ui.panelOpacity;
     scrim = ui.scrimOpacity;
+    shadow = ui.shadowOpacity;
+  };
+
+  # A soft shadow a little below each panel. Room is how far it reaches past the
+  # panel's edge, which a window sized to its content has to leave.
+  shadow = {
+    blur = unit * 3;
+    offset = unit / 2;
+    room = unit * 3 + unit / 2;
   };
 
   space = {
