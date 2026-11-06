@@ -58,8 +58,18 @@ _: {
           dock = "quickshell";
         };
 
+        #
         # The shell draws its own launcher, so nothing starts this role.
-        apps.roles.launcher = null;
+        # Thunar takes the stylix GTK theme, so it matches the shell; yazi
+        # stays for the terminal.
+        #
+        apps = {
+          roles = {
+            launcher = null;
+            fileManager = "thunar";
+          };
+          install = [ "yazi" ];
+        };
       };
     };
 

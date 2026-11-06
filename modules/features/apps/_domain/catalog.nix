@@ -43,6 +43,14 @@ _: {
     opensInTerminal = true;
   };
 
+  thunar = {
+    roles = [ "fileManager" ];
+    package = null;
+    command = [ "thunar" ];
+    appId = "thunar";
+    desktopEntry = "thunar.desktop";
+  };
+
   imv = {
     roles = [ "imageViewer" ];
     package = null;
