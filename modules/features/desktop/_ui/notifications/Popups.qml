@@ -14,14 +14,19 @@ PanelWindow {
     left: true
   }
 
-  margins.top: Theme.sizeBar + Theme.spaceSm * 2
-  margins.left: Theme.spaceSm
+  // Room for the cards' shadows, except along the screen edge, where it would only fall
+  // off screen. Only the cards take presses.
+  margins.top: Theme.sizeBar + Theme.spaceSm * 2 - Theme.shadowRoom
 
   visible: Notifications.cardPopups.length > 0
-  implicitWidth: Theme.sizeSidePanel
-  implicitHeight: Math.max(1, stack.implicitHeight)
+  implicitWidth: Theme.spaceSm + Theme.sizeSidePanel + Theme.shadowRoom
+  implicitHeight: Math.max(1, stack.implicitHeight + Theme.shadowRoom * 2)
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
+
+  mask: Region {
+    item: stack
+  }
 
   WlrLayershell.layer: WlrLayer.Overlay
   WlrLayershell.namespace: "ltp-notification-popups"
@@ -30,7 +35,9 @@ PanelWindow {
   Column {
     id: stack
 
-    width: parent.width
+    x: Theme.spaceSm
+    y: Theme.shadowRoom
+    width: Theme.sizeSidePanel
     spacing: Theme.spaceSm
 
     Repeater {

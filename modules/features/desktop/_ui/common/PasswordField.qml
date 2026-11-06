@@ -5,6 +5,9 @@ import QtQuick
 Panel {
   id: root
 
+  // It sits in a panel or on the lock screen's own backdrop.
+  elevated: false
+
   property alias text: input.text
   property string placeholder: "Password"
   property bool failed: false

@@ -50,12 +50,15 @@ in
       ++ [
         (property "color" "panel" "Qt.alpha(surface, ${toString tokens.opacity.panel})")
         (property "color" "scrim" "Qt.alpha(background, ${toString tokens.opacity.scrim})")
+        # Black rather than a scheme colour, as a shadow reads as one on light schemes too.
+        (property "color" "shadow" "Qt.alpha(\"#000000\", ${toString tokens.opacity.shadow})")
         (property "string" "fontFamily" (quoted tokens.font.family))
         (property "string" "fontMonospace" (quoted tokens.font.monospace))
         (property "string" "iconFont" (quoted tokens.icon.name))
       ]
       ++ scale "int" "space" tokens.space
       ++ scale "int" "radius" tokens.radius
+      ++ scale "int" "shadow" tokens.shadow
       ++ scale "int" "size" tokens.size
       ++ scale "int" "font" (
         removeAttrs tokens.font [

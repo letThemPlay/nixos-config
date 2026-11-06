@@ -136,7 +136,7 @@ Every niri host also has these window binds:
 | `Mod+Tab` | Switch focus between floating and tiled windows |
 | `Mod+Shift+Slash` | Show the hotkey list |
 
-In the bar, right-clicking the bell toggles do-not-disturb, and right-clicking bluetooth turns the adapter on or off.
+In the bar, right-clicking the control center's button toggles do-not-disturb, and right-clicking bluetooth turns the adapter on or off.
 
 **Theming.** Colours follow the user's theme through the roles in `modules/features/theme/_domain/ui-palette.nix`. Shapes follow `ltp.theme.appearance`:
 
@@ -149,6 +149,7 @@ ltp.theme.appearance = {
     barHeight = 40;
     animationMs = 180;
     panelOpacity = 0.97;
+    shadowOpacity = 0.25; # the soft shadow under panels; 0 turns it off
     iconFont = { package = "material-symbols"; name = "Material Symbols Rounded"; };
   };
 };

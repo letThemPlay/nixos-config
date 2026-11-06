@@ -108,6 +108,7 @@ let
 
         panelOpacity = fraction 0.97 "Opacity of panel backgrounds.";
         scrimOpacity = fraction 0.55 "Opacity of the dim behind modal surfaces.";
+        shadowOpacity = fraction 0.25 "Opacity of the soft shadow under panels; 0 for none.";
 
         iconFont = packaged "material-symbols" "Material Symbols Rounded" { };
 
