@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.WindowManager
 import QtQuick
 import qs.common
+import qs.services
 
 // This output's workspaces, through the compositor-neutral ext-workspace
 // protocol. Scrolling moves between them, like the compositor's own layout.
@@ -42,11 +43,19 @@ Row {
       required property var modelData
       required property int index
 
-      text: modelData.name || String(index + 1)
+      // Where niri says, an empty workspace is faded, and an unnamed one, such as the
+      // spare at the end, shrinks to a dot. The one being shown keeps its number.
+      readonly property var niri: NiriWorkspaces.available ? NiriWorkspaces.at(root.screen?.name, index + 1) : null
+      readonly property bool faded: niri !== null && !niri.occupied && !modelData.active
+
+      text: {
+        if (faded && !niri.name) return "·";
+        return modelData.name || String(index + 1);
+      }
       selected: modelData.active
       tint: {
         if (modelData.urgent) return Theme.danger;
-        return foreground;
+        return faded ? Theme.muted : foreground;
       }
       onClicked: modelData.activate()
       onScrolled: delta => root.step(delta)
