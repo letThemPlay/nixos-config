@@ -77,12 +77,32 @@ in
       # The locker is its own short-lived instance (_ui/lock.qml).
       shellSurfaces = lib.remove "locker" model.ui.surfaces;
 
+      #
+      # The user's icon pack in their theme's accent, as the theme feature
+      # resolved it, so the dock matches the apps. hicolor, the base every
+      # pack inherits, when the user has no themed icons.
+      #
+      iconsOf =
+        { config, osConfig }: osConfig.ltp.theme.facts.users.${config.home.username}.icons or null;
+
       iconThemeOf =
-        { config, osConfig }:
+        args:
         let
-          polarity = osConfig.ltp.theme.facts.users.${config.home.username}.polarity or "dark";
+          icons = iconsOf args;
+          polarity = args.osConfig.ltp.theme.facts.users.${args.config.home.username}.polarity or "dark";
         in
-        tokens.icon.theme.${polarity};
+        if icons == null then "hicolor" else icons.${polarity};
+
+      # The same derivation stylix installs, so the two never collide.
+      iconPackageOf =
+        args:
+        let
+          icons = iconsOf args;
+          package = lib.getAttrFromPath (lib.splitString "." icons.package) pkgs;
+        in
+        lib.optional (icons != null) (
+          if icons.override == null then package else package.override icons.override
+        );
 
       #
       # One user's shell config: the QML as real files (Quickshell resolves
@@ -332,10 +352,7 @@ in
                     (
                       { config, osConfig, ... }:
                       {
-                        home.packages = [
-                          pkgs.quickshell
-                          (lib.getAttrFromPath (lib.splitString "." tokens.icon.theme.package) pkgs)
-                        ];
+                        home.packages = [ pkgs.quickshell ] ++ iconPackageOf { inherit config osConfig; };
 
                         xdg.configFile."quickshell/${desktop.uiInstance.name}".source = shellConfig {
                           inherit config osConfig;

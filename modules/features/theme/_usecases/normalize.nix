@@ -7,6 +7,30 @@
 #
 { cfg, users }:
 
+let
+  pack = theme.iconPacks.${cfg.appearance.icons.pack} or null;
+
+  #
+  # The host's icon pack in a theme's accent. An accent the pack lacks
+  # falls back to the pack's own colour; validation warns about it.
+  #
+  iconsFor =
+    entry:
+    let
+      wanted = entry.iconAccent or null;
+      accent = if pack != null && lib.elem wanted pack.accents then wanted else null;
+      nameFor = polarity: pack.name { inherit accent polarity; };
+    in
+    if entry == null || pack == null then
+      null
+    else
+      {
+        inherit (pack) package;
+        override = if accent != null && pack.override != null then { ${pack.override} = accent; } else null;
+        dark = nameFor "dark";
+        light = nameFor "light";
+      };
+in
 {
   inherit (cfg) appearance;
 
@@ -28,7 +52,7 @@
 
       polarity = entry.polarity or null;
 
-      folderColor = entry.folderColor or null;
+      icons = iconsFor entry;
     }
   ) users;
 }

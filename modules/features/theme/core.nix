@@ -3,7 +3,7 @@
 #
 #   _domain/      entities: theme, appearance and model types; the
 #                 catalogue, one file per theme in themes/; colour roles;
-#                 icon folder colours
+#                 the icon packs
 #   _wallpapers/  wallpaper files the catalogue names
 #   _usecases/    normalize (host settings + identity facts -> model),
 #                 validate, ui-tokens (appearance -> design tokens)
@@ -37,8 +37,8 @@ in
 
     wallpaperPath = file: ./_wallpapers + "/${file}";
 
-    # Folder colours a theme can name.
-    folderColors = import ./_domain/folder-colors.nix { };
+    # Icon packs a host can choose: name -> how its variants are named.
+    iconPacks = import ./_domain/icon-packs.nix { };
 
     # Colour role -> base16 slot, for anything drawing an interface.
     uiPalette = import ./_domain/ui-palette.nix { };

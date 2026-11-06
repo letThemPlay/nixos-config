@@ -38,14 +38,23 @@ let
       themes.bob = "nope";
     }
     {
-      settings.appearance.icons = {
-        package = "adwaita-icon-theme";
-        dark = "Adwaita";
-        light = "Adwaita";
-      };
+      settings.appearance.icons.pack = "papirus";
       themes.carol = "tokyonight";
     }
+    {
+      settings.appearance.icons.pack = "nope";
+      themes.dave = "catppuccin";
+    }
   ];
+
+  # A bare model for the catalogue-wide checks.
+  noUsers = {
+    users = { };
+    appearance.icons.pack = "tela";
+  };
+
+  iconsOf =
+    pack: themeName: (modelOf { appearance.icons.pack = pack; } { u = themeName; }).users.u.icons;
 
   tests = {
 
@@ -60,7 +69,7 @@ let
             known
             scheme
             polarity
-            folderColor
+            icons
             ;
           wallpaper = baseNameOf user.wallpaper;
         };
@@ -69,7 +78,12 @@ let
         known = true;
         scheme = "catppuccin-macchiato";
         polarity = "dark";
-        folderColor = "blue";
+        icons = {
+          package = "tela-icon-theme";
+          override = null;
+          dark = "Tela-purple-dark";
+          light = "Tela-purple-light";
+        };
         wallpaper = "catppuccin.png";
       };
     };
@@ -85,13 +99,13 @@ let
           model = modelOf { } { alice = "nope"; };
         in
         {
-          inherit (model.users.alice) known wallpaper folderColor;
+          inherit (model.users.alice) known wallpaper icons;
           codes = codesOf model;
         };
       expected = {
         known = false;
         wallpaper = null;
-        folderColor = null;
+        icons = null;
         codes = [ "theme.user.unknown" ];
       };
     };
@@ -112,44 +126,85 @@ let
             inherit (config.ltp.features) diagnostics;
           };
         in
-        map (d: d.code) (validate.all { users = { }; }).diagnostics;
+        map (d: d.code) (validate.all noUsers).diagnostics;
       expected = [ "theme.wallpaper.missing" ];
     };
 
-    # Folder colours are a registry; a theme without one keeps the pack's own.
-    testUnknownFolderColor = {
+    # Tela names each accent; Papirus recolours by override.
+    testIconPackNaming = {
+      expr = {
+        tela = iconsOf "tela" "tokyonight";
+        papirus = iconsOf "papirus" "tokyonight";
+        telaPlain = theme.iconPacks.tela.name {
+          accent = null;
+          polarity = "light";
+        };
+      };
+      expected = {
+        tela = {
+          package = "tela-icon-theme";
+          override = null;
+          dark = "Tela-blue-dark";
+          light = "Tela-blue-light";
+        };
+        papirus = {
+          package = "papirus-icon-theme";
+          override.color = "blue";
+          dark = "Papirus-Dark";
+          light = "Papirus-Light";
+        };
+        telaPlain = "Tela-light";
+      };
+    };
+
+    testUnknownIconPack = {
       expr =
         let
-          broken = theme // {
-            themes = {
-              typo = {
-                wallpaper = "catppuccin.png";
-                scheme = "x";
-                polarity = "dark";
-                folderColor = "bleu";
-              };
-              plain = {
-                wallpaper = "catppuccin.png";
-                scheme = "x";
-                polarity = "dark";
-              };
-            };
-          };
-          validate = import ../features/theme/_usecases/validate.nix {
-            inherit lib;
-            theme = broken;
-            inherit (config.ltp.features) diagnostics;
-          };
+          model = modelOf { appearance.icons.pack = "nope"; } { alice = "catppuccin"; };
         in
-        map (d: {
-          inherit (d) code target;
-        }) (validate.all { users = { }; }).diagnostics;
-      expected = [
         {
-          code = "theme.icons.folderColor.unknown";
-          target = "typo";
-        }
-      ];
+          inherit (model.users.alice) icons;
+          codes = codesOf model;
+        };
+      expected = {
+        icons = null;
+        codes = [ "theme.icons.pack.unknown" ];
+      };
+    };
+
+    # Papirus has no purple: catppuccin keeps Papirus's own folders and warns.
+    testAccentMissingFromPack = {
+      expr =
+        let
+          model = modelOf { appearance.icons.pack = "papirus"; } { alice = "catppuccin"; };
+        in
+        {
+          inherit (model.users.alice.icons) override dark;
+          diagnostics = map (d: {
+            inherit (d) code severity target;
+          }) (theme.validate.all model).diagnostics;
+        };
+      expected = {
+        override = null;
+        dark = "Papirus-Dark";
+        diagnostics = [
+          {
+            code = "theme.icons.accent.unknown";
+            severity = "warning";
+            target = "alice";
+          }
+        ];
+      };
+    };
+
+    # Every theme's accent is one the default pack has.
+    testCatalogueAccentsInDefaultPack = {
+      expr = lib.filterAttrs (
+        _: entry:
+        (entry.iconAccent or null) != null
+        && !(lib.elem entry.iconAccent theme.iconPacks.${(evalCfg { }).appearance.icons.pack}.accents)
+      ) theme.themes;
+      expected = { };
     };
 
     # The defaults are the values every host had before the feature.
@@ -177,11 +232,7 @@ let
           name = "Bibata-Modern-Ice";
           size = 24;
         };
-        icons = {
-          package = "papirus-icon-theme";
-          dark = "Papirus-Dark";
-          light = "Papirus-Light";
-        };
+        icons.pack = "tela";
       };
     };
 
@@ -246,16 +297,11 @@ let
 
     testUiIconDefaults = {
       expr = {
-        inherit ((modelOf { } { }).ui.icon) package name theme;
+        inherit ((modelOf { } { }).ui.icon) package name;
       };
       expected = {
         package = "material-symbols";
         name = "Material Symbols Rounded";
-        theme = {
-          package = "papirus-icon-theme";
-          dark = "Papirus-Dark";
-          light = "Papirus-Light";
-        };
       };
     };
 
@@ -288,10 +334,10 @@ let
         terminal = 14;
         cursor = "Bibata-Modern-Ice";
         icons = {
-          package = "papirus-icon-theme";
-          dark = "Papirus-Dark";
-          light = "Papirus-Light";
-          folderColor = "indigo";
+          package = "tela-icon-theme";
+          override = null;
+          dark = "Tela-blue-dark";
+          light = "Tela-blue-light";
         };
       };
     };

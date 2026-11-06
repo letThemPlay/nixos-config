@@ -62,27 +62,53 @@ let
       ) (filterAttrs (_: entry: !builtins.pathExists (theme.wallpaperPath entry.wallpaper)) theme.themes)
     );
 
-  unknownFolderColor =
-    _: entry: (entry.folderColor or null) != null && !(elem entry.folderColor theme.folderColors);
+  iconPack =
+    model:
+    let
+      inherit (model.appearance.icons) pack;
+    in
+    mkResult (
+      lib.optional (!(theme.iconPacks ? ${pack})) (mkDiagnostic {
+        severity = "error";
+        code = "theme.icons.pack.unknown";
+        target = pack;
+        path = [
+          "appearance"
+          "icons"
+          "pack"
+        ];
+        message = "Unknown icon pack '${pack}' (known: ${concatStringsSep ", " (attrNames theme.iconPacks)}).";
+      })
+    );
 
-  # Repository data too: a catalogue typo fails on every host.
-  folderColors =
-    _model:
+  #
+  # Packs offer different colours, so a theme's accent may be missing
+  # from the host's pack. Its icons keep the pack's own colour.
+  #
+  iconAccents =
+    model:
+    let
+      pack = theme.iconPacks.${model.appearance.icons.pack} or null;
+
+      accentOf = user: (theme.themes.${user.theme} or { }).iconAccent or null;
+
+      missing = _: user: pack != null && accentOf user != null && !(elem (accentOf user) pack.accents);
+    in
     mkResult (
       mapAttrsToList (
-        name: entry:
+        name: user:
         mkDiagnostic {
-          severity = "error";
-          code = "theme.icons.folderColor.unknown";
+          severity = "warning";
+          code = "theme.icons.accent.unknown";
           target = name;
           path = [
-            "themes"
+            "users"
             name
-            "folderColor"
+            "theme"
           ];
-          message = "Theme '${name}' names folder colour '${entry.folderColor}' (known: ${concatStringsSep ", " theme.folderColors}).";
+          message = "User '${name}''s theme '${user.theme}' wants icon accent '${accentOf user}', which icon pack '${model.appearance.icons.pack}' lacks (it has: ${concatStringsSep ", " pack.accents}); the pack's own colour is used.";
         }
-      ) (filterAttrs unknownFolderColor theme.themes)
+      ) (filterAttrs missing model.users)
     );
 
   all =
@@ -90,7 +116,8 @@ let
     combine [
       (users model)
       (wallpapers model)
-      (folderColors model)
+      (iconPack model)
+      (iconAccents model)
     ];
 in
 {
@@ -99,7 +126,8 @@ in
     mkResult
     users
     wallpapers
-    folderColors
+    iconPack
+    iconAccents
     all
     ;
 }

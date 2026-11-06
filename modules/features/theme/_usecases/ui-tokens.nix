@@ -70,8 +70,6 @@ in
     medium = unit * 5;
     large = unit * 8;
     huge = unit * 12;
-
-    theme = appearance.icons;
   };
 
   motion = {

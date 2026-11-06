@@ -68,10 +68,10 @@ let
         default = "dark";
       };
 
-      folderColor = mkOption {
+      iconAccent = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "Papirus folder colour that follows the theme's accent; null keeps the pack's own.";
+        description = "Icon colour that follows the theme's accent, from the icon pack's accents; null keeps the pack's own.";
       };
 
     };
@@ -107,29 +107,10 @@ let
       };
 
       # Every app's icons, the shell's dock included.
-      icons = mkOption {
-        type = types.submodule {
-          options = {
-            package = mkOption {
-              type = types.str;
-              default = "papirus-icon-theme";
-              description = "Package attribute path in pkgs of the application icon theme.";
-            };
-
-            dark = mkOption {
-              type = types.str;
-              default = "Papirus-Dark";
-              description = "Icon theme name for dark themes.";
-            };
-
-            light = mkOption {
-              type = types.str;
-              default = "Papirus-Light";
-              description = "Icon theme name for light themes.";
-            };
-          };
-        };
-        default = { };
+      icons.pack = mkOption {
+        type = types.str;
+        default = "tela";
+        description = "Icon pack from the theme core's registry (tela, papirus); each theme picks its accent.";
       };
 
       ui = {
@@ -143,6 +124,33 @@ let
         shadowOpacity = fraction 0.25 "Opacity of the soft shadow under panels; 0 for none.";
 
         iconFont = packaged "material-symbols" "Material Symbols Rounded" { };
+      };
+
+    };
+  };
+
+  # An icon pack resolved for one user: what to install and the names.
+  resolvedIcons = types.submodule {
+    options = {
+
+      package = mkOption {
+        type = types.str;
+        description = "Package attribute path in pkgs.";
+      };
+
+      override = mkOption {
+        type = types.nullOr (types.attrsOf types.str);
+        description = "Arguments to override the package with, e.g. { color = \"indigo\"; }; null for none.";
+      };
+
+      dark = mkOption {
+        type = types.str;
+        description = "Icon theme name for dark themes.";
+      };
+
+      light = mkOption {
+        type = types.str;
+        description = "Icon theme name for light themes.";
       };
 
     };
@@ -175,9 +183,9 @@ let
         type = types.nullOr polarity;
       };
 
-      folderColor = mkOption {
-        type = types.nullOr types.str;
-        description = "Papirus folder colour; null for the pack's own or an unknown theme.";
+      icons = mkOption {
+        type = types.nullOr resolvedIcons;
+        description = "The icon pack in the theme's accent; null for an unknown theme or pack.";
       };
 
     };

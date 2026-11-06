@@ -31,22 +31,13 @@ in
         inherit (font) name;
       };
 
-      # Only Papirus-style packages take a folder colour.
-      takesColor = icons: lib.functionArgs (packageOf icons.package).override ? color;
-
+      # Packs that recolour by override (Papirus) get the theme's accent here.
       iconsOf =
         icons:
         let
           package = packageOf icons.package;
         in
-        if icons.folderColor != null && takesColor icons then
-          package.override { color = icons.folderColor; }
-        else
-          package;
-
-      uncolored = lib.filterAttrs (
-        _: user: user.icons.folderColor != null && !takesColor user.icons
-      ) rendered.users;
+        if icons.override == null then package else package.override icons.override;
     in
     {
       imports = [
@@ -103,18 +94,14 @@ in
                 inherit (user.cursor) size;
               };
 
-              icons = {
+              # An unknown pack stops at its assertion; until then, no icons.
+              icons = lib.mkIf (user.icons != null) {
                 enable = true;
                 package = iconsOf user.icons;
                 inherit (user.icons) dark light;
               };
             };
           }) rendered.users;
-
-          warnings = lib.mapAttrsToList (
-            name: user:
-            "ltp.theme [theme.icons.folderColor.unsupported]: User '${name}''s theme names folder colour '${user.icons.folderColor}', but icon package '${user.icons.package}' takes no colour; its folders keep their own."
-          ) uncolored;
         })
 
         #
