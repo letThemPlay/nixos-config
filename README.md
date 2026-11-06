@@ -74,7 +74,7 @@ The `unified-ui` bundle draws the desktop's interface as one [Quickshell](https:
 | `Mod+Shift+R` / `Mod+Ctrl+R` | Start or stop recording the screen / a region, saved to `~/Videos/Recordings` |
 | Brightness and volume keys | The level, in the center island |
 
-The center island shows the most pressing thing happening, and grows to fit it: a critical notification until you acknowledge it, a volume, brightness or microphone level that just changed or a newly chosen output's name, then a notification, a recording, the playing track with bars for its frequencies, and otherwise the clock. A red dot stays at its edge while recording, whatever else it shows. A right click skips a track or dismisses a notification. A fullscreen window hides the bar, so over one, levels still appear in the island's place and notifications as cards on the left.
+The center island shows the most pressing thing happening, and grows to fit it: a critical notification until you acknowledge it, a volume, brightness or microphone level that just changed or a newly chosen output's name, then a notification, a recording, the playing track with bars for its frequencies, and otherwise CPU and memory use, with the date and time on the right island. Pressing the date and time opens the month there. A red dot stays at its edge while recording, whatever else it shows. A right click skips a track or dismisses a notification. A fullscreen window hides the bar, so over one, levels still appear in the island's place and notifications as cards on the left.
 
 With the `power` bundle, the battery warns at 20% and 5%, and the machine shuts down at 2%. Change that with `ltp.hardware.battery`:
 

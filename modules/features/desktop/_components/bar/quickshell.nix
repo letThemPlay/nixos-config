@@ -81,7 +81,8 @@ in
           "volume"
           "battery"
         ]
-        ++ outsideIsland "clock"
+        # Here even with the island, as it shows whatever is going on instead.
+        ++ [ "clock" ]
         ++ lib.optional (drawn "quicksettings") "settings"
         ++ lib.optional (drawn "power") "power";
 

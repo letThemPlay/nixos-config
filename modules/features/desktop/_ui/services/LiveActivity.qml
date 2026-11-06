@@ -32,7 +32,7 @@ Singleton {
   readonly property string settled: {
     if (notification) return "notification";
     if (Recorder.active) return "recording";
-    return Media.playing ? "media" : "clock";
+    return Media.playing ? "media" : "idle";
   }
 
   readonly property string kind: {
@@ -118,6 +118,14 @@ Singleton {
     target: Notifications
     property: "islandShowing"
     value: root.showing
+  }
+
+  // The idle pill shows CPU and memory, so they're read while it can be seen. Here
+  // rather than in the pill, as there's one on every screen.
+  Binding {
+    target: SystemLoad
+    property: "watchingPill"
+    value: root.showing && root.kind === "idle" && Ui.open !== "island"
   }
 
   // Waits only while focused, where it's being read.

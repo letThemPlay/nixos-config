@@ -63,13 +63,13 @@ Overlay {
   onShownChanged: {
     if (!shown) return;
 
-    idleAtOpening = LiveActivity.settled === "clock";
+    idleAtOpening = LiveActivity.settled === "idle";
     month.showCurrent();
   }
 
   Binding {
     target: SystemLoad
-    property: "watching"
+    property: "watchingCard"
     value: root.shown && root.expanded
   }
 
