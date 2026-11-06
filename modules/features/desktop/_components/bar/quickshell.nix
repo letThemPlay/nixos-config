@@ -95,6 +95,15 @@ in
       networkStatus = [ "${networkStatus}" ];
       networkUi = sessionApp [ "${pkgs.iwgtk}/bin/iwgtk" ];
       bluetoothUi = sessionApp [ "blueman-manager" ];
+
+      # Which workspaces have windows, for the bar to fade the empty ones. From the
+      # niri that's running, so its messages match.
+      niriEvents = lib.mkIf config.programs.niri.enable [
+        "${config.programs.niri.package}/bin/niri"
+        "msg"
+        "--json"
+        "event-stream"
+      ];
     };
   };
 }
