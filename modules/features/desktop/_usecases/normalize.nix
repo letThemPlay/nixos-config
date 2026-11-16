@@ -7,6 +7,7 @@ let
     filter
     filterAttrs
     mapAttrs
+    mapAttrsToList
     unique
     ;
 
@@ -17,7 +18,8 @@ in
 # apps are the resolved app roles (ltp.apps.facts) that app binds start,
 # keyboard is the session keyboard ({ layout; variant; }, from ltp.locale), and
 # facts the host's hardware facts (ltp.hardware.facts; null: unknown,
-# nothing is filtered); the desktop module supplies them. No module
+# nothing is filtered), and tunnels the network feature's switchable tunnels
+# (ltp.network.facts.tunnels); the desktop module supplies them. No module
 # system is required.
 #
 {
@@ -28,6 +30,7 @@ in
     variant = "";
   },
   facts ? null,
+  tunnels ? { },
 }:
 
 let
@@ -166,6 +169,16 @@ in
     surfaces = attrNames (filterAttrs (_: name: name == desktop.uiComponent) cfg.components);
 
     commands = cfg.ui.commands or { };
+
+    # The tunnels the shell switches, when it draws the switcher.
+    tunnels =
+      if (cfg.components.tunnels or null) == desktop.uiComponent then
+        mapAttrsToList (name: tunnel: {
+          inherit name;
+          inherit (tunnel) label unit routesAll;
+        }) tunnels
+      else
+        [ ];
 
     inherit (desktop) powerActions;
 

@@ -61,6 +61,7 @@ in
         apps = config.ltp.apps.facts;
         keyboard = config.ltp.locale.keyboard.session;
         facts = config.ltp.hardware.facts;
+        tunnels = config.ltp.network.facts.tunnels;
       };
 
       validation = desktop.validate.all model;

@@ -104,6 +104,7 @@ in
       automount.udiskie = ./_components/automount/udiskie.nix;
       recorder.wf-recorder = ./_components/recorder/wf-recorder.nix;
       nightLight.wlsunset = ./_components/nightLight/wlsunset.nix;
+      tunnels.quickshell = ./_components/tunnels/quickshell.nix;
       clipboard = {
         cliphist = ./_components/clipboard/cliphist.nix;
         quickshell = ./_components/clipboard/quickshell.nix;
@@ -133,6 +134,7 @@ in
       automount = null;
       recorder = null;
       nightLight = null;
+      tunnels = null;
       clipboard = "cliphist";
       screenshot = "grim";
       wallpaper = "swaybg";
@@ -162,6 +164,7 @@ in
       "recording"
       "tray"
       "media"
+      "tunnel"
       "network"
       "bluetooth"
       "volume"

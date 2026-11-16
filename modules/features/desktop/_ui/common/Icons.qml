@@ -39,6 +39,9 @@ Singleton {
     "devicePhone": "smartphone",
     "deviceComputer": "computer",
 
+    "tunnel": "vpn_key",
+    "tunnelFull": "vpn_lock",
+
     "settings": "tune",
     "more": "chevron_right",
     "previous": "chevron_left",

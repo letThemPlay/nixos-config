@@ -78,6 +78,7 @@ in
         lib.optionals (!drawn "island" && config.ltp.desktop.components.recorder != null) [ "recording" ]
         ++ [ "tray" ]
         ++ outsideIsland "media"
+        ++ lib.optional (drawn "tunnels" && config.ltp.network.facts.tunnels != { }) "tunnel"
         ++ [
           "network"
           "bluetooth"

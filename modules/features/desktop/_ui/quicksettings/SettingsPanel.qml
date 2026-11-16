@@ -26,6 +26,7 @@ Panel {
 
     Brightness.refresh(false);
     NightLight.refresh();
+    Tunnels.refresh();
   }
 
   // Presses inside the panel must not reach the overlay's dismiss area.
@@ -255,6 +256,32 @@ Panel {
           name: "more"
           size: Theme.iconSmall
           color: Theme.muted
+        }
+      }
+
+      // The tunnels, as toggles. Starting one stops those it conflicts with.
+      Flow {
+        id: tunnelTiles
+
+        readonly property int columns: Math.max(Math.min(Tunnels.tunnels.length, 3), 1)
+        readonly property real tileWidth: (width - spacing * (columns - 1)) / columns
+
+        width: parent.width
+        spacing: Theme.spaceXs
+        visible: Tunnels.available
+
+        Repeater {
+          model: Tunnels.tunnels
+
+          Tile {
+            required property var modelData
+
+            width: tunnelTiles.tileWidth
+            icon: modelData.routesAll ? "tunnelFull" : "tunnel"
+            text: modelData.label
+            selected: Tunnels.isUp(modelData)
+            onClicked: Tunnels.toggle(modelData)
+          }
         }
       }
 

@@ -47,6 +47,7 @@ PanelWindow {
     "recording": recording,
     "tray": tray,
     "media": media,
+    "tunnel": tunnel,
     "network": network,
     "bluetooth": bluetooth,
     "volume": volume,
@@ -71,6 +72,7 @@ PanelWindow {
   Component { id: recording; RecordingWidget {} }
   Component { id: tray; TrayWidget { window: root } }
   Component { id: media; MediaWidget {} }
+  Component { id: tunnel; TunnelWidget {} }
   Component { id: network; NetworkWidget {} }
   Component { id: bluetooth; BluetoothWidget {} }
   Component { id: volume; VolumeWidget {} }
