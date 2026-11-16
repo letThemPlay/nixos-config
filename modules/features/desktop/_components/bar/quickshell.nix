@@ -14,6 +14,9 @@ let
   # The center island shows these itself.
   outsideIsland = lib.optional (!drawn "island");
 
+  # The wireless backend's UI (a pkgs attribute), where the network feature has one.
+  wirelessUi = config.ltp.network.facts.wirelessUi;
+
   sessionApp =
     argv:
     [
@@ -96,7 +99,6 @@ in
 
     ui.commands = {
       networkStatus = [ "${networkStatus}" ];
-      networkUi = sessionApp [ "${pkgs.iwgtk}/bin/iwgtk" ];
       bluetoothUi = sessionApp [ "blueman-manager" ];
 
       # Which workspaces have windows, for the bar to fade the empty ones. From the
@@ -107,6 +109,10 @@ in
         "--json"
         "event-stream"
       ];
+    }
+    // lib.optionalAttrs (wirelessUi != null) {
+      # The network feature's wireless UI; without one the network row opens nothing.
+      networkUi = sessionApp [ (lib.getExe pkgs.${wirelessUi}) ];
     };
   };
 }

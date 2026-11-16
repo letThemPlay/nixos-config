@@ -2,7 +2,7 @@
 # The status bar as ltp.desktop.bar data. "workspaces" is abstract: each
 # compositor resolves it to its own waybar module.
 #
-{ pkgs }:
+{ lib, wirelessUi }:
 {
   left = [
     "clock"
@@ -68,8 +68,8 @@
       format-ethernet = "    {bandwidthDownBits} on {ipaddr} ( 󰈀  )";
       format-disconnected = "Disconnected";
       tooltip = false;
-      on-click = "${pkgs.iwgtk}/bin/iwgtk";
-    };
+    }
+    // lib.optionalAttrs (wirelessUi != null) { on-click = wirelessUi; };
 
     bluetooth = {
       interval = 1;
