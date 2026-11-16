@@ -200,6 +200,8 @@ let
 
       tailscale = query.tunnelsByBackend model "tailscale";
 
+      wireguard = query.tunnelsByBackend model "wireguard";
+
       # Tailscale tunnels are modes of one daemon, so its interface counts once.
       owners =
         filter (tunnel: tunnel.backend != "tailscale") known
@@ -293,6 +295,33 @@ let
           message = "Tunnels '${tunnel.name}' and '${other.name}' both start at boot but cannot run together; only one stays up.";
         }
       ) autostartClashes
+
+      # Wireguard tunnels are networkd netdevs.
+      ++ lib.optional (wireguard != [ ] && model.backend != "networkd") (mkDiagnostic {
+        severity = "error";
+        code = "network.tunnel.wireguard.backend";
+        target = model.backend;
+        path = [ "backend" ];
+        message = "Wireguard tunnels are networkd netdevs, but the link backend is '${model.backend}'.";
+      })
+
+      ++ map (
+        tunnel:
+        error "network.tunnel.wireguard.peers.none" tunnel.name [
+          tunnel.name
+          "wireguard"
+          "peers"
+        ] "Wireguard tunnel '${tunnel.name}' has no peers."
+      ) (filter (tunnel: tunnel.wireguard.peers == { }) wireguard)
+
+      ++ map (
+        tunnel:
+        error "network.tunnel.wireguard.addresses.none" tunnel.name [
+          tunnel.name
+          "wireguard"
+          "addresses"
+        ] "Wireguard tunnel '${tunnel.name}' has no addresses."
+      ) (filter (tunnel: tunnel.wireguard.addresses == [ ]) wireguard)
     );
 
   all =

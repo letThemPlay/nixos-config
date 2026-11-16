@@ -98,6 +98,12 @@ in
             inherit (adapter.daemon) interfaceName useRoutingFeatures;
           };
         };
+
+        wireguard = adapter: {
+          systemd.network = {
+            inherit (adapter) netdevs networks;
+          };
+        };
       };
 
       #
@@ -110,12 +116,16 @@ in
         adapter: tunnel: commands:
         let
           online = optional adapter.online "network-online.target";
+
+          requires = commands.requires or [ ];
         in
         {
           description = "Tunnel ${tunnel.label}";
 
-          after = adapter.after ++ online ++ filter (unit: unit < tunnel.unit) tunnel.conflicts;
+          after = adapter.after ++ online ++ requires ++ filter (unit: unit < tunnel.unit) tunnel.conflicts;
           wants = adapter.after ++ online;
+
+          inherit requires;
 
           inherit (tunnel) conflicts;
 

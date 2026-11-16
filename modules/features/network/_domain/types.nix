@@ -64,6 +64,101 @@ let
     };
   };
 
+  wireguardPeer = types.submodule {
+    options = {
+
+      publicKey = mkOption {
+        type = types.str;
+        description = "The peer's public key.";
+      };
+
+      endpoint = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "vpn.example.org:51820";
+        description = "Where the peer is reached; null for a peer that only connects in.";
+      };
+
+      allowedIPs = mkOption {
+        type = types.listOf types.str;
+
+        example = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+
+        description = ''
+          Addresses routed to the peer. 0.0.0.0/0 or ::/0 makes the
+          tunnel a full tunnel: it takes the default route.
+        '';
+      };
+
+      presharedKey.secret = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "ltp.secrets file holding the preshared key, if the peer uses one.";
+      };
+
+      persistentKeepalive = mkOption {
+        type = types.nullOr types.ints.unsigned;
+        default = null;
+        example = 25;
+        description = "Seconds between keepalives; useful behind NAT.";
+      };
+
+    };
+  };
+
+  # A wireguard tunnel's settings; name is the tunnel's.
+  wireguard =
+    name:
+    types.submodule {
+      options = {
+
+        interface = mkOption {
+          type = types.str;
+          default = "wg-${name}";
+          description = "Name of the tunnel interface (at most 15 characters).";
+        };
+
+        addresses = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          example = [ "10.0.0.2/32" ];
+          description = "Addresses of this host inside the tunnel.";
+        };
+
+        privateKey.secret = mkOption {
+          type = types.str;
+          default = "wireguard-${name}";
+          description = "ltp.secrets file holding this host's private key (secrets/<name>.age).";
+        };
+
+        dns = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+
+          description = ''
+            Resolvers reached through the tunnel. A full tunnel sends
+            every lookup to them; a split tunnel offers them beside the
+            DNS provider.
+          '';
+        };
+
+        mtu = mkOption {
+          type = types.nullOr types.ints.positive;
+          default = null;
+        };
+
+        peers = mkOption {
+          type = types.attrsOf wireguardPeer;
+          default = { };
+          description = "Peers, keyed by name.";
+        };
+
+      };
+    };
+
   #
   # A VPN the host can switch on and off. It owns its interface; the
   # links must not match it. Tunnels that take the default route
@@ -109,6 +204,12 @@ let
           '';
         };
 
+        wireguard = mkOption {
+          type = wireguard name;
+          default = { };
+          description = "Settings of a wireguard tunnel.";
+        };
+
       };
     }
   );
@@ -139,6 +240,8 @@ let
       };
 
       tailscale.exitNode = mkOption { type = types.nullOr types.str; };
+
+      wireguard = mkOption { type = wireguard "model"; };
     };
   };
 
@@ -462,6 +565,8 @@ in
   inherit
     routing
     tailscale
+    wireguardPeer
+    wireguard
     tunnel
     modelTunnel
     dnsOverTls

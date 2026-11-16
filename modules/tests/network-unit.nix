@@ -38,8 +38,47 @@ let
       inherit secretPath;
     };
 
+  wireguardOf =
+    settings:
+    network.tunnels.wireguard {
+      model = modelOf settings;
+      inherit secretPath;
+    };
+
   laptop = {
     profile = "laptop";
+  };
+
+  # A wireguard full tunnel and a split one.
+  vpn = {
+    backend = "wireguard";
+    wireguard = {
+      addresses = [ "10.2.0.2/32" ];
+      dns = [ "10.2.0.1" ];
+      peers.server = {
+        publicKey = "server-key";
+        endpoint = "vpn.example.org:51820";
+        allowedIPs = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+        presharedKey.secret = "vpn-psk";
+        persistentKeepalive = 25;
+      };
+    };
+  };
+
+  office = {
+    backend = "wireguard";
+    wireguard = {
+      addresses = [ "10.9.0.5/24" ];
+      mtu = 1380;
+      peers.gateway = {
+        publicKey = "gateway-key";
+        endpoint = "office.example.org:51820";
+        allowedIPs = [ "10.9.0.0/24" ];
+      };
+    };
   };
 
   tailnet = {
@@ -89,6 +128,11 @@ let
         };
       }
     )
+    {
+      tunnels = {
+        inherit vpn office;
+      };
+    }
   ];
 
   tests = {
@@ -313,6 +357,219 @@ let
         };
       };
       expected = [ "network.tunnel.autostart.conflict" ];
+    };
+
+    # Full tunnels conflict across backends; a split tunnel with nothing.
+    testWireguardShape = {
+      expr = lib.mapAttrs (_: tunnel: {
+        inherit (tunnel) interface routesAll conflicts;
+      }) (modelOf (lib.recursiveUpdate twoTailscale { tunnels = { inherit vpn office; }; })).tunnels;
+      expected = {
+        home = {
+          interface = "tailscale0";
+          routesAll = true;
+          conflicts = [
+            "ltp-tunnel-tailnet.service"
+            "ltp-tunnel-vpn.service"
+          ];
+        };
+        office = {
+          interface = "wg-office";
+          routesAll = false;
+          conflicts = [ ];
+        };
+        tailnet = {
+          interface = "tailscale0";
+          routesAll = false;
+          conflicts = [ "ltp-tunnel-home.service" ];
+        };
+        vpn = {
+          interface = "wg-vpn";
+          routesAll = true;
+          conflicts = [ "ltp-tunnel-home.service" ];
+        };
+      };
+    };
+
+    testWireguardValid = {
+      expr = codes (laptop // { tunnels = { inherit vpn office; }; });
+      expected = [ ];
+    };
+
+    testWireguardFullTunnel = {
+      expr =
+        let
+          adapter = wireguardOf { tunnels = { inherit vpn; }; };
+        in
+        {
+          netdev = adapter.netdevs."10-vpn";
+          network = adapter.networks."10-vpn";
+          inherit (adapter) secrets;
+          command = adapter.commands.vpn;
+        };
+      expected = {
+        netdev = {
+          netdevConfig = {
+            Kind = "wireguard";
+            Name = "wg-vpn";
+          };
+          wireguardConfig = {
+            PrivateKeyFile = "/run/agenix/wireguard-vpn";
+            RouteTable = 51820;
+            FirewallMark = 51820;
+          };
+          wireguardPeers = [
+            {
+              PublicKey = "server-key";
+              AllowedIPs = [
+                "0.0.0.0/0"
+                "::/0"
+              ];
+              Endpoint = "vpn.example.org:51820";
+              PresharedKeyFile = "/run/agenix/vpn-psk";
+              PersistentKeepalive = 25;
+            }
+          ];
+        };
+        network = {
+          matchConfig.Name = "wg-vpn";
+          address = [ "10.2.0.2/32" ];
+          dns = [ "10.2.0.1" ];
+          linkConfig = {
+            ActivationPolicy = "manual";
+            RequiredForOnline = "no";
+          };
+          domains = [ "~." ];
+          networkConfig.DNSDefaultRoute = true;
+          routingPolicyRules = [
+            {
+              Table = "main";
+              SuppressPrefixLength = 0;
+              Priority = 1000;
+              Family = "both";
+            }
+            {
+              FirewallMark = 51820;
+              InvertRule = true;
+              Table = 51820;
+              Priority = 1001;
+              Family = "both";
+            }
+          ];
+        };
+        secrets =
+          let
+            file = {
+              owner = "systemd-network";
+              group = "systemd-network";
+              mode = "0400";
+            };
+          in
+          {
+            wireguard-vpn = file;
+            vpn-psk = file;
+          };
+        command = {
+          start = [
+            "networkctl"
+            "up"
+            "wg-vpn"
+          ];
+          stop = [
+            "networkctl"
+            "down"
+            "wg-vpn"
+          ];
+          requires = [ "sys-subsystem-net-devices-wg\\x2dvpn.device" ];
+        };
+      };
+    };
+
+    # A split tunnel routes its peers in the main table and leaves the
+    # default route and DNS alone.
+    testWireguardSplitTunnel = {
+      expr =
+        let
+          adapter = wireguardOf { tunnels = { inherit office; }; };
+        in
+        {
+          inherit (adapter.netdevs."10-office") netdevConfig wireguardConfig;
+          network = builtins.attrNames adapter.networks."10-office";
+        };
+      expected = {
+        netdevConfig = {
+          Kind = "wireguard";
+          Name = "wg-office";
+          MTUBytes = "1380";
+        };
+        wireguardConfig = {
+          PrivateKeyFile = "/run/agenix/wireguard-office";
+          RouteTable = "main";
+        };
+        network = [
+          "address"
+          "dns"
+          "linkConfig"
+          "matchConfig"
+        ];
+      };
+    };
+
+    # Each full tunnel gets its own table and rule priorities.
+    testWireguardTables = {
+      expr =
+        let
+          adapter = wireguardOf {
+            tunnels = {
+              inherit vpn;
+              backup = vpn;
+            };
+          };
+        in
+        map (name: (map (rule: rule.Priority) adapter.networks.${name}.routingPolicyRules)) [
+          "10-backup"
+          "10-vpn"
+        ];
+      expected = [
+        [
+          1000
+          1001
+        ]
+        [
+          1002
+          1003
+        ]
+      ];
+    };
+
+    testWireguardErrors = {
+      expr = {
+        noPeers = codes { tunnels.x.backend = "wireguard"; };
+        duplicate = codes {
+          tunnels = {
+            inherit vpn;
+            office = lib.recursiveUpdate office { wireguard.interface = "wg-vpn"; };
+          };
+        };
+        tooLong = codes { tunnels.averyverylongname = office; };
+        notNetworkd =
+          let
+            model = modelOf { tunnels = { inherit office; }; };
+          in
+          codesOf (model // { backend = "nm"; });
+      };
+      expected = {
+        noPeers = [
+          "network.tunnel.wireguard.addresses.none"
+          "network.tunnel.wireguard.peers.none"
+        ];
+        duplicate = [ "network.tunnel.interface.duplicate" ];
+        tooLong = [ "network.tunnel.interface.tooLong" ];
+        notNetworkd = [
+          "network.backend.unknown"
+          "network.tunnel.wireguard.backend"
+        ];
+      };
     };
 
     testDefaultLinks = {

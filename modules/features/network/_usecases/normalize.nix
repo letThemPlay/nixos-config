@@ -1,7 +1,9 @@
 { lib, network }:
 let
   inherit (lib)
+    any
     attrNames
+    attrValues
     filter
     filterAttrs
     genAttrs
@@ -14,6 +16,12 @@ let
   networkTypes = network.types;
 
   orDefault = value: default: if value == null then default else value;
+
+  # Allowed IPs that make a wireguard tunnel take the default route.
+  defaultRoutes = [
+    "0.0.0.0/0"
+    "::/0"
+  ];
 in
 
 #
@@ -77,6 +85,14 @@ let
       inherit (cfg.tailscale) interface;
       routesAll = tunnel.tailscale.exitNode != null;
     };
+
+    wireguard = tunnel: {
+      inherit (tunnel.wireguard) interface;
+
+      routesAll = any (peer: any (ip: builtins.elem ip defaultRoutes) peer.allowedIPs) (
+        attrValues tunnel.wireguard.peers
+      );
+    };
   };
 
   shapeOf =
@@ -109,6 +125,7 @@ let
       autostart
       interface
       routesAll
+      wireguard
       ;
 
     known = network.tunnels ? ${tunnel.backend};
@@ -122,6 +139,7 @@ let
     tailscale = {
       inherit (tunnel.tailscale) exitNode;
     };
+
   }) enabledTunnels;
 in
 {
