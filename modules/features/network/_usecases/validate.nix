@@ -185,50 +185,114 @@ let
     );
 
   #
-  # The overlay owns its interface, needs a known backend and advertises
-  # well-formed tags; its auth key is checked by ltp.secrets. Checked
-  # only when the overlay is enabled.
+  # Every tunnel needs a known backend and owns its interface: no link
+  # may match it and no other tunnel may use it. Tailscale tunnels share
+  # the daemon's interface and its tags. Auth keys are checked by
+  # ltp.secrets.
   #
-  overlay =
+  tunnels =
     model:
 
     let
-      inherit (model) overlay;
+      every = query.tunnels model;
 
-      diagnostic =
+      known = filter (tunnel: tunnel.known) every;
+
+      tailscale = query.tunnelsByBackend model "tailscale";
+
+      # Tailscale tunnels are modes of one daemon, so its interface counts once.
+      owners =
+        filter (tunnel: tunnel.backend != "tailscale") known
+        ++ lib.take 1 (filter (tunnel: tunnel.known) tailscale);
+
+      interfaces = map (tunnel: tunnel.interface) owners;
+
+      error =
         code: target: path: message:
         mkDiagnostic {
           severity = "error";
           inherit code target message;
-          path = [ "overlay" ] ++ path;
+          path = [ "tunnels" ] ++ path;
         };
 
-      claiming = filter (link: query.matchesGlob link.match overlay.interface) (query.enabled model);
+      claiming =
+        tunnel:
+        map (
+          link:
+          error "network.tunnel.interface.managed" link.id [ tunnel.name "interface" ]
+            "Link '${link.id}' (match '${link.match}') also matches tunnel interface '${tunnel.interface}'; networkd would manage the tunnel."
+        ) (filter (link: query.matchesGlob link.match tunnel.interface) (query.enabled model));
 
-      badTags = filter (tag: builtins.match "[a-z0-9-]+" tag == null) overlay.tags;
+      badTags = filter (tag: builtins.match "[a-z0-9-]+" tag == null) model.tailscale.tags;
+
+      autostarted = filter (tunnel: tunnel.autostart) every;
+
+      # Each conflicting pair of autostarted tunnels, once.
+      autostartClashes = lib.concatMap (
+        tunnel:
+        map
+          (other: {
+            inherit tunnel other;
+          })
+          (filter (other: other.name > tunnel.name && builtins.elem other.unit tunnel.conflicts) autostarted)
+      ) autostarted;
     in
 
     mkResult (
-      lib.optionals overlay.enable (
-        optional (!overlay.known) (
-          diagnostic "network.overlay.backend.unknown" overlay.backend [
+      map (
+        tunnel:
+        error "network.tunnel.backend.unknown" tunnel.backend
+          [
+            tunnel.name
             "backend"
-          ] "Unknown overlay backend '${overlay.backend}' (known: ${supportedText network.overlays})."
-        )
+          ]
+          "Tunnel '${tunnel.name}' has unknown backend '${tunnel.backend}' (known: ${supportedText network.tunnels})."
+      ) (filter (tunnel: !tunnel.known) every)
 
-        ++ map (
-          link:
-          diagnostic "network.overlay.interface.managed" link.id [ "interface" ]
-            "Link '${link.id}' (match '${link.match}') also matches overlay interface '${overlay.interface}'; networkd would manage the tunnel."
-        ) claiming
+      ++ lib.concatMap claiming owners
 
-        ++ map (
+      ++ map (
+        interface:
+        error "network.tunnel.interface.duplicate" interface [
+          "interface"
+        ] "Interface '${interface}' is used by more than one tunnel."
+      ) (duplicateStrings interfaces)
+
+      # The kernel's limit (IFNAMSIZ less the terminator).
+      ++ map (
+        tunnel:
+        error "network.tunnel.interface.tooLong" tunnel.interface [
+          tunnel.name
+          "interface"
+        ] "Tunnel interface '${tunnel.interface}' is longer than 15 characters."
+      ) (filter (tunnel: builtins.stringLength tunnel.interface > 15) owners)
+
+      ++ lib.optionals (tailscale != [ ]) (
+        map (
           tag:
-          diagnostic "network.overlay.tag.invalid" tag [
-            "tags"
-          ] "Overlay tag '${tag}' must be lowercase letters, digits and dashes, without the tag: prefix."
+          mkDiagnostic {
+            severity = "error";
+            code = "network.tailscale.tag.invalid";
+            target = tag;
+            path = [
+              "tailscale"
+              "tags"
+            ];
+            message = "Tailscale tag '${tag}' must be lowercase letters, digits and dashes, without the tag: prefix.";
+          }
         ) badTags
       )
+
+      ++ map (
+        { tunnel, other }:
+        mkDiagnostic {
+          severity = "warning";
+          code = "network.tunnel.autostart.conflict";
+          target = "${tunnel.name}, ${other.name}";
+          path = [ "tunnels" ];
+          message = "Tunnels '${tunnel.name}' and '${other.name}' both start at boot but cannot run together; only one stays up.";
+        }
+      ) autostartClashes
     );
 
   all =
@@ -239,7 +303,7 @@ let
       (backend model)
       (links model)
       (dns model)
-      (overlay model)
+      (tunnels model)
     ];
 in
 {
@@ -250,7 +314,7 @@ in
     backend
     links
     dns
-    overlay
+    tunnels
     all
     ;
 }

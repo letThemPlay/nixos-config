@@ -136,8 +136,11 @@ _: {
     };
 
     tailscale = {
-      description = "Joins the tailscale network; its tags, routing and auth key secret are ltp.network.overlay options.";
-      module.ltp.network.overlay.enable = true;
+      description = "Joins the tailnet at boot (the tunnel `tailnet`); the daemon's tags, routes and auth key secret are ltp.network.tailscale options, and exit-node tunnels are host settings.";
+      module.ltp.network.tunnels.tailnet = {
+        backend = "tailscale";
+        autostart = true;
+      };
     };
 
   };

@@ -74,12 +74,6 @@ in
           '';
         };
 
-        facts.wireless = mkOption {
-          type = types.nullOr types.str;
-          readOnly = true;
-          description = "The wireless backend in use; null without a wireless link.";
-        };
-
         links = mkOption {
           type = types.attrsOf network.types.linkOverride;
 
@@ -96,20 +90,73 @@ in
           '';
         };
 
-        overlay = mkOption {
-          type = network.types.overlay;
+        tailscale = mkOption {
+          type = network.types.tailscale;
           default = { };
 
           example = {
-            enable = true;
             tags = [ "laptop" ];
+            acceptRoutes = true;
           };
 
           description = ''
-            Mesh VPN overlay (tailscale). The auth key is the
-            ltp.secrets file authKey.secret (secrets/<name>.age), which
-            the secrets feature checks is encrypted for this host.
+            The tailscale daemon, shared by every tailscale tunnel. The
+            auth key is the ltp.secrets file authKey.secret
+            (secrets/<name>.age), which the secrets feature checks is
+            encrypted for this host. Unused without a tailscale tunnel.
           '';
+        };
+
+        tunnels = mkOption {
+          type = types.attrsOf network.types.tunnel;
+          default = { };
+
+          example = {
+            tailnet = {
+              backend = "tailscale";
+              autostart = true;
+            };
+            home = {
+              backend = "tailscale";
+              tailscale.exitNode = "home-server";
+            };
+          };
+
+          description = ''
+            VPNs this host can switch on and off, keyed by name. Each is
+            held up by the unit ltp-tunnel-<name>.service, which users
+            may start and stop. Tunnels that take the default route
+            stop each other, and so do tailscale tunnels.
+          '';
+        };
+
+        facts = {
+          wireless = mkOption {
+            type = types.nullOr types.str;
+            readOnly = true;
+            description = "The wireless backend in use; null without a wireless link.";
+          };
+
+          wirelessUi = mkOption {
+            type = types.nullOr types.str;
+            readOnly = true;
+            description = "The wireless backend's graphical UI (a pkgs attribute name), or null when there is none.";
+          };
+
+          tunnels = mkOption {
+            type = types.attrsOf (
+              types.submodule {
+                options = {
+                  label = mkOption { type = types.str; };
+                  backend = mkOption { type = types.str; };
+                  unit = mkOption { type = types.str; };
+                  routesAll = mkOption { type = types.bool; };
+                };
+              }
+            );
+            readOnly = true;
+            description = "The tunnels a desktop can switch, keyed by name: label, backend, unit and whether it takes the default route.";
+          };
         };
 
         dns = {

@@ -10,45 +10,49 @@ let
   ];
 
   #
-  # A mesh VPN overlay. It owns its own interface; the links must not
-  # match it.
+  # The one tailscale daemon a host runs. Every tailscale tunnel shares
+  # these settings; the tunnels differ only in their exit node.
   #
-  overlay = types.submodule {
+  tailscale = types.submodule {
     options = {
-
-      enable = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether this host joins the overlay network.";
-      };
-
-      backend = mkOption {
-        type = types.str;
-        default = "tailscale";
-      };
 
       interface = mkOption {
         type = types.str;
         default = "tailscale0";
-        description = "Name of the overlay's tunnel interface.";
+        description = "Name of the tailscale tunnel interface.";
       };
 
       routing = mkOption {
         type = routing;
         default = "client";
-        description = "Whether the host uses (client) or offers (server) subnet routes and exit nodes.";
+        description = ''
+          Kernel support for routing: client loosens reverse-path
+          filtering so subnet routes and exit nodes work; server also
+          forwards. Which routes are used is acceptRoutes and the
+          tunnels' exit nodes.
+        '';
       };
 
       tags = mkOption {
         type = types.listOf types.str;
-        default = [ "server" ];
-        description = "Tags the node advertises, without the tag: prefix.";
+        default = [ ];
+        example = [ "laptop" ];
+        description = ''
+          Tags the node advertises, without the tag: prefix. The auth
+          key must be allowed to use them.
+        '';
       };
 
       acceptDns = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether the overlay's DNS (MagicDNS) is used for its names.";
+        description = "Whether the tailnet's DNS (MagicDNS) is used for its names.";
+      };
+
+      acceptRoutes = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether subnet routes other nodes advertise are used.";
       };
 
       authKey.secret = mkOption {
@@ -57,6 +61,84 @@ let
         description = "ltp.secrets file holding the auth key (secrets/<name>.age).";
       };
 
+    };
+  };
+
+  #
+  # A VPN the host can switch on and off. It owns its interface; the
+  # links must not match it. Tunnels that take the default route
+  # conflict with each other, and tailscale tunnels with each other: one
+  # daemon runs one of them at a time.
+  #
+  tunnel = types.submodule (
+    { name, ... }:
+    {
+      options = {
+
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Whether this tunnel is configured.";
+        };
+
+        label = mkOption {
+          type = types.str;
+          default = name;
+          description = "Name the desktop shows.";
+        };
+
+        backend = mkOption {
+          type = types.str;
+          example = "tailscale";
+          description = "Backend from the tunnel registry.";
+        };
+
+        autostart = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the tunnel comes up at boot.";
+        };
+
+        tailscale.exitNode = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "home-server";
+          description = ''
+            Exit node a tailscale tunnel sends all traffic through; null
+            joins only the tailnet.
+          '';
+        };
+
+      };
+    }
+  );
+
+  # A tunnel as the model holds it.
+  modelTunnel = types.submodule {
+    options = {
+      name = mkOption { type = types.str; };
+      label = mkOption { type = types.str; };
+      backend = mkOption { type = types.str; };
+      known = mkOption { type = types.bool; };
+      autostart = mkOption { type = types.bool; };
+      interface = mkOption { type = types.str; };
+
+      unit = mkOption {
+        type = types.str;
+        description = "systemd unit that holds the tunnel up while it is active.";
+      };
+
+      routesAll = mkOption {
+        type = types.bool;
+        description = "Whether the tunnel takes the default route.";
+      };
+
+      conflicts = mkOption {
+        type = types.listOf types.str;
+        description = "Units of the tunnels this one cannot run beside.";
+      };
+
+      tailscale.exitNode = mkOption { type = types.nullOr types.str; };
     };
   };
 
@@ -307,21 +389,16 @@ let
         '';
       };
 
-      overlay = mkOption {
-        type = types.submodule {
-          options = {
-            enable = mkOption { type = types.bool; };
-            backend = mkOption { type = types.str; };
-            known = mkOption { type = types.bool; };
-            interface = mkOption { type = types.str; };
-            routing = mkOption { type = routing; };
-            tags = mkOption { type = types.listOf types.str; };
-            acceptDns = mkOption { type = types.bool; };
-            authKey = {
-              secret = mkOption { type = types.str; };
-            };
-          };
-        };
+      tailscale = mkOption {
+        type = tailscale;
+      };
+
+      tunnels = mkOption {
+        type = types.attrsOf modelTunnel;
+
+        description = ''
+          Enabled tunnels, keyed by name.
+        '';
       };
 
       wireless = mkOption {
@@ -384,7 +461,9 @@ in
 {
   inherit
     routing
-    overlay
+    tailscale
+    tunnel
+    modelTunnel
     dnsOverTls
     linkFields
     linkDefaults
