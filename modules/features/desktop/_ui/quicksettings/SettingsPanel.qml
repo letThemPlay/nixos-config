@@ -259,29 +259,49 @@ Panel {
         }
       }
 
-      // The tunnels, as toggles. Starting one stops those it conflicts with.
-      Flow {
-        id: tunnelTiles
-
-        readonly property int columns: Math.max(Math.min(Tunnels.tunnels.length, 3), 1)
-        readonly property real tileWidth: (width - spacing * (columns - 1)) / columns
-
+      // The tunnels, like the network above: what is up, and the panel that switches them.
+      Pressable {
         width: parent.width
-        spacing: Theme.spaceXs
+        implicitHeight: Theme.sizeBarItem + Theme.spaceSm
         visible: Tunnels.available
+        onClicked: Ui.open = "tunnels"
 
-        Repeater {
-          model: Tunnels.tunnels
+        Icon {
+          id: tunnelIcon
 
-          Tile {
-            required property var modelData
-
-            width: tunnelTiles.tileWidth
-            icon: modelData.routesAll ? "tunnelFull" : "tunnel"
-            text: modelData.label
-            selected: Tunnels.isUp(modelData)
-            onClicked: Tunnels.toggle(modelData)
+          anchors.left: parent.left
+          anchors.leftMargin: Theme.spaceSm
+          anchors.verticalCenter: parent.verticalCenter
+          name: {
+            if (Tunnels.full) return "tunnelFull";
+            return Tunnels.active.length > 0 ? "tunnel" : "tunnelOff";
           }
+          size: Theme.iconSmall
+          color: parent.foreground
+        }
+
+        Label {
+          anchors.left: tunnelIcon.right
+          anchors.right: tunnelMore.left
+          anchors.leftMargin: Theme.spaceSm
+          anchors.verticalCenter: parent.verticalCenter
+          text: {
+            if (Tunnels.full) return Tunnels.full.label;
+            if (Tunnels.active.length === 1) return Tunnels.active[0].label;
+            return Tunnels.active.length > 1 ? Tunnels.active.length + " tunnels" : "VPN off";
+          }
+          color: parent.foreground
+        }
+
+        Icon {
+          id: tunnelMore
+
+          anchors.right: parent.right
+          anchors.rightMargin: Theme.spaceSm
+          anchors.verticalCenter: parent.verticalCenter
+          name: "more"
+          size: Theme.iconSmall
+          color: Theme.muted
         }
       }
 

@@ -22,8 +22,27 @@ Singleton {
   // The tunnel carrying all traffic, if one does.
   readonly property var full: active.find(tunnel => tunnel.routesAll) ?? null
 
+  // Units being started or stopped, and the ones whose last switch failed
+  // (polkit refused, or the unit itself failed).
+  property var switching: []
+  property var failed: []
+
+  readonly property bool busy: switching.length > 0
+
   function isUp(tunnel) {
     return up.includes(tunnel.unit);
+  }
+
+  function isSwitching(tunnel) {
+    return switching.includes(tunnel.unit);
+  }
+
+  function hasFailed(tunnel) {
+    return failed.includes(tunnel.unit);
+  }
+
+  function clearFailure() {
+    failed = [];
   }
 
   function refresh() {
@@ -31,8 +50,33 @@ Singleton {
   }
 
   function toggle(tunnel) {
-    Run.command(isUp(tunnel) ? "tunnelStop" : "tunnelStart", [tunnel.unit]);
-    settle.restart();
+    run(isUp(tunnel) ? "tunnelStop" : "tunnelStart", [tunnel.unit]);
+  }
+
+  function stopAll() {
+    run("tunnelStop", active.map(tunnel => tunnel.unit));
+  }
+
+  // One switch at a time: systemd orders conflicting units, but the shell
+  // can only say what it asked for last.
+  function run(command, units) {
+    const argv = Settings.commands[command];
+    if (!argv || busy || units.length === 0) return;
+
+    failed = failed.filter(unit => !units.includes(unit));
+    switching = units;
+    switcher.command = argv.concat(units);
+    switcher.running = true;
+  }
+
+  Process {
+    id: switcher
+
+    onExited: code => {
+      if (code !== 0) root.failed = root.failed.concat(root.switching);
+      root.switching = [];
+      root.refresh();
+    }
   }
 
   Process {
@@ -47,14 +91,6 @@ Singleton {
         root.up = root.tunnels.filter((tunnel, index) => states[index] === "active").map(tunnel => tunnel.unit);
       }
     }
-  }
-
-  // A tunnel takes a moment to come up or go down; ask again once it has.
-  Timer {
-    id: settle
-
-    interval: 1500
-    onTriggered: root.refresh()
   }
 
   Timer {

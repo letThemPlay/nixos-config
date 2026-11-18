@@ -41,6 +41,7 @@ Singleton {
 
     "tunnel": "vpn_key",
     "tunnelFull": "vpn_lock",
+    "tunnelOff": "vpn_key_off",
 
     "settings": "tune",
     "more": "chevron_right",

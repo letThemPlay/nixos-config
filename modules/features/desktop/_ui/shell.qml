@@ -14,6 +14,7 @@ import qs.osd
 import qs.polkit
 import qs.power
 import qs.services
+import qs.tunnels
 import qs.wifi
 
 // The unified shell. Surfaces the host did not select are never created.
@@ -99,6 +100,12 @@ ShellRoot {
     active: root.has("wifi")
 
     WifiPanel {}
+  }
+
+  LazyLoader {
+    active: root.has("tunnels")
+
+    TunnelsPanel {}
   }
 
   LazyLoader {
