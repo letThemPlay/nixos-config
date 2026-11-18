@@ -10,4 +10,9 @@ in
     keys.hosts.theseus
     keys.users.kelvin
   ];
+
+  "wireguard-ivpn.age".publicKeys = [
+    keys.hosts.legion
+    keys.users.kelvin
+  ];
 }

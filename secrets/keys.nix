@@ -8,6 +8,7 @@
 {
   hosts = {
     theseus = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHKAIW/LBl1UYcJzwMvRpWy/DRqOE7IaKSgjDawvVTv";
+    legion = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPW0RzUAFJ4B0ZWNr06ORyJ8II0Qa1sS6GcvaTZOQiTR";
   };
 
   users = {

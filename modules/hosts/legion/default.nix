@@ -34,6 +34,33 @@ _: {
           encryption.enable = true;
         };
 
+        secrets.hostKeyProvisioned = true;
+
+        # IVPN: a full tunnel, switched from the shell. The private key is
+        # secrets/wireguard-ivpn.age.
+        network.tunnels.ivpn = {
+          backend = "wireguard";
+          label = "IVPN";
+
+          wireguard = {
+            addresses = [
+              "172.22.45.43/32"
+              "fd00:4956:504e:ffff::ac16:2d2b/128"
+            ];
+            dns = [ "172.16.0.1" ];
+
+            peers.ivpn = {
+              publicKey = "jTRkgALSK2hJZmzfQsyKVsYQEepIqgSDnJImzNyLfQ4=";
+              endpoint = "87.249.137.138:2049";
+              allowedIPs = [
+                "0.0.0.0/0"
+                "::/0"
+              ];
+              persistentKeepalive = 25;
+            };
+          };
+        };
+
         boot = {
           # Create the keys with `sbctl create-keys` after the first boot.
           secureBoot.enable = false;
