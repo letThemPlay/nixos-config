@@ -86,7 +86,9 @@ let
 
       table = tables.${tunnel.name};
 
-      fullDns = tunnel.routesAll && wireguard.dns != [ ];
+      hasDns = wireguard.dns != [ ];
+
+      fullDns = tunnel.routesAll && hasDns;
     in
     {
       matchConfig.Name = tunnel.interface;
@@ -101,11 +103,20 @@ let
         # A switchable tunnel never holds up boot.
         RequiredForOnline = "no";
       };
+
+      #
+      # The DNS provider's DNS-over-TLS mode is global, so a link that
+      # sets none inherits it, and a VPN's resolver answers plain DNS
+      # only: under strict mode every lookup through the tunnel fails.
+      # The tunnel already encrypts the queries.
+      #
+      networkConfig =
+        optionalAttrs hasDns { DNSOverTLS = "no"; }
+        # Every lookup goes through the tunnel while it is up.
+        // optionalAttrs fullDns { DNSDefaultRoute = true; };
     }
     // optionalAttrs fullDns {
-      # Every lookup goes through the tunnel while it is up.
       domains = [ "~." ];
-      networkConfig.DNSDefaultRoute = true;
     }
     // optionalAttrs tunnel.routesAll {
       routingPolicyRules = [

@@ -440,7 +440,10 @@ let
             RequiredForOnline = "no";
           };
           domains = [ "~." ];
-          networkConfig.DNSDefaultRoute = true;
+          networkConfig = {
+            DNSOverTLS = "no";
+            DNSDefaultRoute = true;
+          };
           routingPolicyRules = [
             {
               Table = "main";
@@ -495,6 +498,7 @@ let
         {
           inherit (adapter.netdevs."10-office") netdevConfig wireguardConfig;
           network = builtins.attrNames adapter.networks."10-office";
+          inherit (adapter.networks."10-office") networkConfig;
         };
       expected = {
         netdevConfig = {
@@ -506,12 +510,26 @@ let
           PrivateKeyFile = "/run/agenix/wireguard-office";
           RouteTable = "main";
         };
+        networkConfig = { };
         network = [
           "address"
           "dns"
           "linkConfig"
           "matchConfig"
+          "networkConfig"
         ];
+      };
+    };
+
+    # A split tunnel's resolver answers plain DNS like a full tunnel's, but only
+    # for its own domains: no default DNS route.
+    testWireguardSplitTunnelDns = {
+      expr =
+        (wireguardOf {
+          tunnels.office = lib.recursiveUpdate office { wireguard.dns = [ "10.9.0.1" ]; };
+        }).networks."10-office".networkConfig;
+      expected = {
+        DNSOverTLS = "no";
       };
     };
 
