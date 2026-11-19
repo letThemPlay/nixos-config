@@ -1,3 +1,4 @@
+import Quickshell.Io
 import QtQuick
 import qs.common
 import qs.services
@@ -16,6 +17,14 @@ Overlay {
 
     Tunnels.clearFailure();
     Tunnels.refresh();
+  }
+
+  IpcHandler {
+    target: "tunnels"
+
+    function toggle(): void {
+      Ui.toggle("tunnels");
+    }
   }
 
   Panel {

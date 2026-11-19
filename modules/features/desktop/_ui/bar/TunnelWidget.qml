@@ -1,15 +1,18 @@
 import qs.common
 import qs.services
 
-// Only there while a tunnel is up: which one carries all traffic, or how many
-// are up. Clicking opens the tunnels panel, where they are switched.
+// Always there on a host with tunnels, like the network item: which one carries
+// all traffic, or how many are up, and a crossed-out key while none is. Clicking
+// opens the tunnels panel, where they are switched.
 BarItem {
-  shown: Tunnels.active.length > 0
-  filled: true
-  icon: Tunnels.full ? "tunnelFull" : "tunnel"
+  readonly property bool up: Tunnels.active.length > 0
+
+  shown: Tunnels.available
+  filled: up
+  icon: Tunnels.full ? "tunnelFull" : up ? "tunnel" : "tunnelOff"
   text: Tunnels.full ? Tunnels.full.label : Tunnels.active.length > 1 ? String(Tunnels.active.length) : Tunnels.active[0]?.label ?? ""
   textWidth: Theme.sizeSidePanel / 3
-  tint: Theme.success
+  tint: up ? Theme.success : foreground
   selected: Ui.open === "tunnels"
   onClicked: Ui.toggle("tunnels")
 }
