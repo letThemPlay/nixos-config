@@ -6,7 +6,7 @@ A NixOS fleet flake in the dendritic flake-parts pattern, with clean-architectur
 
 - **Every file is a flake-parts module.** `import-tree` loads all of `modules/` except paths starting with `_`. Values flow through flake-parts `config`. Never use `inputs.self`, file paths or `_module.args` to pass them. Shared helpers live in `config.ltp.lib`.
 - **There are two `ltp` namespaces.**
-  - At the flake level, `ltp.{features,hosts,bundles,users,factory,lib}` is internal state and never a flake output. `flake.*` holds only real outputs.
+  - At the flake level, `ltp.{features,hosts,users,factory,lib}` is internal state and never a flake output. `flake.*` holds only real outputs.
   - Inside NixOS, `ltp.<feature>` holds that feature's options.
 - **Feature layout** (`modules/features/<x>/`):
   - `core.nix`: `ltp.features.<x> = lib.fix (<x>: …)`, assembled from the rings below. It also adds `<x>-options` and `<x>` to `flake.modules.nixos.features`.
@@ -17,7 +17,7 @@ A NixOS fleet flake in the dendritic flake-parts pattern, with clean-architectur
   - Other features are read only through `ltp.<x>.facts`.
 - **Composition:**
   - Every host imports every feature (`flake.modules.nixos.features`).
-  - Bundles (`modules/hosts/bundles.nix`, `ltp.bundles.<name> = { description; module; }`) hold settings only. Host policy goes in a bundle, never in the factory (`modules/hosts/factory.nix`). Settings several hosts share are aspects in `modules/hosts/shared/` (`flake.modules.nixos.<name>`).
+  - Bundles are a feature (`modules/features/bundles/`) in the apps pattern: a catalogue entry (`description`, `requires`) plus `_configure/<name>.nix`, selected through `ltp.bundles.selected` (the factory copies `host.bundles` in) and gated by `mkIf` on `ltp.bundles.facts.active`. They hold settings only and must never set `ltp.bundles` themselves; dependencies go in `requires`. Host policy goes in a bundle, never in the factory (`modules/hosts/factory.nix`). Settings several hosts share are aspects in `modules/hosts/shared/` (`flake.modules.nixos.<name>`).
   - Hosts live in `modules/hosts/<host>/default.nix` as `ltp.hosts.<host> = { system; stateVersion; hostId; bundles; users; module; }`, with `_hardware.nix` beside it.
   - Users live in `modules/users/<name>/default.nix` as `ltp.users.<name>`. The `home` module holds home-manager settings, and `gpg/*.asc` holds public keys.
 - **Choosing an implementation:** a string checked against the core's registry (`backend`, `loader`, `compositors`, …), never an `enum`. Diagnostics read `ltp.<x> [<feature>.<path>.<problem>]: message`.

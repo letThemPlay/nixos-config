@@ -16,9 +16,10 @@ in
 # statePath). context supplies the host's catalogues as plain data:
 #
 #   hasPackage : package name -> bool
+#   bundles    : every bundle name (the bundles facts), or null to skip
+#                the user bundle check
 #
-# The bundle names come from cfg.knownBundles. No module system is
-# required.
+# No module system is required.
 #
 {
   cfg,
@@ -84,7 +85,7 @@ in
   };
 
   known = {
-    bundles = cfg.knownBundles;
+    bundles = context.bundles or null;
 
     packages = filter context.hasPackage requestedPackages;
   };

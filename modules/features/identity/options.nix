@@ -75,17 +75,6 @@ in
           '';
         };
 
-        knownBundles = mkOption {
-          type = types.nullOr (types.listOf types.str);
-          default = null;
-          internal = true;
-
-          description = ''
-            Every bundle name, set by the host factory. User bundles are
-            checked against it; null skips the check.
-          '';
-        };
-
         facts = {
 
           gpg = mkOption {

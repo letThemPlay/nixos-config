@@ -40,6 +40,7 @@ let
         "firefox"
         "vlc"
       ];
+    bundles = [ "flashgbx" ];
   };
 
   modelWith =
@@ -55,10 +56,7 @@ let
 
   codes = settings: codesOf (modelOf settings);
 
-  withAlice = extra: {
-    users.alice = alice // extra;
-    knownBundles = [ "flashgbx" ];
-  };
+  withAlice = extra: { users.alice = alice // extra; };
 
   contractCases = [
     { }
@@ -195,7 +193,7 @@ let
       expected = [ "identity.user.bundle.unknown" ];
     };
 
-    # Without knownBundles the bundle check is skipped, as in the VM test.
+    # Without the bundle names the check is skipped, as in the VM test.
     testMissingBundleListSkipsCheck = {
       expr = codesOf (
         identity.normalize {
@@ -205,7 +203,7 @@ let
             };
           };
           storage = persistentRoot;
-          inherit context;
+          context = removeAttrs context [ "bundles" ];
         }
       );
       expected = [ ];

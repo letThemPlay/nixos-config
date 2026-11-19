@@ -3,11 +3,11 @@
 A NixOS flake for a small fleet of machines, built with [flake-parts](https://flake.parts) and [import-tree](https://github.com/denful/import-tree): every `.nix` file under `modules/` is loaded automatically, except paths starting with `_`.
 
 - **Features** (`modules/features/<name>/`) own all host-facing configuration under `ltp.<name>`: storage, network, boot, identity, theme, desktop, shell, locale, hardware, nix, secrets and apps. Each one validates its settings and reports problems as `ltp.<name> [code]: message`.
-- **Bundles** (`ltp.bundles`, defined in `modules/hosts/bundles.nix`) are named sets of feature settings, for example `laptop` or `vm`. Every feature is present on every host; a bundle only decides what it does.
+- **Bundles** (`modules/features/bundles/`) are named sets of feature settings, for example `laptop` or `vm`, picked by a host's `bundles` list. Every feature is present on every host; a bundle only decides what it does, and may require other bundles.
 - **Hosts** are flake-parts modules in `modules/hosts/<host>/` defining `ltp.hosts.<host>`: the bundles and users they pick, and their own settings and hardware profile.
 - **Users** are flake-parts modules in `modules/users/<name>/` defining `ltp.users.<name>`, enabled per host.
 
-`ltp` names two things. In the flake-parts modules under `modules/`, `ltp.features`, `ltp.bundles`, `ltp.hosts` and `ltp.users` are the fleet's own state, kept off the flake outputs. Inside a host's NixOS configuration, `ltp.<feature>` (`ltp.storage`, `ltp.network`, …) are the feature options.
+`ltp` names two things. In the flake-parts modules under `modules/`, `ltp.features`, `ltp.hosts` and `ltp.users` are the fleet's own state, kept off the flake outputs. Inside a host's NixOS configuration, `ltp.<feature>` (`ltp.storage`, `ltp.network`, …) are the feature options.
 
 ---
 
@@ -16,11 +16,11 @@ A NixOS flake for a small fleet of machines, built with [flake-parts](https://fl
 ```text
 modules/
   features/<name>/        one feature: core, options.nix, module.nix and its rings
+  features/bundles/       the bundles a host can pick: catalogue and per-bundle settings
   hosts/
-    schema.nix            the ltp.hosts and ltp.bundles options
+    schema.nix            the ltp.hosts option
     factory.nix           turns an ltp.hosts entry into a nixosConfiguration
     configurations.nix    one nixosConfiguration per ltp.hosts entry
-    bundles.nix           the bundles a host can pick (ltp.bundles)
     shared/               aspects several hosts import (spice-display)
     <host>/default.nix    a host (ltp.hosts.<host>), with its settings
     <host>/_hardware.nix  its hardware profile
@@ -34,13 +34,13 @@ secrets/                  agenix secrets, their recipients (secrets.nix) and key
 
 ## 🧩 Bundles
 
-Bundles are defined in `modules/hosts/bundles.nix` as `ltp.bundles.<name> = { description; module; }`. A bundle holds settings only, and bundles merge, so another file can add to one.
+Bundles are a feature built like apps, in `modules/features/bundles/`. The catalogue (`_domain/catalog.nix`) gives each bundle a `description` and the bundles it `requires`, and `_configure/<name>.nix` holds its settings. A host's `bundles` list becomes `ltp.bundles.selected`, and everything the selection requires applies too, so `unified-ui` brings `window-management`. A bundle holds settings only. To add one, write a catalogue entry and a `_configure/<name>.nix`, and list it in `configure` in `core.nix`; `bundles-unit` fails if the catalogue and `configure` disagree.
 
 | Bundle | What it turns on |
 |---|---|
 | `base` | Every host's defaults: unfree packages allowed, curl, eza, zoxide and nix-ld. Every host needs it. |
 | `window-management` | The desktop feature: niri, the greeter, the bar and the other desktop components, and the users' standard home folders. |
-| `unified-ui` | The [unified shell](#-unified-shell) on top of `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings, battery alerts, display profiles, automounting and screen recording. |
+| `unified-ui` | The [unified shell](#-unified-shell); requires `window-management`: one themed top bar, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings, battery alerts, display profiles, automounting and screen recording. |
 | `power` | Power profiles (power-profiles-daemon), and battery levels with a clean shutdown as the last resort (UPower). |
 | `file-handling` | Files and links open in the right app: viewers for images (imv), PDFs (zathura) and media (mpv), with the roles in use as the default apps. |
 | `laptop` | Audio, bluetooth, a backlight (`ltp.hardware.backlight.enable`), the wireless UI (iwgtk) and discord. |
@@ -340,7 +340,7 @@ Create `modules/hosts/<host>/default.nix`. It's a flake-parts module defining `l
 ```
 
 - **`hostId`:** `networking.hostId` defaults to the first 8 hex digits of the host name's sha256. Set it only to keep an existing machine's ID.
-- **Bundles:** an unknown bundle stops the build and lists the known ones. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
+- **Bundles:** an unknown bundle stops the build with `ltp.bundles [bundles.bundle.unknown]` and lists the known ones; bundles another one requires need not be listed. Leave `tailscale`, and anything else that needs a secret, out until after the first boot.
 - **Merging:** hosts merge, so another file can add to one, for example `ltp.hosts.laptop-x1.module.ltp.locale.timeZone = "Europe/Paris";`.
 - **Shared settings:** settings several hosts share can be an aspect, `flake.modules.nixos.<name>`, imported in each host's `module`. The test VMs share `spice-display` this way (`modules/hosts/shared/spice-display.nix`).
 

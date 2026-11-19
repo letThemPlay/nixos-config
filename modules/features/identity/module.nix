@@ -24,6 +24,13 @@ in
       # What the users may refer to, as plain data.
       context = {
         hasPackage = name: pkgs ? ${name};
+
+        #
+        # User bundles are checked against every bundle any host could
+        # include. Configurations without the bundles feature (the
+        # storage VM test) skip the check.
+        #
+        bundles = config.ltp.bundles.facts.known or null;
       };
 
       #

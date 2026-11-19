@@ -41,7 +41,7 @@ in
               bundles = mkOption {
                 type = types.listOf types.str;
                 default = [ ];
-                description = "Bundles (ltp.bundles) applied to the host.";
+                description = "Bundles from the bundles catalogue (modules/features/bundles), with the ones they require.";
               };
 
               users = mkOption {
@@ -61,33 +61,6 @@ in
       );
       default = { };
       description = "Hosts by host name.";
-    };
-
-    #
-    # The composition root: what a host's `bundles` list picks
-    # from. Every feature is present on every host
-    # (flake.modules.nixos.features); a bundle only holds settings.
-    # Bundles merge, so any file may add to one.
-    #
-    bundles = mkOption {
-      type = types.attrsOf (
-        types.submodule {
-          options = {
-            description = mkOption {
-              type = types.str;
-              description = "What the bundle turns on, for the README and error messages.";
-            };
-
-            module = mkOption {
-              type = types.deferredModule;
-              default = { };
-              description = "Settings the bundle applies to a host.";
-            };
-          };
-        }
-      );
-      default = { };
-      description = "Host bundles by name.";
     };
 
   };
