@@ -109,4 +109,36 @@ in
       (property "string" "pamDirectory" (quoted pam.directory))
       (property "string" "wallpaper" (quoted wallpaper))
     ];
+
+  #
+  # The greeter's choices, in place of a user's: who may log in, the file
+  # listing the sessions ([{ name; exec; }]), and the power actions that make
+  # sense before login.
+  #
+  greeterSettings =
+    {
+      model,
+      powerActions,
+      sessionsFile,
+      wallpaper,
+    }:
+    singleton [
+      (property "var" "users" (quoted model.greeter.users))
+      (property "string" "sessionsFile" (quoted sessionsFile))
+      (property "var" "powerActions" (
+        quoted (
+          mapAttrsToList (id: action: action // { inherit id; }) (
+            lib.filterAttrs (
+              id: _:
+              builtins.elem id [
+                "suspend"
+                "reboot"
+                "poweroff"
+              ]
+            ) powerActions
+          )
+        )
+      ))
+      (property "string" "wallpaper" (quoted wallpaper))
+    ];
 }

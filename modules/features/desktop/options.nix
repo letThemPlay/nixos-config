@@ -45,6 +45,17 @@ in
           '';
         };
 
+        greeterTheme.user = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+
+          description = ''
+            The user whose theme and wallpaper a graphical greeter wears,
+            as it runs before anyone logs in. Null picks the only user
+            with a theme; with several, one must be named.
+          '';
+        };
+
         compositors = mkOption {
           type = types.listOf types.str;
           default = [ "niri" ];

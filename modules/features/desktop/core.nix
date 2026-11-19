@@ -56,11 +56,15 @@ in
 
     #
     # Greeter registry, keyed like ltp.desktop.greeter:
-    #   { pkgs, sessionsDir } -> { command; }
+    #   graphical  : whether it draws (and greetd's text greeter is off)
+    #   command    : { pkgs, sessionsDir, niri, niriConfig } -> greetd command
+    #   niriConfig : { keyboard, start } -> text, graphical greeters only:
+    #                the niri they run in, which runs start
     #   (NixOS creates the tuigreet cache directory for greetd.)
     #
     greeters = {
       tuigreet = import ./_adapters/greeters/tuigreet.nix { };
+      quickshell = import ./_adapters/greeters/quickshell.nix { };
     };
 
     #

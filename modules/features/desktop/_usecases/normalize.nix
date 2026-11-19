@@ -19,7 +19,9 @@ in
 # keyboard is the session keyboard ({ layout; variant; }, from ltp.locale), and
 # facts the host's hardware facts (ltp.hardware.facts; null: unknown,
 # nothing is filtered), and tunnels the network feature's switchable tunnels
-# (ltp.network.facts.tunnels); the desktop module supplies them. No module
+# (ltp.network.facts.tunnels), themes the names of the users with a theme
+# (ltp.theme.facts.users) and users the names of the host's users
+# (ltp.identity.facts.users); the desktop module supplies them. No module
 # system is required.
 #
 {
@@ -31,6 +33,8 @@ in
   },
   facts ? null,
   tunnels ? { },
+  themes ? [ ],
+  users ? [ ],
 }:
 
 let
@@ -130,10 +134,31 @@ in
     known = name == null || (desktop.components.${role} or { }) ? ${name};
   }) cfg.components;
 
-  greeter = {
-    name = cfg.greeter;
-    known = cfg.greeter == null || desktop.greeters ? ${cfg.greeter};
-  };
+  greeter =
+    let
+      known = cfg.greeter == null || desktop.greeters ? ${cfg.greeter};
+      named = (cfg.greeterTheme or { }).user or null;
+    in
+    {
+      name = cfg.greeter;
+      inherit known users;
+
+      graphical = cfg.greeter != null && known && desktop.greeters.${cfg.greeter}.graphical;
+
+      #
+      # A graphical greeter runs before anyone logs in, so it wears one
+      # user's theme: the named one, or else the only themed user.
+      #
+      themeUser =
+        if named != null then
+          named
+        else if builtins.length themes == 1 then
+          builtins.head themes
+        else
+          null;
+
+      themeUserKnown = named == null || builtins.elem named themes;
+    };
 
   displays = cfg.displays or { profiles = { }; };
 

@@ -62,6 +62,8 @@ in
         keyboard = config.ltp.locale.keyboard.session;
         facts = config.ltp.hardware.facts;
         tunnels = config.ltp.network.facts.tunnels;
+        themes = lib.attrNames (lib.filterAttrs (_: user: user.known) config.ltp.theme.facts.users);
+        users = lib.attrNames config.ltp.identity.facts.users;
       };
 
       validation = desktop.validate.all model;
@@ -279,13 +281,98 @@ in
         ) config.services.displayManager.sessionPackages;
       };
 
+      sessionsDir = "${uwsmSessions}/share/wayland-sessions";
+
+      greeterEntry = if model.greeter.name == null then null else desktop.greeters.${model.greeter.name};
+
+      niri = config.programs.niri.package;
+
+      # The sessions as data for a graphical greeter: Name, Exec and DesktopNames.
+      greeterSessions =
+        pkgs.runCommand "ltp-greeter-sessions.json" { nativeBuildInputs = [ pkgs.jq ]; }
+          ''
+            for file in ${sessionsDir}/*.desktop; do
+              jq -n \
+                --arg name "$(sed -n 's/^Name=//p' "$file" | head -n 1)" \
+                --arg exec "$(sed -n 's/^Exec=//p' "$file" | head -n 1)" \
+                --arg desktopNames "$(sed -n 's/^DesktopNames=//p' "$file" | head -n 1)" \
+                '{ $name, $exec, $desktopNames }'
+            done | jq -s . > $out
+          '';
+
+      #
+      # The graphical greeter's QML: the shell's source with the theme of
+      # the user it wears (validation ensures there is one) and the
+      # greeter's own settings, as no user is logged in yet.
+      #
+      greeterUi =
+        let
+          user = model.greeter.themeUser;
+          wallpaper = config.ltp.theme.facts.users.${user}.wallpaper or null;
+        in
+        pkgs.runCommand "ltp-greeter"
+          {
+            theme = desktop.quickshell.theme {
+              inherit tokens;
+              colors = config.home-manager.users.${user}.lib.stylix.colors;
+            };
+
+            settings = desktop.quickshell.greeterSettings {
+              inherit model;
+              inherit (desktop) powerActions;
+              sessionsFile = "${greeterSessions}";
+              wallpaper = if wallpaper == null then "" else "${wallpaper}";
+            };
+
+            passAsFile = [
+              "theme"
+              "settings"
+            ];
+          }
+          ''
+            cp -r ${desktop.uiSource} $out
+            chmod -R u+w $out
+            cp $themePath $out/common/Theme.qml
+            cp $settingsPath $out/common/Settings.qml
+          '';
+
+      greeterState = "/var/lib/ltp-greeter";
+
+      graphicalGreeter = cfg.greeter != null && (desktop.greeters.${cfg.greeter}.graphical or false);
+
+      #
+      # What the greeter's niri runs. greetd starts the session once the
+      # greeter exits, so niri quits when the greeter does, whether it
+      # launched a session or crashed (greetd then starts a fresh greeter).
+      #
+      greeterStart = pkgs.writeShellScript "ltp-greeter-start" ''
+        export PATH=/run/wrappers/bin:/run/current-system/sw/bin
+        export XDG_STATE_HOME=${greeterState}
+        ${pkgs.quickshell}/bin/qs --path ${greeterUi}/greeter.qml
+        ${niri}/bin/niri msg action quit --skip-confirmation
+      '';
+
       greeter =
-        if model.greeter.name == null then
+        if greeterEntry == null then
           null
         else
-          desktop.greeters.${model.greeter.name} {
-            inherit pkgs;
-            sessionsDir = "${uwsmSessions}/share/wayland-sessions";
+          {
+            inherit (greeterEntry) graphical;
+
+            command = greeterEntry.command (
+              {
+                inherit pkgs sessionsDir;
+              }
+              // lib.optionalAttrs greeterEntry.graphical {
+                inherit niri;
+                niriConfig = pkgs.writeText "ltp-greeter-niri.kdl" (
+                  greeterEntry.niriConfig {
+                    inherit (model) keyboard;
+                    start = "${greeterStart}";
+                  }
+                );
+              }
+            );
           };
 
       format = diagnostic: "ltp.desktop [${diagnostic.code}]: ${diagnostic.message}";
@@ -309,6 +396,29 @@ in
           }
 
           #
+          # A graphical greeter remembers the last user and session in its
+          # own state directory, which must survive an ephemeral root. This
+          # reads only the greeter option and the registry: the model reads
+          # other features, and storage reads this (infinite recursion).
+          #
+          (mkIf graphicalGreeter {
+            systemd.tmpfiles.settings.ltp-greeter.${greeterState}.d = mkIf (!config.ltp.storage.enable) {
+              user = "greeter";
+              group = "greeter";
+              mode = "0750";
+            };
+
+            ltp.storage.persistence.state.directories = mkIf config.ltp.storage.enable [
+              {
+                directory = greeterState;
+                user = "greeter";
+                group = "greeter";
+                mode = "0750";
+              }
+            ];
+          })
+
+          #
           # Rendering only runs on a valid model; invalid models stop at
           # the assertions above with a readable diagnostic.
           #
@@ -320,7 +430,7 @@ in
 
                   services.greetd = mkIf (greeter != null) {
                     enable = true;
-                    useTextGreeter = true;
+                    useTextGreeter = !greeter.graphical;
 
                     settings.default_session = {
                       inherit (greeter) command;
@@ -361,6 +471,10 @@ in
                       }
                     )
                   ];
+                })
+
+                (mkIf (greeter != null && greeter.graphical) {
+                  fonts.packages = [ (lib.getAttrFromPath (lib.splitString "." tokens.icon.package) pkgs) ];
                 })
               ]
 

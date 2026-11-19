@@ -462,6 +462,16 @@ let
           options = {
             name = mkOption { type = types.nullOr types.str; };
             known = mkOption { type = types.bool; };
+            graphical = mkOption { type = types.bool; };
+            themeUser = mkOption {
+              type = types.nullOr types.str;
+              description = "The user whose theme a graphical greeter wears; null when none applies.";
+            };
+            themeUserKnown = mkOption { type = types.bool; };
+            users = mkOption {
+              type = types.listOf types.str;
+              description = "The users the greeter offers.";
+            };
           };
         };
       };

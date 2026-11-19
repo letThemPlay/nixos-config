@@ -5,16 +5,18 @@ _:
 # starts the chosen one's Exec line; it has no session wrapper, so the
 # sessions themselves must start through uwsm.
 #
-{ pkgs, sessionsDir }:
-
 {
-  command = builtins.concatStringsSep " " [
-    "${pkgs.tuigreet}/bin/tuigreet"
-    "--time"
-    "--asterisks"
-    "--remember"
-    "--remember-session"
-    "--sessions"
-    sessionsDir
-  ];
+  graphical = false;
+
+  command =
+    { pkgs, sessionsDir, ... }:
+    builtins.concatStringsSep " " [
+      "${pkgs.tuigreet}/bin/tuigreet"
+      "--time"
+      "--asterisks"
+      "--remember"
+      "--remember-session"
+      "--sessions"
+      sessionsDir
+    ];
 }

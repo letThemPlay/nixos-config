@@ -102,6 +102,10 @@ let
       };
     }
     { defaultBinds = false; }
+    {
+      greeter = "quickshell";
+      greeterTheme.user = "alice";
+    }
   ];
 
   tests = {
@@ -958,22 +962,117 @@ let
 
     testGreeter = {
       expr = {
-        inherit
-          (desktop.greeters.tuigreet {
-            pkgs.tuigreet = "/tuigreet";
-            sessionsDir = "/sessions";
-          })
-          command
-          ;
+        command = desktop.greeters.tuigreet.command {
+          pkgs.tuigreet = "/tuigreet";
+          sessionsDir = "/sessions";
+        };
+        inherit (desktop.greeters.tuigreet) graphical;
         unknown = codes { greeter = "gdm"; };
         none = codes { greeter = null; };
       };
       expected = {
         command = "/tuigreet/bin/tuigreet --time --asterisks --remember --remember-session --sessions /sessions";
+        graphical = false;
         unknown = [ "desktop.greeter.unknown" ];
         none = [ ];
       };
     };
+
+    # The graphical greeter runs in its own niri, in the session's keyboard.
+    testQuickshellGreeter =
+      let
+        entry = desktop.greeters.quickshell;
+
+        niriConfig = entry.niriConfig {
+          keyboard = {
+            layout = "gb";
+            variant = "extd";
+          };
+          start = "/start";
+        };
+      in
+      {
+        expr = {
+          inherit (entry) graphical;
+          command = entry.command {
+            pkgs.dbus = "/dbus";
+            niri = "/niri";
+            niriConfig = "/greeter.kdl";
+            sessionsDir = "/sessions";
+          };
+          lines = map (hasLine niriConfig) [
+            ''layout "gb"''
+            ''variant "extd"''
+            ''spawn-at-startup "/start"''
+            "skip-at-startup"
+          ];
+          binds = hasLine niriConfig "binds";
+        };
+        expected = {
+          graphical = true;
+          command = "/dbus/bin/dbus-run-session /niri/bin/niri --config /greeter.kdl";
+          lines = [
+            true
+            true
+            true
+            true
+          ];
+          binds = false;
+        };
+      };
+
+    # It wears one user's theme: the named one, or the only themed user.
+    testGreeterThemeUser =
+      let
+        greeterOf =
+          settings: args:
+          (normalizeWith (
+            {
+              cfg = evalCfg ({ greeter = "quickshell"; } // settings);
+            }
+            // args
+          )).greeter;
+
+        codesWith =
+          settings: args: codesOf desktop.validate (normalizeWith ({ cfg = evalCfg settings; } // args));
+      in
+      {
+        expr = {
+          only = (greeterOf { } { themes = [ "alice" ]; }).themeUser;
+          named =
+            (greeterOf { greeterTheme.user = "bob"; } {
+              themes = [
+                "alice"
+                "bob"
+              ];
+            }).themeUser;
+          inherit (greeterOf { } { users = [ "alice" ]; }) users;
+          valid = codesWith { greeter = "quickshell"; } { themes = [ "alice" ]; };
+          ambiguous = codesWith { greeter = "quickshell"; } {
+            themes = [
+              "alice"
+              "bob"
+            ];
+          };
+          noThemes = codesWith { greeter = "quickshell"; } { };
+          unknown = codesWith {
+            greeter = "quickshell";
+            greeterTheme.user = "carol";
+          } { themes = [ "alice" ]; };
+          # A text greeter needs no theme.
+          text = codesWith { greeterTheme.user = "carol"; } { };
+        };
+        expected = {
+          only = "alice";
+          named = "bob";
+          users = [ "alice" ];
+          valid = [ ];
+          ambiguous = [ "desktop.greeterTheme.user.ambiguous" ];
+          noThemes = [ "desktop.greeterTheme.user.ambiguous" ];
+          unknown = [ "desktop.greeterTheme.user.unknown" ];
+          text = [ ];
+        };
+      };
 
     testCompositorsHaveUwsmSessions = {
       expr = lib.mapAttrs (_: entry: builtins.attrNames entry.uwsm) desktop.compositors;

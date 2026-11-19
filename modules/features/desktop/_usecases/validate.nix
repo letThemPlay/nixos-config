@@ -231,6 +231,28 @@ let
         path = [ "greeter" ];
         message = "Unknown greeter '${model.greeter.name}' (known: ${concatStringsSep ", " (attrNames desktop.greeters)}).";
       })
+
+      # A graphical greeter draws with one user's theme, so it needs one.
+      ++ optional (model.greeter.graphical && !model.greeter.themeUserKnown) (mkDiagnostic {
+        severity = "error";
+        code = "desktop.greeterTheme.user.unknown";
+        target = model.greeter.themeUser;
+        path = [
+          "greeterTheme"
+          "user"
+        ];
+        message = "greeterTheme.user '${model.greeter.themeUser}' has no theme.";
+      })
+      ++ optional (model.greeter.graphical && model.greeter.themeUser == null) (mkDiagnostic {
+        severity = "error";
+        code = "desktop.greeterTheme.user.ambiguous";
+        target = model.greeter.name;
+        path = [
+          "greeterTheme"
+          "user"
+        ];
+        message = "The '${model.greeter.name}' greeter needs a theme: name a themed user in greeterTheme.user.";
+      })
     );
 
   #

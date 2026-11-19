@@ -85,6 +85,8 @@ Singleton {
     "logout": "logout",
     "reboot": "restart_alt",
     "poweroff": "power_settings_new",
+    "user": "person",
+    "session": "desktop_windows",
 
     "warning": "warning"
   })
