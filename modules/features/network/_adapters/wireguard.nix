@@ -1,6 +1,7 @@
 { lib }:
 let
   inherit (lib)
+    any
     attrValues
     concatMap
     filter
@@ -8,6 +9,7 @@ let
     listToAttrs
     mapAttrsToList
     nameValuePair
+    optional
     optionalAttrs
     replaceStrings
     ;
@@ -42,6 +44,19 @@ let
 
   # Rule priorities of each full tunnel, below the main table's 32766.
   priority = tunnel: 1000 + 2 * (tables.${tunnel.name} - 51820);
+
+  #
+  # tailscaled keeps the tailnet's routes in its own table, 52, behind
+  # rules from priority 5210 on, after a full tunnel's rules, which
+  # would send tailnet traffic into the tunnel. A rule ahead of them
+  # looks in table 52 first, skipping any default route there (an exit
+  # node's, which never runs beside a full tunnel anyway).
+  #
+  tailscaleTable = 52;
+
+  hasTailscale = any (tunnel: tunnel.backend == "tailscale") (attrValues model.tunnels);
+
+  tailnetPriority = tunnel: 900 + tables.${tunnel.name} - 51820;
 
   peerConfig =
     peer:
@@ -119,21 +134,28 @@ let
       domains = [ "~." ];
     }
     // optionalAttrs tunnel.routesAll {
-      routingPolicyRules = [
-        {
-          Table = "main";
+      routingPolicyRules =
+        optional hasTailscale {
+          Table = tailscaleTable;
           SuppressPrefixLength = 0;
-          Priority = priority tunnel;
+          Priority = tailnetPriority tunnel;
           Family = "both";
         }
-        {
-          FirewallMark = table;
-          InvertRule = true;
-          Table = table;
-          Priority = priority tunnel + 1;
-          Family = "both";
-        }
-      ];
+        ++ [
+          {
+            Table = "main";
+            SuppressPrefixLength = 0;
+            Priority = priority tunnel;
+            Family = "both";
+          }
+          {
+            FirewallMark = table;
+            InvertRule = true;
+            Table = table;
+            Priority = priority tunnel + 1;
+            Family = "both";
+          }
+        ];
     };
 
   # Unit name of the network device: systemd escapes "-" in the path.

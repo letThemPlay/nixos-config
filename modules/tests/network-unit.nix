@@ -533,6 +533,34 @@ let
       };
     };
 
+    # Beside tailscale, a full tunnel looks in tailscale's table first, so the
+    # tailnet stays reachable; a split tunnel adds no rules either way.
+    testWireguardTailnetRule = {
+      expr =
+        let
+          adapter = wireguardOf {
+            tunnels = {
+              inherit tailnet vpn office;
+            };
+          };
+        in
+        {
+          vpn = builtins.head adapter.networks."10-vpn".routingPolicyRules;
+          vpnRules = builtins.length adapter.networks."10-vpn".routingPolicyRules;
+          office = adapter.networks."10-office" ? routingPolicyRules;
+        };
+      expected = {
+        vpn = {
+          Table = 52;
+          SuppressPrefixLength = 0;
+          Priority = 900;
+          Family = "both";
+        };
+        vpnRules = 3;
+        office = false;
+      };
+    };
+
     # Each full tunnel gets its own table and rule priorities.
     testWireguardTables = {
       expr =
