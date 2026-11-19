@@ -45,6 +45,12 @@
     };
 
     preservation.url = "github:nix-community/preservation";
+
+    # The file manager, with its Home Manager module (programs.seshat).
+    seshat = {
+      url = "github:letThemPlay/Seshat";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);

@@ -32,7 +32,7 @@ let
     }
     {
       defaultHandlers = true;
-      roles.fileManager = "thunar";
+      roles.fileManager = "seshat";
       install = [ "yazi" ];
     }
     {
@@ -338,7 +338,7 @@ let
         let
           model = modelOf {
             defaultHandlers = true;
-            roles.fileManager = "thunar";
+            roles.fileManager = "seshat";
             install = [ "yazi" ];
           };
         in
@@ -350,7 +350,7 @@ let
         };
       expected = {
         entries = [ "ltp-nixvim" ];
-        folder = [ "thunar.desktop" ];
+        folder = [ "dev.kdmorris.Seshat.desktop" ];
         yazi = true;
         valid = [ ];
       };
