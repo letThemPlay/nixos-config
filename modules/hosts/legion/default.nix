@@ -9,7 +9,6 @@ _: {
       "laptop"
       "power"
       "file-handling"
-      "window-management"
       "unified-ui"
       "core-apps"
       "gaming"
