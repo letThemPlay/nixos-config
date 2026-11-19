@@ -61,13 +61,13 @@ _: {
 
         #
         # The shell draws its own launcher, so nothing starts this role.
-        # Thunar takes the stylix GTK theme, so it matches the shell; yazi
-        # stays for the terminal.
+        # Seshat themes itself from stylix through its own module, so it
+        # matches the shell; yazi stays for the terminal.
         #
         apps = {
           roles = {
             launcher = null;
-            fileManager = "thunar";
+            fileManager = "seshat";
           };
           install = [ "yazi" ];
         };

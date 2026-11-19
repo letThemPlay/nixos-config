@@ -43,12 +43,13 @@ _: {
     opensInTerminal = true;
   };
 
-  thunar = {
+  # Its configure module installs it through programs.seshat.
+  seshat = {
     roles = [ "fileManager" ];
     package = null;
-    command = [ "thunar" ];
-    appId = "thunar";
-    desktopEntry = "thunar.desktop";
+    command = [ "seshat" ];
+    appId = "dev.kdmorris.Seshat";
+    desktopEntry = "dev.kdmorris.Seshat.desktop";
   };
 
   imv = {
