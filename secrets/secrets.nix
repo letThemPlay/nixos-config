@@ -8,6 +8,7 @@ in
 {
   "tailscale-authkey.age".publicKeys = [
     keys.hosts.theseus
+    keys.hosts.legion
     keys.users.kelvin
   ];
 

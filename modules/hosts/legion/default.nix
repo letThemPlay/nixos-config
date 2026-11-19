@@ -14,6 +14,7 @@ _: {
       "core-apps"
       "gaming"
       "gpg"
+      "tailscale"
     ];
 
     users = [ "kelvin" ];

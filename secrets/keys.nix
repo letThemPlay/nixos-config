@@ -12,6 +12,6 @@
   };
 
   users = {
-    kelvin = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDynItXS1ayKkq9UZ6Tw1jIB9Q1SK0lsuFsYofJY56Ni";
+    kelvin = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICQKL2yBd8r5kattr4WsmwIusfk29BUXsADSA3FDWPX0";
   };
 }
