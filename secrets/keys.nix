@@ -8,9 +8,10 @@
 {
   hosts = {
     theseus = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHKAIW/LBl1UYcJzwMvRpWy/DRqOE7IaKSgjDawvVTv";
+    legion = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPW0RzUAFJ4B0ZWNr06ORyJ8II0Qa1sS6GcvaTZOQiTR";
   };
 
   users = {
-    kelvin = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDynItXS1ayKkq9UZ6Tw1jIB9Q1SK0lsuFsYofJY56Ni";
+    kelvin = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICQKL2yBd8r5kattr4WsmwIusfk29BUXsADSA3FDWPX0";
   };
 }

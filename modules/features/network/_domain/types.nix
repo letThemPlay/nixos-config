@@ -10,45 +10,49 @@ let
   ];
 
   #
-  # A mesh VPN overlay. It owns its own interface; the links must not
-  # match it.
+  # The one tailscale daemon a host runs. Every tailscale tunnel shares
+  # these settings; the tunnels differ only in their exit node.
   #
-  overlay = types.submodule {
+  tailscale = types.submodule {
     options = {
-
-      enable = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether this host joins the overlay network.";
-      };
-
-      backend = mkOption {
-        type = types.str;
-        default = "tailscale";
-      };
 
       interface = mkOption {
         type = types.str;
         default = "tailscale0";
-        description = "Name of the overlay's tunnel interface.";
+        description = "Name of the tailscale tunnel interface.";
       };
 
       routing = mkOption {
         type = routing;
         default = "client";
-        description = "Whether the host uses (client) or offers (server) subnet routes and exit nodes.";
+        description = ''
+          Kernel support for routing: client loosens reverse-path
+          filtering so subnet routes and exit nodes work; server also
+          forwards. Which routes are used is acceptRoutes and the
+          tunnels' exit nodes.
+        '';
       };
 
       tags = mkOption {
         type = types.listOf types.str;
-        default = [ "server" ];
-        description = "Tags the node advertises, without the tag: prefix.";
+        default = [ ];
+        example = [ "laptop" ];
+        description = ''
+          Tags the node advertises, without the tag: prefix. The auth
+          key must be allowed to use them.
+        '';
       };
 
       acceptDns = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether the overlay's DNS (MagicDNS) is used for its names.";
+        description = "Whether the tailnet's DNS (MagicDNS) is used for its names.";
+      };
+
+      acceptRoutes = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether subnet routes other nodes advertise are used.";
       };
 
       authKey.secret = mkOption {
@@ -57,6 +61,187 @@ let
         description = "ltp.secrets file holding the auth key (secrets/<name>.age).";
       };
 
+    };
+  };
+
+  wireguardPeer = types.submodule {
+    options = {
+
+      publicKey = mkOption {
+        type = types.str;
+        description = "The peer's public key.";
+      };
+
+      endpoint = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "vpn.example.org:51820";
+        description = "Where the peer is reached; null for a peer that only connects in.";
+      };
+
+      allowedIPs = mkOption {
+        type = types.listOf types.str;
+
+        example = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+
+        description = ''
+          Addresses routed to the peer. 0.0.0.0/0 or ::/0 makes the
+          tunnel a full tunnel: it takes the default route.
+        '';
+      };
+
+      presharedKey.secret = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "ltp.secrets file holding the preshared key, if the peer uses one.";
+      };
+
+      persistentKeepalive = mkOption {
+        type = types.nullOr types.ints.unsigned;
+        default = null;
+        example = 25;
+        description = "Seconds between keepalives; useful behind NAT.";
+      };
+
+    };
+  };
+
+  # A wireguard tunnel's settings; name is the tunnel's.
+  wireguard =
+    name:
+    types.submodule {
+      options = {
+
+        interface = mkOption {
+          type = types.str;
+          default = "wg-${name}";
+          description = "Name of the tunnel interface (at most 15 characters).";
+        };
+
+        addresses = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          example = [ "10.0.0.2/32" ];
+          description = "Addresses of this host inside the tunnel.";
+        };
+
+        privateKey.secret = mkOption {
+          type = types.str;
+          default = "wireguard-${name}";
+          description = "ltp.secrets file holding this host's private key (secrets/<name>.age).";
+        };
+
+        dns = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+
+          description = ''
+            Resolvers reached through the tunnel. A full tunnel sends
+            every lookup to them; a split tunnel offers them beside the
+            DNS provider.
+          '';
+        };
+
+        mtu = mkOption {
+          type = types.nullOr types.ints.positive;
+          default = null;
+        };
+
+        peers = mkOption {
+          type = types.attrsOf wireguardPeer;
+          default = { };
+          description = "Peers, keyed by name.";
+        };
+
+      };
+    };
+
+  #
+  # A VPN the host can switch on and off. It owns its interface; the
+  # links must not match it. Tunnels that take the default route
+  # conflict with each other, and tailscale tunnels with each other: one
+  # daemon runs one of them at a time.
+  #
+  tunnel = types.submodule (
+    { name, ... }:
+    {
+      options = {
+
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Whether this tunnel is configured.";
+        };
+
+        label = mkOption {
+          type = types.str;
+          default = name;
+          description = "Name the desktop shows.";
+        };
+
+        backend = mkOption {
+          type = types.str;
+          example = "tailscale";
+          description = "Backend from the tunnel registry.";
+        };
+
+        autostart = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the tunnel comes up at boot.";
+        };
+
+        tailscale.exitNode = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "home-server";
+          description = ''
+            Exit node a tailscale tunnel sends all traffic through; null
+            joins only the tailnet.
+          '';
+        };
+
+        wireguard = mkOption {
+          type = wireguard name;
+          default = { };
+          description = "Settings of a wireguard tunnel.";
+        };
+
+      };
+    }
+  );
+
+  # A tunnel as the model holds it.
+  modelTunnel = types.submodule {
+    options = {
+      name = mkOption { type = types.str; };
+      label = mkOption { type = types.str; };
+      backend = mkOption { type = types.str; };
+      known = mkOption { type = types.bool; };
+      autostart = mkOption { type = types.bool; };
+      interface = mkOption { type = types.str; };
+
+      unit = mkOption {
+        type = types.str;
+        description = "systemd unit that holds the tunnel up while it is active.";
+      };
+
+      routesAll = mkOption {
+        type = types.bool;
+        description = "Whether the tunnel takes the default route.";
+      };
+
+      conflicts = mkOption {
+        type = types.listOf types.str;
+        description = "Units of the tunnels this one cannot run beside.";
+      };
+
+      tailscale.exitNode = mkOption { type = types.nullOr types.str; };
+
+      wireguard = mkOption { type = wireguard "model"; };
     };
   };
 
@@ -307,21 +492,16 @@ let
         '';
       };
 
-      overlay = mkOption {
-        type = types.submodule {
-          options = {
-            enable = mkOption { type = types.bool; };
-            backend = mkOption { type = types.str; };
-            known = mkOption { type = types.bool; };
-            interface = mkOption { type = types.str; };
-            routing = mkOption { type = routing; };
-            tags = mkOption { type = types.listOf types.str; };
-            acceptDns = mkOption { type = types.bool; };
-            authKey = {
-              secret = mkOption { type = types.str; };
-            };
-          };
-        };
+      tailscale = mkOption {
+        type = tailscale;
+      };
+
+      tunnels = mkOption {
+        type = types.attrsOf modelTunnel;
+
+        description = ''
+          Enabled tunnels, keyed by name.
+        '';
       };
 
       wireless = mkOption {
@@ -384,7 +564,11 @@ in
 {
   inherit
     routing
-    overlay
+    tailscale
+    wireguardPeer
+    wireguard
+    tunnel
+    modelTunnel
     dnsOverTls
     linkFields
     linkDefaults

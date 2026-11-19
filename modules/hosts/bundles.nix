@@ -34,7 +34,7 @@ _: {
     };
 
     unified-ui = {
-      description = "The unified shell on top of window-management: one themed top bar with a dynamic center island, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings, a calendar, Wi-Fi and Bluetooth panels, battery alerts, display profiles, automounting, screen recording, a night light and a dock. Replaces waybar and its dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
+      description = "The unified shell on top of window-management: one themed top bar with a dynamic center island, launcher, notification center, power menu, lock screen, clipboard picker, polkit prompt, level display, quick settings, a calendar, Wi-Fi and Bluetooth panels, battery alerts, display profiles, automounting, screen recording, a night light, a tunnel switcher and a dock. Replaces waybar and its dock, fuzzel, mako, hyprlock and the dmenu clipboard.";
       module.ltp = {
         desktop.components = {
           bar = "quickshell";
@@ -54,12 +54,23 @@ _: {
           automount = "udiskie";
           recorder = "wf-recorder";
           nightLight = "wlsunset";
+          tunnels = "quickshell";
           clipboard = "quickshell";
           dock = "quickshell";
         };
 
+        #
         # The shell draws its own launcher, so nothing starts this role.
-        apps.roles.launcher = null;
+        # Thunar takes the stylix GTK theme, so it matches the shell; yazi
+        # stays for the terminal.
+        #
+        apps = {
+          roles = {
+            launcher = null;
+            fileManager = "thunar";
+          };
+          install = [ "yazi" ];
+        };
       };
     };
 
@@ -126,8 +137,11 @@ _: {
     };
 
     tailscale = {
-      description = "Joins the tailscale network; its tags, routing and auth key secret are ltp.network.overlay options.";
-      module.ltp.network.overlay.enable = true;
+      description = "Joins the tailnet at boot (the tunnel `tailnet`); the daemon's tags, routes and auth key secret are ltp.network.tailscale options, and exit-node tunnels are host settings.";
+      module.ltp.network.tunnels.tailnet = {
+        backend = "tailscale";
+        autostart = true;
+      };
     };
 
   };

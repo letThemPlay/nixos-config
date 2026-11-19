@@ -780,6 +780,81 @@ let
         };
       };
 
+    # The shell switches the network feature's tunnels only where it draws
+    # the switcher, and the model still meets its type with them.
+    testTunnelsFromNetworkFacts =
+      let
+        tunnels = {
+          tailnet = {
+            label = "Tailnet";
+            backend = "tailscale";
+            unit = "ltp-tunnel-tailnet.service";
+            routesAll = false;
+          };
+          vpn = {
+            label = "vpn";
+            backend = "wireguard";
+            unit = "ltp-tunnel-vpn.service";
+            routesAll = true;
+          };
+        };
+
+        modelWith =
+          settings:
+          normalizeWith {
+            cfg = evalCfg settings;
+            inherit tunnels;
+          };
+
+        switcher = modelWith { components.tunnels = "quickshell"; };
+
+        checked =
+          (lib.evalModules {
+            modules = [
+              { options.model = lib.mkOption { type = desktop.types.model; }; }
+              { model = switcher; }
+            ];
+          }).config.model;
+
+        text = desktop.quickshell.settings {
+          model = switcher;
+          inherit (desktop) spawnPrefix;
+          pam = {
+            config = "x";
+            directory = "/x";
+          };
+          wallpaper = "";
+          terminal = [ ];
+        };
+      in
+      {
+        expr = {
+          notDrawn = (modelWith { }).ui.tunnels;
+          drawn = switcher.ui.tunnels;
+          contract = builtins.deepSeq (removeAttrs checked [ "services" ]) true;
+          settings = hasLine text ''readonly property var tunnels: [{"label":"Tailnet","name":"tailnet","routesAll":false,"unit":"ltp-tunnel-tailnet.service"},{"label":"vpn","name":"vpn","routesAll":true,"unit":"ltp-tunnel-vpn.service"}]'';
+        };
+        expected = {
+          notDrawn = [ ];
+          drawn = [
+            {
+              name = "tailnet";
+              label = "Tailnet";
+              unit = "ltp-tunnel-tailnet.service";
+              routesAll = false;
+            }
+            {
+              name = "vpn";
+              label = "vpn";
+              unit = "ltp-tunnel-vpn.service";
+              routesAll = true;
+            }
+          ];
+          contract = true;
+          settings = true;
+        };
+      };
+
     # The bar and the alerts must warn where the hardware feature says.
     testShellSettingsCarryPowerFacts =
       let

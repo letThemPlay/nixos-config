@@ -81,6 +81,20 @@ let
 
   # Name of the backend unit for a link.
   unitName = link: "${toString link.priority}-${link.id}";
+
+  #
+  # Tunnels (the model holds only enabled ones)
+  #
+
+  tunnels = model: attrValues model.tunnels;
+
+  tunnelsByBackend =
+    model: backend:
+    assert builtins.isString backend;
+    builtins.filter (tunnel: tunnel.backend == backend) (tunnels model);
+
+  # Tunnels that take the default route.
+  fullTunnels = model: builtins.filter (tunnel: tunnel.routesAll) (tunnels model);
 in
 {
   inherit
@@ -97,5 +111,8 @@ in
     wirelessBackend
     matchesGlob
     unitName
+    tunnels
+    tunnelsByBackend
+    fullTunnels
     ;
 }

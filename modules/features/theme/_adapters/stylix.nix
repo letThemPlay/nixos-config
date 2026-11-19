@@ -27,5 +27,7 @@ in
     cursor = {
       inherit (appearance.cursor) package name size;
     };
+
+    inherit (user) icons;
   }) (lib.filterAttrs (_: user: user.known) model.users);
 }

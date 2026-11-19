@@ -26,6 +26,7 @@ Panel {
 
     Brightness.refresh(false);
     NightLight.refresh();
+    Tunnels.refresh();
   }
 
   // Presses inside the panel must not reach the overlay's dismiss area.
@@ -248,6 +249,52 @@ Panel {
 
         Icon {
           id: networkMore
+
+          anchors.right: parent.right
+          anchors.rightMargin: Theme.spaceSm
+          anchors.verticalCenter: parent.verticalCenter
+          name: "more"
+          size: Theme.iconSmall
+          color: Theme.muted
+        }
+      }
+
+      // The tunnels, like the network above: what is up, and the panel that switches them.
+      Pressable {
+        width: parent.width
+        implicitHeight: Theme.sizeBarItem + Theme.spaceSm
+        visible: Tunnels.available
+        onClicked: Ui.open = "tunnels"
+
+        Icon {
+          id: tunnelIcon
+
+          anchors.left: parent.left
+          anchors.leftMargin: Theme.spaceSm
+          anchors.verticalCenter: parent.verticalCenter
+          name: {
+            if (Tunnels.full) return "tunnelFull";
+            return Tunnels.active.length > 0 ? "tunnel" : "tunnelOff";
+          }
+          size: Theme.iconSmall
+          color: parent.foreground
+        }
+
+        Label {
+          anchors.left: tunnelIcon.right
+          anchors.right: tunnelMore.left
+          anchors.leftMargin: Theme.spaceSm
+          anchors.verticalCenter: parent.verticalCenter
+          text: {
+            if (Tunnels.full) return Tunnels.full.label;
+            if (Tunnels.active.length === 1) return Tunnels.active[0].label;
+            return Tunnels.active.length > 1 ? Tunnels.active.length + " tunnels" : "VPN off";
+          }
+          color: parent.foreground
+        }
+
+        Icon {
+          id: tunnelMore
 
           anchors.right: parent.right
           anchors.rightMargin: Theme.spaceSm

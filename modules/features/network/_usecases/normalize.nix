@@ -1,8 +1,13 @@
 { lib, network }:
 let
   inherit (lib)
+    any
     attrNames
+    attrValues
+    filter
+    filterAttrs
     genAttrs
+    mapAttrs
     unique
     ;
 
@@ -11,12 +16,19 @@ let
   networkTypes = network.types;
 
   orDefault = value: default: if value == null then default else value;
+
+  # Allowed IPs that make a wireguard tunnel take the default route.
+  defaultRoutes = [
+    "0.0.0.0/0"
+    "::/0"
+  ];
 in
 
 #
 # cfg is the ltp.network option set, or any attrset of the same
 # shape: profile, backend, wireless.backend, links (partial
-# overrides), dns and overlay. No module system is required.
+# overrides), dns, tailscale and tunnels. No module system is
+# required.
 #
 cfg:
 
@@ -61,6 +73,74 @@ let
   providerServers = map (
     server: if tlsName != null && dnsOverTls != "no" then "${server}#${tlsName}" else server
   ) (provider.servers or [ ]);
+
+  #
+  # What each tunnel backend means for a tunnel: the interface it owns
+  # and whether it takes the default route. Every key of
+  # network.tunnels needs an entry here; an unknown backend owns
+  # nothing, and validation reports it.
+  #
+  tunnelShapes = {
+    tailscale = tunnel: {
+      inherit (cfg.tailscale) interface;
+      routesAll = tunnel.tailscale.exitNode != null;
+    };
+
+    wireguard = tunnel: {
+      inherit (tunnel.wireguard) interface;
+
+      routesAll = any (peer: any (ip: builtins.elem ip defaultRoutes) peer.allowedIPs) (
+        attrValues tunnel.wireguard.peers
+      );
+    };
+  };
+
+  shapeOf =
+    tunnel:
+    (tunnelShapes.${tunnel.backend} or (_: {
+      interface = "";
+      routesAll = false;
+    })
+    )
+      tunnel;
+
+  enabledTunnels = mapAttrs (name: tunnel: tunnel // shapeOf tunnel // { inherit name; }) (
+    filterAttrs (_: tunnel: tunnel.enable) cfg.tunnels
+  );
+
+  unitOf = name: "ltp-tunnel-${name}.service";
+
+  #
+  # Full tunnels would fight over the default route, and tailscale
+  # tunnels are modes of one daemon, so starting one stops the others.
+  #
+  conflict =
+    a: b: (a.routesAll && b.routesAll) || (a.backend == "tailscale" && b.backend == "tailscale");
+
+  tunnels = mapAttrs (name: tunnel: {
+    inherit name;
+    inherit (tunnel)
+      label
+      backend
+      autostart
+      interface
+      routesAll
+      wireguard
+      ;
+
+    known = network.tunnels ? ${tunnel.backend};
+
+    unit = unitOf name;
+
+    conflicts = map unitOf (
+      filter (other: other != name && conflict tunnel enabledTunnels.${other}) (attrNames enabledTunnels)
+    );
+
+    tailscale = {
+      inherit (tunnel.tailscale) exitNode;
+    };
+
+  }) enabledTunnels;
 in
 {
   profile = {
@@ -81,22 +161,21 @@ in
     inherit (cfg.wireless) backend ui;
   };
 
-  overlay = {
-    inherit (cfg.overlay)
-      enable
-      backend
+  tailscale = {
+    inherit (cfg.tailscale)
       interface
       routing
       tags
       acceptDns
+      acceptRoutes
       ;
 
-    known = network.overlays ? ${cfg.overlay.backend};
-
     authKey = {
-      inherit (cfg.overlay.authKey) secret;
+      inherit (cfg.tailscale.authKey) secret;
     };
   };
+
+  inherit tunnels;
 
   dns = {
     inherit (dns) provider;

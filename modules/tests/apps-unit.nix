@@ -31,6 +31,11 @@ let
       roles.imageViewer = "imv";
     }
     {
+      defaultHandlers = true;
+      roles.fileManager = "thunar";
+      install = [ "yazi" ];
+    }
+    {
       install = [
         "firefox"
         "nope"
@@ -324,6 +329,30 @@ let
       expected = {
         entries = { };
         folder = [ "yazi.desktop" ];
+      };
+    };
+
+    # A graphical file manager opens folders itself, with yazi still installed.
+    testGraphicalFileManager = {
+      expr =
+        let
+          model = modelOf {
+            defaultHandlers = true;
+            roles.fileManager = "thunar";
+            install = [ "yazi" ];
+          };
+        in
+        {
+          entries = lib.attrNames model.handlerEntries;
+          folder = model.handlers."inode/directory";
+          yazi = model.installed ? yazi;
+          valid = codesOf model;
+        };
+      expected = {
+        entries = [ "ltp-nixvim" ];
+        folder = [ "thunar.desktop" ];
+        yazi = true;
+        valid = [ ];
       };
     };
 

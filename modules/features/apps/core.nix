@@ -41,6 +41,7 @@ in
       flashgbx = ./_configure/flashgbx.nix;
       eza = ./_configure/eza.nix;
       zoxide = ./_configure/zoxide.nix;
+      thunar = ./_configure/thunar.nix;
       imv = ./_configure/imv.nix;
       zathura = ./_configure/zathura.nix;
       mpv = ./_configure/mpv.nix;

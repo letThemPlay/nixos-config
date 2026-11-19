@@ -5,7 +5,7 @@
 #               DNS providers
 #   _usecases/  normalize (host settings -> model), validate, query
 #   _adapters/  model -> networkd units, resolved settings, iwd,
-#               tailscale overlay
+#               tailscale and wireguard tunnels
 #
 # options.nix and module.nix beside this file are the outer ring.
 #
@@ -50,13 +50,19 @@ in
     };
 
     #
-    # Overlay backend registry, keyed like ltp.network.overlay.backend.
+    # Tunnel backend registry, keyed like ltp.network.tunnels.<name>.backend.
     #
-    #   { model } -> { interfaceName; useRoutingFeatures; extraUpFlags;
-    #                  secret; state; }
+    #   { model; secretPath } -> { active; secrets; packages; after;
+    #                             online; commands; state; } plus what
+    #                             the backend renders (daemon, netdevs)
     #
-    overlays = {
-      tailscale = import ./_adapters/tailscale.nix { };
+    # commands.<tunnel> = { start; stop; requires ? [ ]; }: the argv
+    # lists the tunnel's unit runs, and units it needs. secretPath maps
+    # an ltp.secrets name to its runtime path.
+    #
+    tunnels = {
+      tailscale = import ./_adapters/tailscale.nix { inherit lib; };
+      wireguard = import ./_adapters/wireguard.nix { inherit lib; };
     };
 
     # Backend-agnostic resolver adapter.

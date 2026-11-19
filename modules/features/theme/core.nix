@@ -2,7 +2,8 @@
 # The theme core, laid out like the storage core:
 #
 #   _domain/      entities: theme, appearance and model types; the
-#                 catalogue, one file per theme in themes/; colour roles
+#                 catalogue, one file per theme in themes/; colour roles;
+#                 the icon packs
 #   _wallpapers/  wallpaper files the catalogue names
 #   _usecases/    normalize (host settings + identity facts -> model),
 #                 validate, ui-tokens (appearance -> design tokens)
@@ -35,6 +36,9 @@ in
     );
 
     wallpaperPath = file: ./_wallpapers + "/${file}";
+
+    # Icon packs a host can choose: name -> how its variants are named.
+    iconPacks = import ./_domain/icon-packs.nix { };
 
     # Colour role -> base16 slot, for anything drawing an interface.
     uiPalette = import ./_domain/ui-palette.nix { };

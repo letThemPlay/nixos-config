@@ -372,6 +372,20 @@ let
               type = types.attrsOf (types.listOf types.str);
             };
 
+            tunnels = mkOption {
+              type = types.listOf (
+                types.submodule {
+                  options = {
+                    name = mkOption { type = types.str; };
+                    label = mkOption { type = types.str; };
+                    unit = mkOption { type = types.str; };
+                    routesAll = mkOption { type = types.bool; };
+                  };
+                }
+              );
+              description = "Tunnels the shell switches: their units, and whether each takes the default route.";
+            };
+
             powerActions = mkOption {
               type = types.attrsOf powerAction;
             };

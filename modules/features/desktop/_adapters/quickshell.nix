@@ -94,6 +94,7 @@ in
       (property "var" "barCenter" (quoted model.bar.center))
       (property "var" "barRight" (quoted model.bar.right))
       (property "var" "commands" (quoted model.ui.commands))
+      (property "var" "tunnels" (quoted model.ui.tunnels))
       (property "var" "powerActions" (
         quoted (mapAttrsToList (id: action: action // { inherit id; }) model.ui.powerActions)
       ))

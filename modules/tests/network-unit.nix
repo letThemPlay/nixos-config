@@ -29,8 +29,70 @@ let
 
   iwdOf = settings: network.wireless.iwd { model = modelOf settings; };
 
+  secretPath = name: "/run/agenix/${name}";
+
+  tailscaleOf =
+    settings:
+    network.tunnels.tailscale {
+      model = modelOf settings;
+      inherit secretPath;
+    };
+
+  wireguardOf =
+    settings:
+    network.tunnels.wireguard {
+      model = modelOf settings;
+      inherit secretPath;
+    };
+
   laptop = {
     profile = "laptop";
+  };
+
+  # A wireguard full tunnel and a split one.
+  vpn = {
+    backend = "wireguard";
+    wireguard = {
+      addresses = [ "10.2.0.2/32" ];
+      dns = [ "10.2.0.1" ];
+      peers.server = {
+        publicKey = "server-key";
+        endpoint = "vpn.example.org:51820";
+        allowedIPs = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+        presharedKey.secret = "vpn-psk";
+        persistentKeepalive = 25;
+      };
+    };
+  };
+
+  office = {
+    backend = "wireguard";
+    wireguard = {
+      addresses = [ "10.9.0.5/24" ];
+      mtu = 1380;
+      peers.gateway = {
+        publicKey = "gateway-key";
+        endpoint = "office.example.org:51820";
+        allowedIPs = [ "10.9.0.0/24" ];
+      };
+    };
+  };
+
+  tailnet = {
+    backend = "tailscale";
+    autostart = true;
+  };
+
+  # The tailnet, and a second mode of it through an exit node.
+  twoTailscale.tunnels = {
+    inherit tailnet;
+    home = {
+      backend = "tailscale";
+      tailscale.exitNode = "home-server";
+    };
   };
 
   # Settings covering the optional parts of the model.
@@ -57,6 +119,20 @@ let
         fallback = [ ];
       };
     }
+    (
+      twoTailscale
+      // {
+        tailscale = {
+          tags = [ "laptop" ];
+          acceptRoutes = true;
+        };
+      }
+    )
+    {
+      tunnels = {
+        inherit vpn office;
+      };
+    }
   ];
 
   tests = {
@@ -73,41 +149,124 @@ let
       expected = [ "network.backend.unknown" ];
     };
 
-    testOverlayDefaultsMatchFeature = {
-      expr = network.overlays.tailscale { model = modelOf { overlay.enable = true; }; };
+    testTailscaleAdapterDefaults = {
+      expr =
+        let
+          adapter = tailscaleOf { tunnels.tailnet = tailnet; };
+        in
+        {
+          inherit (adapter)
+            active
+            daemon
+            secrets
+            packages
+            state
+            commands
+            ;
+        };
       expected = {
-        interfaceName = "tailscale0";
-        useRoutingFeatures = "client";
-        extraUpFlags = [ "--advertise-tags=tag:server" ];
-        secret = "tailscale-authkey";
+        active = true;
+        daemon = {
+          interfaceName = "tailscale0";
+          useRoutingFeatures = "client";
+        };
+        secrets.tailscale-authkey = { };
+        packages = [ "tailscale" ];
         state.directories = [ "/var/lib/tailscale" ];
+        commands.tailnet = {
+          start = [
+            "tailscale"
+            "up"
+            "--reset"
+            "--auth-key=file:/run/agenix/tailscale-authkey"
+            "--accept-dns=true"
+            "--accept-routes=false"
+          ];
+          stop = [
+            "tailscale"
+            "down"
+          ];
+        };
       };
     };
 
-    testOverlayFlags = {
+    testTailscaleFlags = {
       expr =
-        (network.overlays.tailscale {
-          model = modelOf {
-            overlay = {
-              enable = true;
-              tags = [
-                "server"
-                "laptop"
-              ];
-              acceptDns = false;
-            };
+        (tailscaleOf {
+          tailscale = {
+            tags = [
+              "server"
+              "laptop"
+            ];
+            acceptDns = false;
+            acceptRoutes = true;
           };
-        }).extraUpFlags;
+          tunnels.home = tailnet // {
+            tailscale.exitNode = "home-server";
+          };
+        }).commands.home.start;
       expected = [
-        "--advertise-tags=tag:server,tag:laptop"
+        "tailscale"
+        "up"
+        "--reset"
+        "--auth-key=file:/run/agenix/tailscale-authkey"
         "--accept-dns=false"
+        "--accept-routes=true"
+        "--advertise-tags=tag:server,tag:laptop"
+        "--exit-node=home-server"
       ];
     };
 
-    testOverlayValidByDefault = {
+    testTailscaleInactiveWithoutTunnels = {
+      expr = (tailscaleOf { }).active;
+      expected = false;
+    };
+
+    # The exit node makes a tailscale tunnel a full tunnel; tailscale
+    # tunnels conflict with each other either way.
+    testTunnelShape = {
+      expr = lib.mapAttrs (_: tunnel: {
+        inherit (tunnel)
+          interface
+          unit
+          routesAll
+          conflicts
+          ;
+      }) (modelOf twoTailscale).tunnels;
+      expected = {
+        home = {
+          interface = "tailscale0";
+          unit = "ltp-tunnel-home.service";
+          routesAll = true;
+          conflicts = [ "ltp-tunnel-tailnet.service" ];
+        };
+        tailnet = {
+          interface = "tailscale0";
+          unit = "ltp-tunnel-tailnet.service";
+          routesAll = false;
+          conflicts = [ "ltp-tunnel-home.service" ];
+        };
+      };
+    };
+
+    testDisabledTunnelIsDropped = {
+      expr =
+        lib.attrNames
+          (modelOf {
+            tunnels = {
+              inherit tailnet;
+              off = tailnet // {
+                enable = false;
+              };
+            };
+          }).tunnels;
+      expected = [ "tailnet" ];
+    };
+
+    testTunnelsValidByDefault = {
       expr = map codes [
-        { overlay.enable = true; }
-        (laptop // { overlay.enable = true; })
+        { tunnels.tailnet = tailnet; }
+        (laptop // twoTailscale)
       ];
       expected = [
         [ ]
@@ -115,15 +274,28 @@ let
       ];
     };
 
-    testOverlayInterfaceClaimed = {
+    testUnknownTunnelBackend = {
+      expr = codes { tunnels.x.backend = "openvpn"; };
+      expected = [ "network.tunnel.backend.unknown" ];
+    };
+
+    testTunnelInterfaceClaimed = {
       expr = codes {
-        overlay.enable = true;
+        tunnels.tailnet = tailnet;
         links.all = {
           match = "*";
           routeMetric = 10;
         };
       };
-      expected = [ "network.overlay.interface.managed" ];
+      expected = [ "network.tunnel.interface.managed" ];
+    };
+
+    testTunnelInterfaceTooLong = {
+      expr = codes {
+        tailscale.interface = "tailscale-overlay0";
+        tunnels.tailnet = tailnet;
+      };
+      expected = [ "network.tunnel.interface.tooLong" ];
     };
 
     # What the desktop reads to choose its Wi-Fi panel's backend.
@@ -155,25 +327,295 @@ let
       ];
     };
 
-    testOverlayTagPrefix = {
+    testTailscaleTagPrefix = {
       expr = codes {
-        overlay = {
-          enable = true;
-          tags = [ "tag:server" ];
-        };
+        tailscale.tags = [ "tag:server" ];
+        tunnels.tailnet = tailnet;
       };
-      expected = [ "network.overlay.tag.invalid" ];
+      expected = [ "network.tailscale.tag.invalid" ];
     };
 
-    testDisabledOverlayIsNotChecked = {
+    # The daemon is only checked when a tunnel uses it.
+    testUnusedTailscaleIsNotChecked = {
       expr = codes {
         links.all = {
           match = "*";
           routeMetric = 10;
         };
-        overlay.tags = [ "tag:x" ];
+        tailscale.tags = [ "tag:x" ];
       };
       expected = [ ];
+    };
+
+    testAutostartConflict = {
+      expr = codes {
+        tunnels = {
+          inherit tailnet;
+          home = tailnet // {
+            autostart = true;
+          };
+        };
+      };
+      expected = [ "network.tunnel.autostart.conflict" ];
+    };
+
+    # Full tunnels conflict across backends; a split tunnel with nothing.
+    testWireguardShape = {
+      expr = lib.mapAttrs (_: tunnel: {
+        inherit (tunnel) interface routesAll conflicts;
+      }) (modelOf (lib.recursiveUpdate twoTailscale { tunnels = { inherit vpn office; }; })).tunnels;
+      expected = {
+        home = {
+          interface = "tailscale0";
+          routesAll = true;
+          conflicts = [
+            "ltp-tunnel-tailnet.service"
+            "ltp-tunnel-vpn.service"
+          ];
+        };
+        office = {
+          interface = "wg-office";
+          routesAll = false;
+          conflicts = [ ];
+        };
+        tailnet = {
+          interface = "tailscale0";
+          routesAll = false;
+          conflicts = [ "ltp-tunnel-home.service" ];
+        };
+        vpn = {
+          interface = "wg-vpn";
+          routesAll = true;
+          conflicts = [ "ltp-tunnel-home.service" ];
+        };
+      };
+    };
+
+    testWireguardValid = {
+      expr = codes (laptop // { tunnels = { inherit vpn office; }; });
+      expected = [ ];
+    };
+
+    testWireguardFullTunnel = {
+      expr =
+        let
+          adapter = wireguardOf { tunnels = { inherit vpn; }; };
+        in
+        {
+          netdev = adapter.netdevs."10-vpn";
+          network = adapter.networks."10-vpn";
+          inherit (adapter) secrets;
+          command = adapter.commands.vpn;
+        };
+      expected = {
+        netdev = {
+          netdevConfig = {
+            Kind = "wireguard";
+            Name = "wg-vpn";
+          };
+          wireguardConfig = {
+            PrivateKeyFile = "/run/agenix/wireguard-vpn";
+            RouteTable = 51820;
+            FirewallMark = 51820;
+          };
+          wireguardPeers = [
+            {
+              PublicKey = "server-key";
+              AllowedIPs = [
+                "0.0.0.0/0"
+                "::/0"
+              ];
+              Endpoint = "vpn.example.org:51820";
+              PresharedKeyFile = "/run/agenix/vpn-psk";
+              PersistentKeepalive = 25;
+            }
+          ];
+        };
+        network = {
+          matchConfig.Name = "wg-vpn";
+          address = [ "10.2.0.2/32" ];
+          dns = [ "10.2.0.1" ];
+          linkConfig = {
+            ActivationPolicy = "manual";
+            RequiredForOnline = "no";
+          };
+          domains = [ "~." ];
+          networkConfig = {
+            DNSOverTLS = "no";
+            DNSDefaultRoute = true;
+          };
+          routingPolicyRules = [
+            {
+              Table = "main";
+              SuppressPrefixLength = 0;
+              Priority = 1000;
+              Family = "both";
+            }
+            {
+              FirewallMark = 51820;
+              InvertRule = true;
+              Table = 51820;
+              Priority = 1001;
+              Family = "both";
+            }
+          ];
+        };
+        secrets =
+          let
+            file = {
+              owner = "systemd-network";
+              group = "systemd-network";
+              mode = "0400";
+            };
+          in
+          {
+            wireguard-vpn = file;
+            vpn-psk = file;
+          };
+        command = {
+          start = [
+            "networkctl"
+            "up"
+            "wg-vpn"
+          ];
+          stop = [
+            "networkctl"
+            "down"
+            "wg-vpn"
+          ];
+          requires = [ "sys-subsystem-net-devices-wg\\x2dvpn.device" ];
+        };
+      };
+    };
+
+    # A split tunnel routes its peers in the main table and leaves the
+    # default route and DNS alone.
+    testWireguardSplitTunnel = {
+      expr =
+        let
+          adapter = wireguardOf { tunnels = { inherit office; }; };
+        in
+        {
+          inherit (adapter.netdevs."10-office") netdevConfig wireguardConfig;
+          network = builtins.attrNames adapter.networks."10-office";
+          inherit (adapter.networks."10-office") networkConfig;
+        };
+      expected = {
+        netdevConfig = {
+          Kind = "wireguard";
+          Name = "wg-office";
+          MTUBytes = "1380";
+        };
+        wireguardConfig = {
+          PrivateKeyFile = "/run/agenix/wireguard-office";
+          RouteTable = "main";
+        };
+        networkConfig = { };
+        network = [
+          "address"
+          "dns"
+          "linkConfig"
+          "matchConfig"
+          "networkConfig"
+        ];
+      };
+    };
+
+    # A split tunnel's resolver answers plain DNS like a full tunnel's, but only
+    # for its own domains: no default DNS route.
+    testWireguardSplitTunnelDns = {
+      expr =
+        (wireguardOf {
+          tunnels.office = lib.recursiveUpdate office { wireguard.dns = [ "10.9.0.1" ]; };
+        }).networks."10-office".networkConfig;
+      expected = {
+        DNSOverTLS = "no";
+      };
+    };
+
+    # Beside tailscale, a full tunnel looks in tailscale's table first, so the
+    # tailnet stays reachable; a split tunnel adds no rules either way.
+    testWireguardTailnetRule = {
+      expr =
+        let
+          adapter = wireguardOf {
+            tunnels = {
+              inherit tailnet vpn office;
+            };
+          };
+        in
+        {
+          vpn = builtins.head adapter.networks."10-vpn".routingPolicyRules;
+          vpnRules = builtins.length adapter.networks."10-vpn".routingPolicyRules;
+          office = adapter.networks."10-office" ? routingPolicyRules;
+        };
+      expected = {
+        vpn = {
+          Table = 52;
+          SuppressPrefixLength = 0;
+          Priority = 900;
+          Family = "both";
+        };
+        vpnRules = 3;
+        office = false;
+      };
+    };
+
+    # Each full tunnel gets its own table and rule priorities.
+    testWireguardTables = {
+      expr =
+        let
+          adapter = wireguardOf {
+            tunnels = {
+              inherit vpn;
+              backup = vpn;
+            };
+          };
+        in
+        map (name: (map (rule: rule.Priority) adapter.networks.${name}.routingPolicyRules)) [
+          "10-backup"
+          "10-vpn"
+        ];
+      expected = [
+        [
+          1000
+          1001
+        ]
+        [
+          1002
+          1003
+        ]
+      ];
+    };
+
+    testWireguardErrors = {
+      expr = {
+        noPeers = codes { tunnels.x.backend = "wireguard"; };
+        duplicate = codes {
+          tunnels = {
+            inherit vpn;
+            office = lib.recursiveUpdate office { wireguard.interface = "wg-vpn"; };
+          };
+        };
+        tooLong = codes { tunnels.averyverylongname = office; };
+        notNetworkd =
+          let
+            model = modelOf { tunnels = { inherit office; }; };
+          in
+          codesOf (model // { backend = "nm"; });
+      };
+      expected = {
+        noPeers = [
+          "network.tunnel.wireguard.addresses.none"
+          "network.tunnel.wireguard.peers.none"
+        ];
+        duplicate = [ "network.tunnel.interface.duplicate" ];
+        tooLong = [ "network.tunnel.interface.tooLong" ];
+        notNetworkd = [
+          "network.backend.unknown"
+          "network.tunnel.wireguard.backend"
+        ];
+      };
     };
 
     testDefaultLinks = {

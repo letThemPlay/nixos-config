@@ -30,6 +30,14 @@ in
         package = packageOf font.package;
         inherit (font) name;
       };
+
+      # Packs that recolour by override (Papirus) get the theme's accent here.
+      iconsOf =
+        icons:
+        let
+          package = packageOf icons.package;
+        in
+        if icons.override == null then package else package.override icons.override;
     in
     {
       imports = [
@@ -84,6 +92,13 @@ in
 
               cursor = fontOf user.cursor // {
                 inherit (user.cursor) size;
+              };
+
+              # An unknown pack stops at its assertion; until then, no icons.
+              icons = lib.mkIf (user.icons != null) {
+                enable = true;
+                package = iconsOf user.icons;
+                inherit (user.icons) dark light;
               };
             };
           }) rendered.users;
